@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CA eSUN DEX Query Validator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+
+        .query-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .query-type-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .query-type-btn:hover {
+            border-color: #3498db;
+        }
+
+        .query-type-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        .state-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .state-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .state-btn:hover {
+            border-color: #2ecc71;
+        }
+
+        .state-btn.active {
+            background: #2ecc71;
+            color: white;
+            border-color: #2ecc71;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group label .required {
+            color: #e74c3c;
+            margin-left: 3px;
+        }
+
+        .form-group label .optional {
+            color: #95a5a6;
+            font-size: 12px;
+            font-weight: normal;
+            margin-left: 5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-group input.error {
+            border-color: #e74c3c;
+        }
+
+        .form-group input.warning {
+            border-color: #f39c12;
+        }
+
+        .form-group input:disabled {
+            background: #ecf0f1;
+            cursor: not-allowed;
+        }
+
+        .validate-btn {
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .validate-btn:hover {
+            background: #2980b9;
+        }
+
+        .validate-btn:active {
+            transform: translateY(1px);
+        }
+
+        .results {
+            position: sticky;
+            top: 20px;
+        }
+
+        .validation-status {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .validation-status.valid {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .validation-status.invalid {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .validation-status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .error-list {
+            list-style: none;
+            margin-top: 10px;
+        }
+
+        .error-list li {
+            padding: 8px 12px;
+            background: white;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            border-left: 3px solid #e74c3c;
+        }
+
+        .warning-list li {
+            border-left-color: #f39c12;
+        }
+
+        .combination-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #90caf9;
+        }
+
+        .combination-info h3 {
+            font-size: 14px;
+            color: #1976d2;
+            margin-bottom: 8px;
+        }
+
+        .combination-info code {
+            display: block;
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin-top: 8px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .xml-output {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.5;
+        }
+
+        .xml-tag {
+            color: #82aaff;
+        }
+
+        .xml-attr {
+            color: #c792ea;
+        }
+
+        .xml-value {
+            color: #c3e88d;
+        }
+
+        .field-requirements {
+            background: #fff9e6;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border: 1px solid #ffe082;
+        }
+
+        .field-requirements h3 {
+            font-size: 14px;
+            color: #f57c00;
+            margin-bottom: 10px;
+        }
+
+        .field-requirements ul {
+            margin-left: 20px;
+            font-size: 13px;
+        }
+
+        .field-requirements li {
+            margin-bottom: 5px;
+        }
+
+        .info-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 16px;
+            font-size: 12px;
+            cursor: help;
+            margin-left: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .results {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>CA eSUN DEX Query Validator</h1>
+            <p>Validate person and vehicle queries for California Chula Vista eSUN system</p>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <h2>Query Configuration</h2>
+
+                <div class="query-type-selector">
+                    <button class="query-type-btn active" data-type="driver-license">Driver License</button>
+                    <button class="query-type-btn" data-type="driver-history">Driver History</button>
+                    <button class="query-type-btn" data-type="vehicle-registration">Vehicle Registration</button>
+                </div>
+
+                <div class="state-selector">
+                    <button class="state-btn active" data-state="in-state">In-State (CA)</button>
+                    <button class="state-btn" data-state="out-of-state">Out-of-State</button>
+                </div>
+
+                <div id="form-fields"></div>
+
+                <button class="validate-btn" onclick="validateQuery()">Validate Query</button>
+            </div>
+
+            <div class="section results">
+                <h2>Validation Results</h2>
+                <div id="validation-results">
+                    <div class="validation-status" style="background: #e8f4f8; color: #546e7a; border-color: #b0bec5;">
+                        Enter query details and click "Validate Query" to see results
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Query specifications based on CA eSUN documentation
+        const querySpecs = {
+            'driver-license': {
+                name: 'Driver License Query',
+                combinations: [
+                    {
+                        id: 1,
+                        description: '(In) Name',
+                        fields: ['name'],
+                        state: 'in-state'
+                    },
+                    {
+                        id: 2,
+                        description: '(In) OperatorLicenseNumber',
+                        fields: ['operatorLicenseNumber'],
+                        state: 'in-state'
+                    },
+                    {
+                        id: 3,
+                        description: '(In/Out) BirthDate, Name, SexCode, [State]',
+                        fields: ['birthDate', 'name', 'sexCode'],
+                        optionalFields: ['state'],
+                        state: 'both'
+                    },
+                    {
+                        id: 4,
+                        description: '(In/Out) OperatorLicenseNumber, [State]',
+                        fields: ['operatorLicenseNumber'],
+                        optionalFields: ['state'],
+                        state: 'both'
+                    }
+                ]
+            },
+            'driver-history': {
+                name: 'Driver History Query',
+                combinations: [
+                    {
+                        id: 1,
+                        description: '(In) Name',
+                        fields: ['name'],
+                        state: 'in-state'
+                    },
+                    {
+                        id: 2,
+                        description: '(In) OperatorLicenseNumber',
+                        fields: ['operatorLicenseNumber'],
+                        state: 'in-state'
+                    },
+                    {
+                        id: 3,
+                        description: '(In/Out) BirthDate, Name, SexCode, [State]',
+                        fields: ['birthDate', 'name', 'sexCode'],
+                        optionalFields: ['state'],
+                        state: 'both'
+                    },
+                    {
+                        id: 4,
+                        description: '(In/Out) OperatorLicenseNumber, [State]',
+                        fields: ['operatorLicenseNumber'],
+                        optionalFields: ['state'],
+                        state: 'both'
+                    }
+                ]
+            },
+            'vehicle-registration': {
+                name: 'Vehicle Registration Query',
+                combinations: [
+                    {
+                        id: 1,
+                        description: '(In) RegistrationPlate',
+                        fields: ['registrationPlate'],
+                        state: 'in-state'
+                    },
+                    {
+                        id: 2,
+                        description: '(In/Out) RegistrationPlate, [State]',
+                        fields: ['registrationPlate'],
+                        optionalFields: ['state'],
+                        state: 'both'
+                    },
+                    {
+                        id: 3,
+                        description: '(In) VIN',
+                        fields: ['vin'],
+                        state: 'in-state'
+                    },
+                    {
+                        id: 4,
+                        description: '(In/Out) VIN, [State]',
+                        fields: ['vin'],
+                        optionalFields: ['state'],
+                        state: 'both'
+                    },
+                    {
+                        id: 5,
+                        description: '(In) BoatRegistrationNumber',
+                        fields: ['boatRegistrationNumber'],
+                        state: 'in-state'
+                    },
+                    {
+                        id: 6,
+                        description: '(In/Out) BoatRegistrationNumber, [State]',
+                        fields: ['boatRegistrationNumber'],
+                        optionalFields: ['state'],
+                        state: 'both'
+                    },
+                    {
+                        id: 7,
+                        description: '(In) Name, RegistrationPlate',
+                        fields: ['name', 'registrationPlate'],
+                        state: 'in-state'
+                    },
+                    {
+                        id: 8,
+                        description: '(In) Name, VIN',
+                        fields: ['name', 'vin'],
+                        state: 'in-state'
+                    },
+                    {
+                        id: 9,
+                        description: '(In) Name, BoatRegistrationNumber',
+                        fields: ['name', 'boatRegistrationNumber'],
+                        state: 'in-state'
+                    }
+                ]
+            }
+        };
+
+        // Field definitions
+        const fieldDefinitions = {
+            name: {
+                label: 'Name',
+                type: 'text',
+                placeholder: 'Last, First Middle',
+                hint: 'Format: LAST, FIRST MIDDLE'
+            },
+            operatorLicenseNumber: {
+                label: "Operator's License Number",
+                type: 'text',
+                placeholder: 'A1234567',
+                hint: 'Driver license number'
+            },
+            birthDate: {
+                label: 'Birth Date',
+                type: 'date',
+                placeholder: 'YYYY-MM-DD',
+                hint: 'Date of birth'
+            },
+            sexCode: {
+                label: 'Sex Code',
+                type: 'select',
+                options: [
+                    { value: '', label: 'Select...' },
+                    { value: 'M', label: 'M - Male' },
+                    { value: 'F', label: 'F - Female' },
+                    { value: 'U', label: 'U - Unknown' }
+                ],
+                hint: 'Gender'
+            },
+            state: {
+                label: 'State',
+                type: 'text',
+                placeholder: 'CA, AZ, NV, etc.',
+                hint: 'Two-letter state code',
+                maxLength: 2
+            },
+            registrationPlate: {
+                label: 'Registration Plate',
+                type: 'text',
+                placeholder: '1ABC234',
+                hint: 'License plate number'
+            },
+            vin: {
+                label: 'VIN',
+                type: 'text',
+                placeholder: '1HGBH41JXMN109186',
+                hint: 'Vehicle Identification Number (17 characters)',
+                maxLength: 17
+            },
+            boatRegistrationNumber: {
+                label: 'Boat Registration Number',
+                type: 'text',
+                placeholder: 'CF1234AB',
+                hint: 'Boat/vessel registration number'
+            },
+            purposeCode: {
+                label: 'Purpose Code',
+                type: 'select',
+                options: [
+                    { value: '', label: 'Select...' },
+                    { value: 'C', label: 'C - Criminal' },
+                    { value: 'I', label: 'I - Intelligence' },
+                    { value: 'E', label: 'E - Employment' },
+                    { value: 'L', label: 'L - Licensing' },
+                    { value: 'O', label: 'O - Other' }
+                ],
+                hint: 'Required per AB 1747 (mandatory since July 21, 2021)',
+                required: true
+            }
+        };
+
+        let currentQueryType = 'driver-license';
+        let currentState = 'in-state';
+        let formData = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            renderForm();
+        });
+
+        function setupEventListeners() {
+            // Query type buttons
+            document.querySelectorAll('.query-type-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.query-type-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentQueryType = this.dataset.type;
+                    renderForm();
+                });
+            });
+
+            // State buttons
+            document.querySelectorAll('.state-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentState = this.dataset.state;
+                    renderForm();
+                });
+            });
+        }
+
+        function renderForm() {
+            const formContainer = document.getElementById('form-fields');
+            const spec = querySpecs[currentQueryType];
+
+            // Get all possible fields for this query type
+            const allFields = new Set();
+            spec.combinations.forEach(combo => {
+                combo.fields.forEach(f => allFields.add(f));
+                if (combo.optionalFields) {
+                    combo.optionalFields.forEach(f => allFields.add(f));
+                }
+            });
+
+            // Always add purposeCode
+            allFields.add('purposeCode');
+
+            let html = '';
+
+            allFields.forEach(fieldName => {
+                const field = fieldDefinitions[fieldName];
+                if (!field) return;
+
+                const isRequired = fieldName === 'purposeCode';
+                const value = formData[fieldName] || '';
+
+                html += `
+                    <div class="form-group">
+                        <label>
+                            ${field.label}
+                            ${isRequired ? '<span class="required">*</span>' : '<span class="optional">(optional)</span>'}
+                        </label>
+                `;
+
+                if (field.type === 'select') {
+                    html += `<select id="${fieldName}" onchange="updateFormData('${fieldName}', this.value)">`;
+                    field.options.forEach(opt => {
+                        html += `<option value="${opt.value}" ${value === opt.value ? 'selected' : ''}>${opt.label}</option>`;
+                    });
+                    html += `</select>`;
+                } else {
+                    const attrs = field.maxLength ? `maxlength="${field.maxLength}"` : '';
+                    html += `<input type="${field.type}" id="${fieldName}" placeholder="${field.placeholder}" value="${value}" ${attrs} oninput="updateFormData('${fieldName}', this.value)">`;
+                }
+
+                html += `</div>`;
+            });
+
+            formContainer.innerHTML = html;
+        }
+
+        function updateFormData(field, value) {
+            formData[field] = value;
+        }
+
+        function validateQuery() {
+            const spec = querySpecs[currentQueryType];
+            const results = {
+                valid: false,
+                errors: [],
+                warnings: [],
+                matchedCombination: null,
+                xml: ''
+            };
+
+            // Check Purpose Code (always required per AB 1747)
+            if (!formData.purposeCode) {
+                results.errors.push('Purpose Code is mandatory per AB 1747 (required since July 21, 2021)');
+            }
+
+            // Get filled fields (excluding purposeCode for combination matching)
+            const filledFields = Object.keys(formData).filter(key => {
+                return formData[key] && formData[key].trim() !== '' && key !== 'purposeCode';
+            });
+
+            if (filledFields.length === 0) {
+                results.errors.push('At least one query field must be provided');
+                displayResults(results);
+                return;
+            }
+
+            // Check for valid combinations
+            const validCombinations = spec.combinations.filter(combo => {
+                // Check if combination is valid for current state
+                if (combo.state === 'in-state' && currentState !== 'in-state') return false;
+                if (combo.state === 'out-of-state' && currentState !== 'out-of-state') return false;
+
+                // Get all allowed fields for this combination
+                const allowedFields = [...combo.fields];
+                if (combo.optionalFields) {
+                    allowedFields.push(...combo.optionalFields);
+                }
+
+                // Check if all filled fields are allowed
+                const invalidFields = filledFields.filter(f => !allowedFields.includes(f));
+                if (invalidFields.length > 0) return false;
+
+                // Check if all required fields are filled
+                const missingRequired = combo.fields.filter(f => !filledFields.includes(f));
+                if (missingRequired.length > 0) return false;
+
+                return true;
+            });
+
+            if (validCombinations.length === 0) {
+                results.errors.push('The provided field combination is not valid for this query type and state selection');
+                results.errors.push('Valid combinations are listed in the Field Requirements section below');
+            } else {
+                results.valid = true;
+                results.matchedCombination = validCombinations[0];
+
+                // State field validation
+                if (currentState === 'in-state' && formData.state) {
+                    if (formData.state.toUpperCase() === 'CA') {
+                        results.warnings.push('State field "CA" should be omitted for in-state California queries');
+                    } else {
+                        results.errors.push(`State field "${formData.state}" should not be used for in-state queries. Remove the State field or switch to Out-of-State mode.`);
+                        results.valid = false;
+                    }
+                }
+
+                if (currentState === 'out-of-state' && !formData.state) {
+                    // Check if state is optional or required for this combination
+                    const combo = results.matchedCombination;
+                    if (combo.optionalFields && combo.optionalFields.includes('state')) {
+                        results.warnings.push('State field is recommended for out-of-state queries to ensure proper routing');
+                    }
+                }
+            }
+
+            // Generate XML if valid
+            if (results.valid || results.warnings.length > 0) {
+                results.xml = generateXML(spec.name, formData, currentState);
+            }
+
+            displayResults(results);
+        }
+
+        function generateXML(queryType, data, state) {
+            const queryTypeTag = queryType.replace(/ /g, '');
+            let xml = `<ConnectCICMessage>\n`;
+            xml += `  <${queryTypeTag}>\n`;
+
+            // Add purpose code first (always required)
+            if (data.purposeCode) {
+                xml += `    <PurposeCode>${data.purposeCode}</PurposeCode>\n`;
+            }
+
+            // Add other fields
+            Object.keys(data).forEach(key => {
+                if (key === 'purposeCode' || !data[key]) return;
+
+                const value = data[key];
+                const tagName = key.charAt(0).toUpperCase() + key.slice(1);
+
+                // Special handling for name field
+                if (key === 'name') {
+                    const nameParts = value.split(',');
+                    if (nameParts.length >= 2) {
+                        xml += `    <PersonName>\n`;
+                        xml += `      <LastName>${nameParts[0].trim()}</LastName>\n`;
+                        const firstMiddle = nameParts[1].trim().split(' ');
+                        xml += `      <FirstName>${firstMiddle[0]}</FirstName>\n`;
+                        if (firstMiddle.length > 1) {
+                            xml += `      <MiddleName>${firstMiddle.slice(1).join(' ')}</MiddleName>\n`;
+                        }
+                        xml += `    </PersonName>\n`;
+                    } else {
+                        xml += `    <PersonName>\n`;
+                        xml += `      <LastName>${value}</LastName>\n`;
+                        xml += `    </PersonName>\n`;
+                    }
+                } else if (key === 'birthDate') {
+                    xml += `    <PersonBirthDate>${value}</PersonBirthDate>\n`;
+                } else if (key === 'sexCode') {
+                    xml += `    <PersonSexCode>${value}</PersonSexCode>\n`;
+                } else if (key === 'state') {
+                    // Only include state if out-of-state or if explicitly provided
+                    if (state === 'out-of-state' || value.toUpperCase() !== 'CA') {
+                        xml += `    <StateCode>${value.toUpperCase()}</StateCode>\n`;
+                    }
+                } else {
+                    xml += `    <${tagName}>${value}</${tagName}>\n`;
+                }
+            });
+
+            xml += `  </${queryTypeTag}>\n`;
+            xml += `</ConnectCICMessage>`;
+
+            return xml;
+        }
+
+        function displayResults(results) {
+            const container = document.getElementById('validation-results');
+            let html = '';
+
+            // Validation status
+            if (results.valid && results.errors.length === 0) {
+                html += `<div class="validation-status valid">✓ Query is valid and ready to submit</div>`;
+            } else if (results.errors.length > 0) {
+                html += `<div class="validation-status invalid">✗ Query has validation errors</div>`;
+            }
+
+            // Errors
+            if (results.errors.length > 0) {
+                html += `<ul class="error-list">`;
+                results.errors.forEach(error => {
+                    html += `<li>❌ ${error}</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            // Warnings
+            if (results.warnings.length > 0) {
+                html += `<ul class="error-list warning-list">`;
+                results.warnings.forEach(warning => {
+                    html += `<li>⚠️ ${warning}</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            // Matched combination
+            if (results.matchedCombination) {
+                html += `<div class="combination-info">`;
+                html += `<h3>Matched Valid Combination</h3>`;
+                html += `<code>${results.matchedCombination.description}</code>`;
+                html += `</div>`;
+            }
+
+            // XML output
+            if (results.xml) {
+                html += `<h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 14px;">Expected XML Output</h3>`;
+                html += `<div class="xml-output">${escapeHtml(results.xml)}</div>`;
+            }
+
+            // Field requirements
+            html += generateFieldRequirements();
+
+            container.innerHTML = html;
+        }
+
+        function generateFieldRequirements() {
+            const spec = querySpecs[currentQueryType];
+            let html = `<div class="field-requirements">`;
+            html += `<h3>Valid Field Combinations for ${spec.name} (${currentState === 'in-state' ? 'In-State CA' : 'Out-of-State'})</h3>`;
+            html += `<ul>`;
+
+            spec.combinations.forEach(combo => {
+                if (combo.state === 'in-state' && currentState !== 'in-state') return;
+                if (combo.state === 'out-of-state' && currentState !== 'out-of-state') return;
+                if (combo.state === 'both' || combo.state === currentState) {
+                    html += `<li>${combo.description}</li>`;
+                }
+            });
+
+            html += `</ul>`;
+            html += `<p style="margin-top: 10px; font-size: 12px; color: #666;">`;
+            html += `Note: Fields in brackets [ ] are optional. Purpose Code is always mandatory.`;
+            html += `</p>`;
+            html += `</div>`;
+
+            return html;
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+    </script>
+</body>
+</html>
