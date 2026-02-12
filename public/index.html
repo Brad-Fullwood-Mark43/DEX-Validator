@@ -748,56 +748,50 @@
 
         function generateXML(queryType, data, state) {
             const queryTypeTag = queryType.replace(/ /g, '');
-            let xml = `<ConnectCICMessage>\n`;
-            xml += `  <${queryTypeTag}>\n`;
+            let xml = `<${queryTypeTag}>\n`;
 
-            // Add purpose code first (always required)
+            // Add CaRequestPurposeCode first (always required per CA AB 1747)
             if (data.purposeCode) {
-                xml += `    <PurposeCode>${data.purposeCode}</PurposeCode>\n`;
+                xml += `  <CaRequestPurposeCode>${data.purposeCode}</CaRequestPurposeCode>\n`;
             }
 
-            // Add other fields
-            Object.keys(data).forEach(key => {
+            // Add other fields in appropriate order
+            // Order: Name, BirthDate, SexCode, OperatorLicenseNumber, State, then vehicle fields
+            const fieldOrder = ['name', 'birthDate', 'sexCode', 'operatorLicenseNumber', 'state',
+                               'registrationPlate', 'vin', 'boatRegistrationNumber'];
+
+            fieldOrder.forEach(key => {
                 if (key === 'purposeCode' || !data[key]) return;
 
                 const value = data[key];
-                const tagName = key.charAt(0).toUpperCase() + key.slice(1);
 
-                // Special handling for name field
+                // Map internal field names to CA eSUN XML field names
                 if (key === 'name') {
-                    const nameParts = value.split(',');
-                    if (nameParts.length >= 2) {
-                        xml += `    <PersonName>\n`;
-                        xml += `      <LastName>${nameParts[0].trim()}</LastName>\n`;
-                        const firstMiddle = nameParts[1].trim().split(' ');
-                        xml += `      <FirstName>${firstMiddle[0]}</FirstName>\n`;
-                        if (firstMiddle.length > 1) {
-                            xml += `      <MiddleName>${firstMiddle.slice(1).join(' ')}</MiddleName>\n`;
-                        }
-                        xml += `    </PersonName>\n`;
-                    } else {
-                        xml += `    <PersonName>\n`;
-                        xml += `      <LastName>${value}</LastName>\n`;
-                        xml += `    </PersonName>\n`;
-                    }
+                    // Name field is sent as-is per CA eSUN spec (format: LAST, FIRST MIDDLE)
+                    xml += `  <Name>${value}</Name>\n`;
                 } else if (key === 'birthDate') {
-                    xml += `    <PersonBirthDate>${value}</PersonBirthDate>\n`;
+                    xml += `  <BirthDate>${value}</BirthDate>\n`;
                 } else if (key === 'sexCode') {
-                    xml += `    <PersonSexCode>${value}</PersonSexCode>\n`;
+                    xml += `  <SexCode>${value}</SexCode>\n`;
+                } else if (key === 'operatorLicenseNumber') {
+                    xml += `  <OperatorLicenseNumber>${value}</OperatorLicenseNumber>\n`;
                 } else if (key === 'state') {
                     // CRITICAL: Never include State field for in-state CA queries per CA eSUN spec
                     // Only include State field for out-of-state queries
                     if (state === 'out-of-state' && value) {
-                        xml += `    <StateCode>${value.toUpperCase()}</StateCode>\n`;
+                        xml += `  <State>${value.toUpperCase()}</State>\n`;
                     }
                     // For in-state queries: State field is always omitted, even if user entered a value
-                } else {
-                    xml += `    <${tagName}>${value}</${tagName}>\n`;
+                } else if (key === 'registrationPlate') {
+                    xml += `  <RegistrationPlate>${value}</RegistrationPlate>\n`;
+                } else if (key === 'vin') {
+                    xml += `  <VIN>${value}</VIN>\n`;
+                } else if (key === 'boatRegistrationNumber') {
+                    xml += `  <BoatRegistrationNumber>${value}</BoatRegistrationNumber>\n`;
                 }
             });
 
-            xml += `  </${queryTypeTag}>\n`;
-            xml += `</ConnectCICMessage>`;
+            xml += `</${queryTypeTag}>`;
 
             return xml;
         }
