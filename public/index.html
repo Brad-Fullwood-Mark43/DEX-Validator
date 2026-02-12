@@ -383,28 +383,30 @@
                 combinations: [
                     {
                         id: 1,
-                        description: '(In) Name',
+                        description: '(In) Name, [OriginatingAgencyORI]',
                         fields: ['name'],
+                        optionalFields: ['originatingAgencyORI'],
                         state: 'in-state'
                     },
                     {
                         id: 2,
-                        description: '(In) OperatorLicenseNumber',
+                        description: '(In) OperatorLicenseNumber, [OriginatingAgencyORI]',
                         fields: ['operatorLicenseNumber'],
+                        optionalFields: ['originatingAgencyORI'],
                         state: 'in-state'
                     },
                     {
                         id: 3,
-                        description: '(In/Out) BirthDate, Name, SexCode, [State]',
+                        description: '(In/Out) BirthDate, Name, SexCode, [OriginatingAgencyORI or State]',
                         fields: ['birthDate', 'name', 'sexCode'],
-                        optionalFields: ['state'],
+                        optionalFields: ['state', 'originatingAgencyORI'],
                         state: 'both'
                     },
                     {
                         id: 4,
-                        description: '(In/Out) OperatorLicenseNumber, [State]',
+                        description: '(In/Out) OperatorLicenseNumber, [OriginatingAgencyORI or State]',
                         fields: ['operatorLicenseNumber'],
-                        optionalFields: ['state'],
+                        optionalFields: ['state', 'originatingAgencyORI'],
                         state: 'both'
                     }
                 ]
@@ -414,28 +416,30 @@
                 combinations: [
                     {
                         id: 1,
-                        description: '(In) Name',
+                        description: '(In) Name, [OriginatingAgencyORI]',
                         fields: ['name'],
+                        optionalFields: ['originatingAgencyORI'],
                         state: 'in-state'
                     },
                     {
                         id: 2,
-                        description: '(In) OperatorLicenseNumber',
+                        description: '(In) OperatorLicenseNumber, [OriginatingAgencyORI]',
                         fields: ['operatorLicenseNumber'],
+                        optionalFields: ['originatingAgencyORI'],
                         state: 'in-state'
                     },
                     {
                         id: 3,
-                        description: '(In/Out) BirthDate, Name, SexCode, [State]',
+                        description: '(In/Out) BirthDate, Name, SexCode, [OriginatingAgencyORI or State]',
                         fields: ['birthDate', 'name', 'sexCode'],
-                        optionalFields: ['state'],
+                        optionalFields: ['state', 'originatingAgencyORI'],
                         state: 'both'
                     },
                     {
                         id: 4,
-                        description: '(In/Out) OperatorLicenseNumber, [State]',
+                        description: '(In/Out) OperatorLicenseNumber, [OriginatingAgencyORI or State]',
                         fields: ['operatorLicenseNumber'],
-                        optionalFields: ['state'],
+                        optionalFields: ['state', 'originatingAgencyORI'],
                         state: 'both'
                     }
                 ]
@@ -568,12 +572,17 @@
                     { value: '', label: 'Select...' },
                     { value: 'C', label: 'C - Criminal' },
                     { value: 'I', label: 'I - Intelligence' },
-                    { value: 'E', label: 'E - Employment' },
-                    { value: 'L', label: 'L - Licensing' },
-                    { value: 'O', label: 'O - Other' }
+                    { value: 'U', label: 'U - Immigration Violations (Section 1325)' }
                 ],
                 hint: 'Required per AB 1747 (mandatory since July 21, 2021)',
                 required: true
+            },
+            originatingAgencyORI: {
+                label: 'Originating Agency ORI',
+                type: 'text',
+                placeholder: 'CA0370002',
+                hint: 'Required for in-state queries (9-character ORI)',
+                maxLength: 9
             }
         };
 
@@ -748,9 +757,18 @@
 
         function generateXML(queryType, data, state) {
             const queryTypeTag = queryType.replace(/ /g, '');
-            let xml = `<${queryTypeTag}>\n`;
 
-            // Add CaRequestPurposeCode first (always required per CA AB 1747)
+            // Generate Request wrapper structure
+            let xml = `<Request>\n`;
+            xml += `  <MessageType>${queryTypeTag}</MessageType>\n`;
+            xml += `  <Id>MARK43GENERATEDMSGID</Id>\n`;
+
+            // Add OriginatingAgencyORI if provided
+            if (data.originatingAgencyORI) {
+                xml += `  <OriginatingAgencyORI>${data.originatingAgencyORI}</OriginatingAgencyORI>\n`;
+            }
+
+            // Add CaRequestPurposeCode (always required per CA AB 1747)
             if (data.purposeCode) {
                 xml += `  <CaRequestPurposeCode>${data.purposeCode}</CaRequestPurposeCode>\n`;
             }
@@ -761,7 +779,7 @@
                                'registrationPlate', 'vin', 'boatRegistrationNumber'];
 
             fieldOrder.forEach(key => {
-                if (key === 'purposeCode' || !data[key]) return;
+                if (key === 'purposeCode' || key === 'originatingAgencyORI' || !data[key]) return;
 
                 const value = data[key];
 
@@ -770,7 +788,9 @@
                     // Name field is sent as-is per CA eSUN spec (format: LAST, FIRST MIDDLE)
                     xml += `  <Name>${value}</Name>\n`;
                 } else if (key === 'birthDate') {
-                    xml += `  <BirthDate>${value}</BirthDate>\n`;
+                    // Convert YYYY-MM-DD to YYYYMMDD format
+                    const dateFormatted = value.replace(/-/g, '');
+                    xml += `  <BirthDate>${dateFormatted}</BirthDate>\n`;
                 } else if (key === 'sexCode') {
                     xml += `  <SexCode>${value}</SexCode>\n`;
                 } else if (key === 'operatorLicenseNumber') {
@@ -791,7 +811,7 @@
                 }
             });
 
-            xml += `</${queryTypeTag}>`;
+            xml += `</Request>`;
 
             return xml;
         }
