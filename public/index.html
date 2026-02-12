@@ -449,60 +449,30 @@
                 combinations: [
                     {
                         id: 1,
-                        description: '(In) RegistrationPlate',
-                        fields: ['registrationPlate'],
+                        description: '(In) LicensePlateNumber, LicensePlateTypeCode',
+                        fields: ['licensePlateNumber', 'licensePlateTypeCode'],
                         state: 'in-state'
                     },
                     {
                         id: 2,
-                        description: '(In/Out) RegistrationPlate, [State]',
-                        fields: ['registrationPlate'],
-                        optionalFields: ['state'],
+                        description: '(In/Out) LicensePlateNumber, LicensePlateTypeCode, LicensePlateYear, [OriginatingAgencyORI or State]',
+                        fields: ['licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear'],
+                        optionalFields: ['state', 'originatingAgencyORI'],
                         state: 'both'
                     },
                     {
                         id: 3,
-                        description: '(In) VIN',
-                        fields: ['vin'],
+                        description: '(In) VehicleIdentificationNumber, [VehicleMakeCode or VehicleYear]',
+                        fields: ['vehicleIdentificationNumber'],
+                        optionalFields: ['vehicleMakeCode', 'vehicleYear'],
                         state: 'in-state'
                     },
                     {
                         id: 4,
-                        description: '(In/Out) VIN, [State]',
-                        fields: ['vin'],
-                        optionalFields: ['state'],
+                        description: '(In/Out) VehicleIdentificationNumber, [OriginatingAgencyORI, VehicleMakeCode, VehicleYear, or State]',
+                        fields: ['vehicleIdentificationNumber'],
+                        optionalFields: ['state', 'originatingAgencyORI', 'vehicleMakeCode', 'vehicleYear'],
                         state: 'both'
-                    },
-                    {
-                        id: 5,
-                        description: '(In) BoatRegistrationNumber',
-                        fields: ['boatRegistrationNumber'],
-                        state: 'in-state'
-                    },
-                    {
-                        id: 6,
-                        description: '(In/Out) BoatRegistrationNumber, [State]',
-                        fields: ['boatRegistrationNumber'],
-                        optionalFields: ['state'],
-                        state: 'both'
-                    },
-                    {
-                        id: 7,
-                        description: '(In) Name, RegistrationPlate',
-                        fields: ['name', 'registrationPlate'],
-                        state: 'in-state'
-                    },
-                    {
-                        id: 8,
-                        description: '(In) Name, VIN',
-                        fields: ['name', 'vin'],
-                        state: 'in-state'
-                    },
-                    {
-                        id: 9,
-                        description: '(In) Name, BoatRegistrationNumber',
-                        fields: ['name', 'boatRegistrationNumber'],
-                        state: 'in-state'
                     }
                 ]
             }
@@ -546,24 +516,47 @@
                 hint: 'Two-letter state code',
                 maxLength: 2
             },
-            registrationPlate: {
-                label: 'Registration Plate',
+            licensePlateNumber: {
+                label: 'License Plate Number',
                 type: 'text',
                 placeholder: '1ABC234',
-                hint: 'License plate number'
+                hint: 'License plate number (max 10 characters)',
+                maxLength: 10
             },
-            vin: {
-                label: 'VIN',
+            licensePlateTypeCode: {
+                label: 'License Plate Type Code',
+                type: 'text',
+                placeholder: 'PC',
+                hint: 'Plate type (e.g., PC=Passenger Car, CM=Commercial)',
+                maxLength: 2
+            },
+            licensePlateYear: {
+                label: 'License Plate Year',
+                type: 'text',
+                placeholder: '2025',
+                hint: 'Year of plate registration (4 digits)',
+                maxLength: 4
+            },
+            vehicleIdentificationNumber: {
+                label: 'Vehicle Identification Number (VIN)',
                 type: 'text',
                 placeholder: '1HGBH41JXMN109186',
-                hint: 'Vehicle Identification Number (17 characters)',
-                maxLength: 17
+                hint: 'Vehicle Identification Number (up to 30 characters)',
+                maxLength: 30
             },
-            boatRegistrationNumber: {
-                label: 'Boat Registration Number',
+            vehicleMakeCode: {
+                label: 'Vehicle Make Code',
                 type: 'text',
-                placeholder: 'CF1234AB',
-                hint: 'Boat/vessel registration number'
+                placeholder: 'FORD',
+                hint: 'Vehicle make code (4 characters)',
+                maxLength: 4
+            },
+            vehicleYear: {
+                label: 'Vehicle Year',
+                type: 'text',
+                placeholder: '2020',
+                hint: 'Vehicle year (4 digits)',
+                maxLength: 4
             },
             purposeCode: {
                 label: 'Purpose Code',
@@ -776,7 +769,8 @@
             // Add other fields in appropriate order
             // Order: Name, BirthDate, SexCode, OperatorLicenseNumber, State, then vehicle fields
             const fieldOrder = ['name', 'birthDate', 'sexCode', 'operatorLicenseNumber', 'state',
-                               'registrationPlate', 'vin', 'boatRegistrationNumber'];
+                               'licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear',
+                               'vehicleIdentificationNumber', 'vehicleMakeCode', 'vehicleYear'];
 
             fieldOrder.forEach(key => {
                 if (key === 'purposeCode' || key === 'originatingAgencyORI' || !data[key]) return;
@@ -802,12 +796,18 @@
                         xml += `  <State>${value.toUpperCase()}</State>\n`;
                     }
                     // For in-state queries: State field is always omitted, even if user entered a value
-                } else if (key === 'registrationPlate') {
-                    xml += `  <RegistrationPlate>${value}</RegistrationPlate>\n`;
-                } else if (key === 'vin') {
-                    xml += `  <VIN>${value}</VIN>\n`;
-                } else if (key === 'boatRegistrationNumber') {
-                    xml += `  <BoatRegistrationNumber>${value}</BoatRegistrationNumber>\n`;
+                } else if (key === 'licensePlateNumber') {
+                    xml += `  <LicensePlateNumber>${value}</LicensePlateNumber>\n`;
+                } else if (key === 'licensePlateTypeCode') {
+                    xml += `  <LicensePlateTypeCode>${value}</LicensePlateTypeCode>\n`;
+                } else if (key === 'licensePlateYear') {
+                    xml += `  <LicensePlateYear>${value}</LicensePlateYear>\n`;
+                } else if (key === 'vehicleIdentificationNumber') {
+                    xml += `  <VehicleIdentificationNumber>${value}</VehicleIdentificationNumber>\n`;
+                } else if (key === 'vehicleMakeCode') {
+                    xml += `  <VehicleMakeCode>${value}</VehicleMakeCode>\n`;
+                } else if (key === 'vehicleYear') {
+                    xml += `  <VehicleYear>${value}</VehicleYear>\n`;
                 }
             });
 
