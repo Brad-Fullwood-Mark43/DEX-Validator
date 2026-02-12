@@ -692,6 +692,9 @@
             }
 
             // Check for valid combinations
+            let invalidFieldsList = [];
+            let missingFieldsList = [];
+
             const validCombinations = spec.combinations.filter(combo => {
                 // Check if combination is valid for current state
                 if (combo.state === 'in-state' && currentState !== 'in-state') return false;
@@ -705,18 +708,50 @@
 
                 // Check if all filled fields are allowed
                 const invalidFields = filledFields.filter(f => !allowedFields.includes(f));
-                if (invalidFields.length > 0) return false;
+                if (invalidFields.length > 0) {
+                    invalidFieldsList = [...new Set([...invalidFieldsList, ...invalidFields])];
+                    return false;
+                }
 
                 // Check if all required fields are filled
                 const missingRequired = combo.fields.filter(f => !filledFields.includes(f));
-                if (missingRequired.length > 0) return false;
+                if (missingRequired.length > 0) {
+                    missingFieldsList = [...new Set([...missingFieldsList, ...missingRequired])];
+                    return false;
+                }
 
                 return true;
             });
 
             if (validCombinations.length === 0) {
-                results.errors.push('The provided field combination is not valid for this query type and state selection');
-                results.errors.push('Valid combinations are listed in the Field Requirements section below');
+                // Provide specific feedback about what's wrong
+                if (invalidFieldsList.length > 0) {
+                    const fieldLabels = invalidFieldsList.map(f => {
+                        const def = fieldDefinitions[f];
+                        return def ? `"${def.label}"` : f;
+                    }).join(', ');
+
+                    // Special handling for State field in in-state queries
+                    if (currentState === 'in-state' && invalidFieldsList.includes('state')) {
+                        results.errors.push(`❌ State field must be REMOVED for in-state California queries. Clear the State field value.`);
+                    } else {
+                        results.errors.push(`❌ Invalid field(s) for this combination: ${fieldLabels}`);
+                    }
+                }
+
+                if (missingFieldsList.length > 0 && invalidFieldsList.length === 0) {
+                    const fieldLabels = missingFieldsList.map(f => {
+                        const def = fieldDefinitions[f];
+                        return def ? `"${def.label}"` : f;
+                    }).join(', ');
+                    results.errors.push(`❌ Missing required field(s): ${fieldLabels}`);
+                }
+
+                if (invalidFieldsList.length === 0 && missingFieldsList.length === 0) {
+                    results.errors.push('The provided field combination is not valid for this query type and state selection');
+                }
+
+                results.errors.push('📋 Valid combinations are listed in the Field Requirements section below');
             } else {
                 results.valid = true;
                 results.matchedCombination = validCombinations[0];
