@@ -785,10 +785,12 @@
                 } else if (key === 'sexCode') {
                     xml += `    <PersonSexCode>${value}</PersonSexCode>\n`;
                 } else if (key === 'state') {
-                    // Only include state if out-of-state or if explicitly provided
-                    if (state === 'out-of-state' || value.toUpperCase() !== 'CA') {
+                    // CRITICAL: Never include State field for in-state CA queries per CA eSUN spec
+                    // Only include State field for out-of-state queries
+                    if (state === 'out-of-state' && value) {
                         xml += `    <StateCode>${value.toUpperCase()}</StateCode>\n`;
                     }
+                    // For in-state queries: State field is always omitted, even if user entered a value
                 } else {
                     xml += `    <${tagName}>${value}</${tagName}>\n`;
                 }
