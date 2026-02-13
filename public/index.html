@@ -383,30 +383,28 @@
                 combinations: [
                     {
                         id: 1,
-                        description: '(In) Name, [OriginatingAgencyORI]',
+                        description: '(In) Name',
                         fields: ['name'],
-                        optionalFields: ['originatingAgencyORI'],
                         state: 'in-state'
                     },
                     {
                         id: 2,
-                        description: '(In) OperatorLicenseNumber, [OriginatingAgencyORI]',
+                        description: '(In) OperatorLicenseNumber',
                         fields: ['operatorLicenseNumber'],
-                        optionalFields: ['originatingAgencyORI'],
                         state: 'in-state'
                     },
                     {
                         id: 3,
-                        description: '(In/Out) BirthDate, Name, SexCode, [OriginatingAgencyORI or State]',
+                        description: '(In/Out) BirthDate, Name, SexCode, [State]',
                         fields: ['birthDate', 'name', 'sexCode'],
-                        optionalFields: ['state', 'originatingAgencyORI'],
+                        optionalFields: ['state'],
                         state: 'both'
                     },
                     {
                         id: 4,
-                        description: '(In/Out) OperatorLicenseNumber, [OriginatingAgencyORI or State]',
+                        description: '(In/Out) OperatorLicenseNumber, [State]',
                         fields: ['operatorLicenseNumber'],
-                        optionalFields: ['state', 'originatingAgencyORI'],
+                        optionalFields: ['state'],
                         state: 'both'
                     }
                 ]
@@ -416,30 +414,28 @@
                 combinations: [
                     {
                         id: 1,
-                        description: '(In) Name, [OriginatingAgencyORI]',
+                        description: '(In) Name',
                         fields: ['name'],
-                        optionalFields: ['originatingAgencyORI'],
                         state: 'in-state'
                     },
                     {
                         id: 2,
-                        description: '(In) OperatorLicenseNumber, [OriginatingAgencyORI]',
+                        description: '(In) OperatorLicenseNumber',
                         fields: ['operatorLicenseNumber'],
-                        optionalFields: ['originatingAgencyORI'],
                         state: 'in-state'
                     },
                     {
                         id: 3,
-                        description: '(In/Out) BirthDate, Name, SexCode, [OriginatingAgencyORI or State]',
+                        description: '(In/Out) BirthDate, Name, SexCode, [State]',
                         fields: ['birthDate', 'name', 'sexCode'],
-                        optionalFields: ['state', 'originatingAgencyORI'],
+                        optionalFields: ['state'],
                         state: 'both'
                     },
                     {
                         id: 4,
-                        description: '(In/Out) OperatorLicenseNumber, [OriginatingAgencyORI or State]',
+                        description: '(In/Out) OperatorLicenseNumber, [State]',
                         fields: ['operatorLicenseNumber'],
-                        optionalFields: ['state', 'originatingAgencyORI'],
+                        optionalFields: ['state'],
                         state: 'both'
                     }
                 ]
@@ -455,9 +451,9 @@
                     },
                     {
                         id: 2,
-                        description: '(In/Out) LicensePlateNumber, LicensePlateTypeCode, LicensePlateYear, [OriginatingAgencyORI or State]',
+                        description: '(In/Out) LicensePlateNumber, LicensePlateTypeCode, LicensePlateYear, [State]',
                         fields: ['licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear'],
-                        optionalFields: ['state', 'originatingAgencyORI'],
+                        optionalFields: ['state'],
                         state: 'both'
                     },
                     {
@@ -469,9 +465,9 @@
                     },
                     {
                         id: 4,
-                        description: '(In/Out) VehicleIdentificationNumber, [OriginatingAgencyORI, VehicleMakeCode, VehicleYear, or State]',
+                        description: '(In/Out) VehicleIdentificationNumber, [VehicleMakeCode, VehicleYear, or State]',
                         fields: ['vehicleIdentificationNumber'],
-                        optionalFields: ['state', 'originatingAgencyORI', 'vehicleMakeCode', 'vehicleYear'],
+                        optionalFields: ['state', 'vehicleMakeCode', 'vehicleYear'],
                         state: 'both'
                     }
                 ]
@@ -570,13 +566,6 @@
                 hint: 'Required per AB 1747 (mandatory since July 21, 2021)',
                 required: true
             },
-            originatingAgencyORI: {
-                label: 'Originating Agency ORI',
-                type: 'text',
-                placeholder: 'CA0370002',
-                hint: 'Required for in-state queries (9-character ORI)',
-                maxLength: 9
-            }
         };
 
         let currentQueryType = 'driver-license';
@@ -791,11 +780,6 @@
             xml += `  <MessageType>${queryTypeTag}</MessageType>\n`;
             xml += `  <Id>MARK43GENERATEDMSGID</Id>\n`;
 
-            // Add OriginatingAgencyORI if provided
-            if (data.originatingAgencyORI) {
-                xml += `  <OriginatingAgencyORI>${data.originatingAgencyORI}</OriginatingAgencyORI>\n`;
-            }
-
             // Add CaRequestPurposeCode (always required per CA AB 1747)
             if (data.purposeCode) {
                 xml += `  <CaRequestPurposeCode>${data.purposeCode}</CaRequestPurposeCode>\n`;
@@ -808,7 +792,7 @@
                                'vehicleIdentificationNumber', 'vehicleMakeCode', 'vehicleYear'];
 
             fieldOrder.forEach(key => {
-                if (key === 'purposeCode' || key === 'originatingAgencyORI' || !data[key]) return;
+                if (key === 'purposeCode' || !data[key]) return;
 
                 const value = data[key];
 
