@@ -352,9 +352,10 @@
                     <button class="query-type-btn active" data-type="driver-license">Driver License</button>
                     <button class="query-type-btn" data-type="driver-history">Driver History</button>
                     <button class="query-type-btn" data-type="vehicle-registration">Vehicle Registration</button>
+                    <button class="query-type-btn" data-type="article">Article</button>
                 </div>
 
-                <div class="state-selector">
+                <div class="state-selector" id="state-selector">
                     <button class="state-btn active" data-state="in-state">In-State (CA)</button>
                     <button class="state-btn" data-state="out-of-state">Out-of-State</button>
                 </div>
@@ -471,6 +472,32 @@
                         state: 'both'
                     }
                 ]
+            },
+            'article': {
+                name: 'Article Query',
+                combinations: [
+                    {
+                        id: 1,
+                        description: 'ArticleSerialNumber + ArticleBrand',
+                        fields: ['articleSerialNumber', 'articleBrand'],
+                        optionalFields: [],
+                        state: 'both'
+                    },
+                    {
+                        id: 2,
+                        description: 'ArticleSerialNumber + ArticleTypeCode + ArticleCategory',
+                        fields: ['articleSerialNumber', 'articleTypeCode', 'articleCategory'],
+                        optionalFields: [],
+                        state: 'both'
+                    },
+                    {
+                        id: 3,
+                        description: 'ArticleSerialNumber + ArticleTypeCode + ArticleCategory + ArticleBrand',
+                        fields: ['articleSerialNumber', 'articleTypeCode', 'articleCategory', 'articleBrand'],
+                        optionalFields: [],
+                        state: 'both'
+                    }
+                ]
             }
         };
 
@@ -485,7 +512,7 @@
             operatorLicenseNumber: {
                 label: "Operator's License Number",
                 type: 'text',
-                placeholder: 'A1234567',
+                placeholder: '',
                 hint: 'Driver license number'
             },
             birthDate: {
@@ -508,49 +535,49 @@
             state: {
                 label: 'State',
                 type: 'text',
-                placeholder: 'CA, AZ, NV, etc.',
+                placeholder: '',
                 hint: 'Two-letter state code',
                 maxLength: 2
             },
             licensePlateNumber: {
                 label: 'License Plate Number',
                 type: 'text',
-                placeholder: '1ABC234',
+                placeholder: '',
                 hint: 'License plate number (max 10 characters)',
                 maxLength: 10
             },
             licensePlateTypeCode: {
                 label: 'License Plate Type Code',
                 type: 'text',
-                placeholder: 'PC',
+                placeholder: '',
                 hint: 'Plate type (e.g., PC=Passenger Car, CM=Commercial)',
                 maxLength: 2
             },
             licensePlateYear: {
                 label: 'License Plate Year',
                 type: 'text',
-                placeholder: '2025',
+                placeholder: '',
                 hint: 'Year of plate registration (4 digits)',
                 maxLength: 4
             },
             vehicleIdentificationNumber: {
                 label: 'Vehicle Identification Number (VIN)',
                 type: 'text',
-                placeholder: '1HGBH41JXMN109186',
+                placeholder: '',
                 hint: 'Vehicle Identification Number (up to 30 characters)',
                 maxLength: 30
             },
             vehicleMakeCode: {
                 label: 'Vehicle Make Code',
                 type: 'text',
-                placeholder: 'FORD',
+                placeholder: '',
                 hint: 'Vehicle make code (4 characters)',
                 maxLength: 4
             },
             vehicleYear: {
                 label: 'Vehicle Year',
                 type: 'text',
-                placeholder: '2020',
+                placeholder: '',
                 hint: 'Vehicle year (4 digits)',
                 maxLength: 4
             },
@@ -566,6 +593,43 @@
                 hint: 'Required per AB 1747 (mandatory since July 21, 2021)',
                 required: true
             },
+            articleSerialNumber: {
+                label: 'Article Serial Number',
+                type: 'text',
+                placeholder: '',
+                hint: 'Article serial number (max 20 characters)',
+                maxLength: 20
+            },
+            articleTypeCode: {
+                label: 'Article Type Code',
+                type: 'select',
+                options: [
+                    { value: '', label: 'Select...' },
+                    { value: 'BCYCL', label: 'BCYCL' },
+                    { value: 'LAPTOP', label: 'LAPTOP' }
+                ],
+                hint: 'Article type code (max 6 characters)'
+            },
+            articleBrand: {
+                label: 'Article Brand',
+                type: 'select',
+                options: [
+                    { value: '', label: 'Select...' },
+                    { value: 'SCHWINN', label: 'SCHWINN' },
+                    { value: 'DELL', label: 'DELL' }
+                ],
+                hint: 'Article brand (max 6 characters)'
+            },
+            articleCategory: {
+                label: 'Article Category',
+                type: 'select',
+                options: [
+                    { value: '', label: 'Select...' },
+                    { value: 'B', label: 'B' },
+                    { value: 'D', label: 'D' }
+                ],
+                hint: 'Article category (max 1 character)'
+            }
         };
 
         let currentQueryType = 'driver-license';
@@ -604,6 +668,14 @@
             const formContainer = document.getElementById('form-fields');
             const spec = querySpecs[currentQueryType];
 
+            // Hide/show state selector based on query type
+            const stateSelector = document.getElementById('state-selector');
+            if (currentQueryType === 'article') {
+                stateSelector.style.display = 'none';
+            } else {
+                stateSelector.style.display = 'flex';
+            }
+
             // Get all possible fields for this query type
             const allFields = new Set();
             spec.combinations.forEach(combo => {
@@ -616,9 +688,21 @@
             // Always add purposeCode
             allFields.add('purposeCode');
 
+            // Define field order based on query type
+            let fieldOrder;
+            if (currentQueryType === 'article') {
+                fieldOrder = ['purposeCode', 'articleSerialNumber', 'articleTypeCode', 'articleCategory', 'articleBrand'];
+            } else {
+                // For other query types, convert Set to Array
+                fieldOrder = Array.from(allFields);
+            }
+
+            // Filter fieldOrder to only include fields that exist in allFields
+            const orderedFields = fieldOrder.filter(f => allFields.has(f));
+
             let html = '';
 
-            allFields.forEach(fieldName => {
+            orderedFields.forEach(fieldName => {
                 const field = fieldDefinitions[fieldName];
                 if (!field) return;
 
@@ -629,7 +713,7 @@
                     <div class="form-group">
                         <label>
                             ${field.label}
-                            ${isRequired ? '<span class="required">*</span>' : '<span class="optional">(optional)</span>'}
+                            ${isRequired ? '<span class="required">*</span>' : ''}
                         </label>
                 `;
 
@@ -786,10 +870,11 @@
             }
 
             // Add other fields in appropriate order
-            // Order: Name, BirthDate, SexCode, OperatorLicenseNumber, State, then vehicle fields
+            // Order: Name, BirthDate, SexCode, OperatorLicenseNumber, State, then vehicle fields, then article fields
             const fieldOrder = ['name', 'birthDate', 'sexCode', 'operatorLicenseNumber', 'state',
                                'licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear',
-                               'vehicleIdentificationNumber', 'vehicleMakeCode', 'vehicleYear'];
+                               'vehicleIdentificationNumber', 'vehicleMakeCode', 'vehicleYear',
+                               'articleSerialNumber', 'articleTypeCode', 'articleCategory', 'articleBrand'];
 
             fieldOrder.forEach(key => {
                 if (key === 'purposeCode' || !data[key]) return;
@@ -827,6 +912,14 @@
                     xml += `  <VehicleMakeCode>${value}</VehicleMakeCode>\n`;
                 } else if (key === 'vehicleYear') {
                     xml += `  <VehicleYear>${value}</VehicleYear>\n`;
+                } else if (key === 'articleSerialNumber') {
+                    xml += `  <ArticleSerialNumber>${value}</ArticleSerialNumber>\n`;
+                } else if (key === 'articleTypeCode') {
+                    xml += `  <ArticleTypeCode>${value}</ArticleTypeCode>\n`;
+                } else if (key === 'articleCategory') {
+                    xml += `  <ArticleCategory>${value}</ArticleCategory>\n`;
+                } else if (key === 'articleBrand') {
+                    xml += `  <ArticleBrand>${value}</ArticleBrand>\n`;
                 }
             });
 
