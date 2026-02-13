@@ -980,7 +980,10 @@
         function generateFieldRequirements() {
             const spec = querySpecs[currentQueryType];
             let html = `<div class="field-requirements">`;
-            html += `<h3>Valid Field Combinations for ${spec.name} (${currentState === 'in-state' ? 'In-State CA' : 'Out-of-State'})</h3>`;
+
+            // Title with or without state mode
+            const stateText = currentQueryType === 'article' ? '' : ` (${currentState === 'in-state' ? 'In-State CA' : 'Out-of-State'})`;
+            html += `<h3>Valid Field Combinations for ${spec.name}${stateText}</h3>`;
 
             html += `<p style="margin-bottom: 12px; font-size: 13px; color: #555; line-height: 1.6;">`;
             html += `You must provide <strong>exactly one</strong> of the following field combinations. `;
@@ -1016,16 +1019,21 @@
             });
 
             html += `</ul>`;
-            html += `<div style="margin-top: 15px; padding: 12px; background: #f0f8ff; border-left: 3px solid #3498db; border-radius: 4px;">`;
-            html += `<p style="font-size: 12px; color: #555; margin-bottom: 8px;"><strong>Legend:</strong></p>`;
-            html += `<ul style="font-size: 12px; color: #666; margin-left: 20px; line-height: 1.7;">`;
-            html += `<li><strong>(In)</strong> = In-State California queries only - State field must be omitted</li>`;
-            html += `<li><strong>(Out)</strong> = Out-of-State queries only - State field is required</li>`;
-            html += `<li><strong>(In/Out)</strong> = Works for both in-state and out-of-state queries</li>`;
-            html += `<li><strong>[Field]</strong> = Optional field (in brackets) - can be included but not required</li>`;
-            html += `<li><strong>Purpose Code</strong> = Always mandatory per California AB 1747 (since July 21, 2021)</li>`;
-            html += `</ul>`;
-            html += `</div>`;
+
+            // Only show legend for non-article queries
+            if (currentQueryType !== 'article') {
+                html += `<div style="margin-top: 15px; padding: 12px; background: #f0f8ff; border-left: 3px solid #3498db; border-radius: 4px;">`;
+                html += `<p style="font-size: 12px; color: #555; margin-bottom: 8px;"><strong>Legend:</strong></p>`;
+                html += `<ul style="font-size: 12px; color: #666; margin-left: 20px; line-height: 1.7;">`;
+                html += `<li><strong>(In)</strong> = In-State California queries only - State field must be omitted</li>`;
+                html += `<li><strong>(Out)</strong> = Out-of-State queries only - State field is required</li>`;
+                html += `<li><strong>(In/Out)</strong> = Works for both in-state and out-of-state queries</li>`;
+                html += `<li><strong>[Field]</strong> = Optional field (in brackets) - can be included but not required</li>`;
+                html += `<li><strong>Purpose Code</strong> = Always mandatory per California AB 1747 (since July 21, 2021)</li>`;
+                html += `</ul>`;
+                html += `</div>`;
+            }
+
             html += `</div>`;
 
             return html;
