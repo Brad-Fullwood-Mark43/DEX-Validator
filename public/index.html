@@ -446,30 +446,49 @@
                 combinations: [
                     {
                         id: 1,
-                        description: '(In) LicensePlateNumber, LicensePlateTypeCode',
-                        fields: ['licensePlateNumber', 'licensePlateTypeCode'],
-                        state: 'in-state'
+                        description: '(In) LicensePlateNumber only',
+                        fields: ['licensePlateNumber'],
+                        state: 'in-state',
+                        keyReference: 'QV'
                     },
                     {
                         id: 2,
-                        description: '(In/Out) LicensePlateNumber, LicensePlateTypeCode, LicensePlateYear, [State]',
-                        fields: ['licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear'],
-                        optionalFields: ['state'],
-                        state: 'both'
+                        description: '(In) LicensePlateNumber, [LicensePlateTypeCode, LicensePlateYear]',
+                        fields: ['licensePlateNumber'],
+                        optionalFields: ['licensePlateTypeCode', 'licensePlateYear'],
+                        state: 'in-state',
+                        keyReference: 'RQP'
                     },
                     {
                         id: 3,
+                        description: '(In/Out) LicensePlateNumber, LicensePlateTypeCode, LicensePlateYear, [State]',
+                        fields: ['licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear'],
+                        optionalFields: ['state'],
+                        state: 'both',
+                        keyReference: 'RQP'
+                    },
+                    {
+                        id: 5,
+                        description: '(In) VehicleIdentificationNumber only',
+                        fields: ['vehicleIdentificationNumber'],
+                        state: 'in-state',
+                        keyReference: ['QV', '4V']
+                    },
+                    {
+                        id: 6,
                         description: '(In) VehicleIdentificationNumber, [VehicleMakeCode or VehicleYear]',
                         fields: ['vehicleIdentificationNumber'],
                         optionalFields: ['vehicleMakeCode', 'vehicleYear'],
-                        state: 'in-state'
+                        state: 'in-state',
+                        keyReference: 'RQV'
                     },
                     {
-                        id: 4,
+                        id: 7,
                         description: '(In/Out) VehicleIdentificationNumber, [VehicleMakeCode, VehicleYear, or State]',
                         fields: ['vehicleIdentificationNumber'],
                         optionalFields: ['state', 'vehicleMakeCode', 'vehicleYear'],
-                        state: 'both'
+                        state: 'both',
+                        keyReference: 'RQV'
                     }
                 ]
             },
@@ -1352,6 +1371,43 @@
                 html += `<div class="combination-info">`;
                 html += `<h3>Matched Valid Combination</h3>`;
                 html += `<code>${results.matchedCombination.description}</code>`;
+                html += `</div>`;
+            }
+
+            // CLETS Message Keys (for Vehicle Registration queries)
+            if (currentQueryType === 'vehicle-registration' && results.matchedCombination && results.matchedCombination.keyReference) {
+                html += `<div class="combination-info" style="background: #e8f5e9; border-color: #81c784;">`;
+                html += `<h3 style="color: #2e7d32;">CLETS Message Keys Sent</h3>`;
+                html += `<div style="background: white; padding: 12px; border-radius: 4px; margin-top: 8px;">`;
+                html += `<div style="font-size: 13px; margin-bottom: 8px;"><strong>Message Type:</strong> RQ (Registration Query)</div>`;
+
+                // Handle single or multiple keyReferences
+                const keyRefs = Array.isArray(results.matchedCombination.keyReference)
+                    ? results.matchedCombination.keyReference
+                    : [results.matchedCombination.keyReference];
+
+                html += `<div style="font-size: 13px; margin-bottom: 8px;"><strong>keyReference=</strong>`;
+                keyRefs.forEach((keyRef, index) => {
+                    if (index > 0) html += `, `;
+                    html += `<code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-weight: 600; color: #d32f2f;">${keyRef}</code>`;
+                });
+                html += `</div>`;
+
+                html += `<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #666;">`;
+                keyRefs.forEach((keyRef, index) => {
+                    if (index > 0) html += `<br>`;
+                    if (keyRef === 'QV') {
+                        html += `<strong>QV</strong> = Quick Vehicle Query (Plate or VIN Only)`;
+                    } else if (keyRef === '4V') {
+                        html += `<strong>4V</strong> = VIN-Specific Query`;
+                    } else if (keyRef === 'RQP') {
+                        html += `<strong>RQP</strong> = Registration Query by Plate Number with Details`;
+                    } else if (keyRef === 'RQV') {
+                        html += `<strong>RQV</strong> = Registration Query by VIN with Details`;
+                    }
+                });
+                html += `</div>`;
+                html += `</div>`;
                 html += `</div>`;
             }
 
