@@ -536,7 +536,7 @@
                 label: 'State',
                 type: 'datalist',
                 placeholder: 'Type or select...',
-                hint: 'Two-letter state code',
+                hint: '<strong>If License Plate State is CA leave blank.</strong> Otherwise choose appropriate 2 letter state code',
                 maxLength: 2,
                 options: [
                     { value: 'AL', label: 'AL - Alabama' },
@@ -689,6 +689,8 @@
         let currentQueryType = 'vehicle-registration';
         let currentState = 'in-state';
         let formData = {};
+        let vinErrorAcknowledged = false;
+        let vinErrorMessage = '';
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -703,7 +705,28 @@
                     document.querySelectorAll('.query-type-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
                     currentQueryType = this.dataset.type;
+
+                    // Auto-determine state mode for vehicle registration based on State field
+                    if (currentQueryType === 'vehicle-registration') {
+                        const stateValue = formData.state ? formData.state.trim().toUpperCase() : '';
+                        if (stateValue === '' || stateValue === 'CA') {
+                            currentState = 'in-state';
+                        } else {
+                            currentState = 'out-of-state';
+                        }
+                    }
+
                     renderForm();
+
+                    // Auto-focus on CA Purpose Code field for vehicle registration
+                    if (currentQueryType === 'vehicle-registration') {
+                        setTimeout(() => {
+                            const purposeCodeField = document.getElementById('purposeCode');
+                            if (purposeCodeField) {
+                                purposeCodeField.focus();
+                            }
+                        }, 0);
+                    }
                 });
             });
 
@@ -723,8 +746,9 @@
             const spec = querySpecs[currentQueryType];
 
             // Hide/show state selector based on query type
+            // For vehicle-registration, hide selector as state is determined by State field value
             const stateSelector = document.getElementById('state-selector');
-            if (currentQueryType === 'article') {
+            if (currentQueryType === 'article' || currentQueryType === 'vehicle-registration') {
                 stateSelector.style.display = 'none';
             } else {
                 stateSelector.style.display = 'flex';
@@ -747,9 +771,9 @@
             if (currentQueryType === 'article') {
                 fieldOrder = ['purposeCode', 'articleSerialNumber', 'articleTypeCode', 'articleCategory', 'articleBrand'];
             } else if (currentQueryType === 'vehicle-registration') {
-                // Specific order for vehicle registration: Plate fields, then VIN fields
-                fieldOrder = ['purposeCode', 'licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear',
-                             'vehicleIdentificationNumber', 'vehicleMakeCode', 'vehicleYear', 'state'];
+                // Specific order for vehicle registration: Purpose Code, State, then Plate/VIN fields
+                fieldOrder = ['purposeCode', 'state', 'licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear',
+                             'vehicleIdentificationNumber', 'vehicleMakeCode', 'vehicleYear'];
             } else {
                 // For other query types, convert Set to Array
                 fieldOrder = Array.from(allFields);
@@ -770,10 +794,33 @@
                 const field = fieldDefinitions[fieldName];
                 if (!field) return;
 
-                // Add "OR" separator before VIN field in vehicle registration
-                if (currentQueryType === 'vehicle-registration' && fieldName === 'vehicleIdentificationNumber') {
-                    // Only show OR separator if license plate field is empty (VIN fields are visible)
-                    if (!formData.licensePlateNumber || formData.licensePlateNumber.trim() === '') {
+                // Vehicle registration field visibility logic
+                if (currentQueryType === 'vehicle-registration') {
+                    // Add "AND" separator between CA Purpose Code and State
+                    if (fieldName === 'state') {
+                        html += `
+                            <div style="text-align: center; margin: 20px 0; position: relative;">
+                                <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
+                                <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #2ecc71; font-size: 14px;">AND</span>
+                            </div>
+                        `;
+                    }
+
+                    const hasPlateNumber = formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '';
+                    const hasVIN = formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '';
+
+                    // Add "THEN" separator between State and License Plate Number
+                    if (fieldName === 'licensePlateNumber') {
+                        html += `
+                            <div style="text-align: center; margin: 20px 0; position: relative;">
+                                <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
+                                <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #3498db; font-size: 14px;">THEN</span>
+                            </div>
+                        `;
+                    }
+
+                    // Add "OR" separator before VIN field (only if neither field has data yet)
+                    if (fieldName === 'vehicleIdentificationNumber' && !hasPlateNumber && !hasVIN) {
                         html += `
                             <div style="text-align: center; margin: 20px 0; position: relative;">
                                 <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
@@ -781,11 +828,24 @@
                             </div>
                         `;
                     }
-                }
 
-                // Hide VIN and vehicle detail fields if license plate number has data (for vehicle registration)
-                if (currentQueryType === 'vehicle-registration' && formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '') {
-                    if (fieldName === 'vehicleIdentificationNumber' || fieldName === 'vehicleMakeCode' || fieldName === 'vehicleYear') {
+                    // Hide plate detail fields if no plate number entered yet
+                    if (!hasPlateNumber && (fieldName === 'licensePlateTypeCode' || fieldName === 'licensePlateYear')) {
+                        return; // Skip rendering these fields
+                    }
+
+                    // Hide VIN detail fields if no VIN entered yet
+                    if (!hasVIN && (fieldName === 'vehicleMakeCode' || fieldName === 'vehicleYear')) {
+                        return; // Skip rendering these fields
+                    }
+
+                    // Hide VIN and its detail fields if license plate number has data
+                    if (hasPlateNumber && (fieldName === 'vehicleIdentificationNumber' || fieldName === 'vehicleMakeCode' || fieldName === 'vehicleYear')) {
+                        return; // Skip rendering these fields
+                    }
+
+                    // Hide plate and its detail fields if VIN has data
+                    if (hasVIN && (fieldName === 'licensePlateNumber' || fieldName === 'licensePlateTypeCode' || fieldName === 'licensePlateYear')) {
                         return; // Skip rendering these fields
                     }
                 }
@@ -826,8 +886,13 @@
                     html += `</datalist>`;
                 } else {
                     const attrs = field.maxLength ? `maxlength="${field.maxLength}"` : '';
-                    // Add onblur handler for license plate number to trigger field hiding
-                    const blurHandler = (fieldName === 'licensePlateNumber') ? ` onblur="handleLicensePlateBlur()"` : '';
+                    // Add onblur handlers for license plate and VIN fields to trigger field showing/hiding
+                    let blurHandler = '';
+                    if (fieldName === 'licensePlateNumber') {
+                        blurHandler = ` onblur="handleLicensePlateBlur()"`;
+                    } else if (fieldName === 'vehicleIdentificationNumber') {
+                        blurHandler = ` onblur="handleVINBlur()"`;
+                    }
                     html += `<input type="${field.type}" id="${fieldName}" placeholder="${field.placeholder}" value="${value}" ${attrs} oninput="updateFormData('${fieldName}', this.value)"${blurHandler}>`;
                 }
 
@@ -844,10 +909,51 @@
 
         function updateFormData(field, value) {
             formData[field] = value;
+
+            // Auto-focus on State field when CA Purpose Code is selected
+            if (field === 'purposeCode' && value && currentQueryType === 'vehicle-registration') {
+                setTimeout(() => {
+                    const stateField = document.getElementById('state');
+                    if (stateField) {
+                        stateField.focus();
+                    }
+                }, 0);
+            }
+
+            // Reset VIN error state when VIN field changes
+            if (field === 'vehicleIdentificationNumber') {
+                vinErrorAcknowledged = false;
+                vinErrorMessage = '';
+                // Remove error styling and message
+                const vinField = document.getElementById('vehicleIdentificationNumber');
+                if (vinField) {
+                    vinField.classList.remove('error');
+                }
+                const existingError = document.getElementById('vin-error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+            }
+
+            // Auto-determine In-State vs Out-of-State for vehicle registration based on State field
+            if (currentQueryType === 'vehicle-registration' && field === 'state') {
+                const stateValue = value ? value.trim().toUpperCase() : '';
+                if (stateValue === '' || stateValue === 'CA') {
+                    currentState = 'in-state';
+                } else {
+                    currentState = 'out-of-state';
+                }
+            }
+        }
+
+        function acknowledgeVINError() {
+            vinErrorAcknowledged = true;
+            vinErrorMessage = ''; // Clear error message after acknowledgment
+            handleVINBlur(); // Re-run the blur handler to proceed with form updates
         }
 
         function handleLicensePlateBlur() {
-            // Re-render form when user exits license plate number field (to hide/show VIN fields)
+            // Re-render form when user exits license plate number field
             if (currentQueryType === 'vehicle-registration') {
                 const plateValue = formData.licensePlateNumber;
                 // Clear VIN-related fields when license plate is entered
@@ -857,6 +963,168 @@
                     formData.vehicleYear = '';
                 }
                 renderForm();
+
+                // Auto-focus on License Plate Type Code field after form renders
+                if (plateValue && plateValue.trim() !== '') {
+                    setTimeout(() => {
+                        const plateTypeField = document.getElementById('licensePlateTypeCode');
+                        if (plateTypeField) {
+                            plateTypeField.focus();
+                        }
+                    }, 0);
+                }
+            }
+        }
+
+        function validateVIN(vin) {
+            // VIN validation according to ISO 3779:2009
+            if (!vin || vin.trim() === '') {
+                return { valid: true, error: '' }; // Empty is valid (optional field)
+            }
+
+            const vinUpper = vin.toUpperCase().trim();
+
+            // Check length - must be exactly 17 characters
+            if (vinUpper.length < 17) {
+                return {
+                    valid: false,
+                    error: `VIN is too short (${vinUpper.length} characters). A valid VIN must be exactly 17 characters.`
+                };
+            }
+            if (vinUpper.length > 17) {
+                return {
+                    valid: false,
+                    error: `VIN is too long (${vinUpper.length} characters). A valid VIN must be exactly 17 characters.`
+                };
+            }
+
+            // Check for invalid characters (I, O, Q are not allowed per ISO 3779)
+            const invalidChars = vinUpper.match(/[IOQ]/g);
+            if (invalidChars) {
+                const uniqueInvalid = [...new Set(invalidChars)].join(', ');
+                return {
+                    valid: false,
+                    error: `VIN contains invalid character(s): ${uniqueInvalid}. Letters I, O, and Q are not allowed in VINs (to avoid confusion with 1, 0).`
+                };
+            }
+
+            // Check that all characters are alphanumeric
+            const invalidPattern = vinUpper.match(/[^A-HJ-NPR-Z0-9]/g);
+            if (invalidPattern) {
+                const uniqueInvalid = [...new Set(invalidPattern)].join(', ');
+                return {
+                    valid: false,
+                    error: `VIN contains invalid character(s): ${uniqueInvalid}. Only letters A-Z (except I, O, Q) and numbers 0-9 are allowed.`
+                };
+            }
+
+            return { valid: true, error: '' };
+        }
+
+        function addVINError() {
+            // Helper function to add VIN error message to DOM
+            const vinField = document.getElementById('vehicleIdentificationNumber');
+            if (!vinField || !vinErrorMessage) return;
+
+            // Remove any existing error message first
+            const existingError = document.getElementById('vin-error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+
+            vinField.classList.add('error');
+
+            // Add error message with acknowledgment button
+            const errorContainer = document.createElement('div');
+            errorContainer.id = 'vin-error-message';
+            errorContainer.style.marginTop = '8px';
+
+            const errorMsg = document.createElement('div');
+            errorMsg.style.color = '#e74c3c';
+            errorMsg.style.fontSize = '12px';
+            errorMsg.style.fontWeight = '500';
+            errorMsg.style.marginBottom = '8px';
+            errorMsg.textContent = vinErrorMessage;
+
+            const acknowledgeBtn = document.createElement('button');
+            acknowledgeBtn.textContent = 'Proceed Anyway';
+            acknowledgeBtn.style.padding = '6px 12px';
+            acknowledgeBtn.style.backgroundColor = '#f39c12';
+            acknowledgeBtn.style.color = 'white';
+            acknowledgeBtn.style.border = 'none';
+            acknowledgeBtn.style.borderRadius = '4px';
+            acknowledgeBtn.style.fontSize = '12px';
+            acknowledgeBtn.style.fontWeight = '600';
+            acknowledgeBtn.style.cursor = 'pointer';
+            acknowledgeBtn.onclick = acknowledgeVINError;
+
+            errorContainer.appendChild(errorMsg);
+            errorContainer.appendChild(acknowledgeBtn);
+            vinField.parentElement.appendChild(errorContainer);
+        }
+
+        function handleVINBlur() {
+            // Validate VIN according to ISO 3779:2009
+            const vinValue = formData.vehicleIdentificationNumber;
+            const vinField = document.getElementById('vehicleIdentificationNumber');
+
+            if (vinValue && vinValue.trim() !== '') {
+                const validation = validateVIN(vinValue);
+
+                if (!validation.valid) {
+                    // Store error message
+                    vinErrorMessage = validation.error;
+
+                    // Add error message
+                    addVINError();
+
+                    // Block form progression until error is acknowledged
+                    if (!vinErrorAcknowledged) {
+                        return;
+                    }
+                } else {
+                    // Clear error state for valid VIN
+                    vinErrorMessage = '';
+                    vinErrorAcknowledged = false;
+                    if (vinField) {
+                        vinField.classList.remove('error');
+                    }
+                    const existingError = document.getElementById('vin-error-message');
+                    if (existingError) {
+                        existingError.remove();
+                    }
+                }
+            } else {
+                // Clear error state when field is empty
+                vinErrorMessage = '';
+                if (vinField) {
+                    vinField.classList.remove('error');
+                }
+                const existingError = document.getElementById('vin-error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+            }
+
+            // Re-render form when user exits VIN field (only if valid or acknowledged)
+            if (currentQueryType === 'vehicle-registration') {
+                // Clear plate-related fields when VIN is entered
+                if (vinValue && vinValue.trim() !== '') {
+                    formData.licensePlateNumber = '';
+                    formData.licensePlateTypeCode = '';
+                    formData.licensePlateYear = '';
+                }
+                renderForm();
+
+                // Auto-focus on Vehicle Make Code field after form renders
+                if (vinValue && vinValue.trim() !== '') {
+                    setTimeout(() => {
+                        const makeCodeField = document.getElementById('vehicleMakeCode');
+                        if (makeCodeField) {
+                            makeCodeField.focus();
+                        }
+                    }, 0);
+                }
             }
         }
 
