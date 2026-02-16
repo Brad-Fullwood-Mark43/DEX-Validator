@@ -489,6 +489,22 @@
                         optionalFields: ['state', 'vehicleMakeCode', 'vehicleYear'],
                         state: 'both',
                         keyReference: 'RQV'
+                    },
+                    {
+                        id: 8,
+                        description: '(In) Name, AddressStreetNumber, AddressCity',
+                        fields: ['name', 'addressStreetNumber', 'addressCity'],
+                        optionalFields: [],
+                        state: 'in-state',
+                        keyReference: 'RQN'
+                    },
+                    {
+                        id: 9,
+                        description: '(In) Name, BirthDate',
+                        fields: ['name', 'birthDate'],
+                        optionalFields: [],
+                        state: 'in-state',
+                        keyReference: 'RQN'
                     }
                 ]
             },
@@ -527,6 +543,20 @@
                 type: 'text',
                 placeholder: 'Last, First Middle',
                 hint: 'Format: LAST, FIRST MIDDLE'
+            },
+            addressStreetNumber: {
+                label: 'Address Street Number',
+                type: 'text',
+                placeholder: '',
+                hint: 'Street number (e.g., 123)',
+                maxLength: 10
+            },
+            addressCity: {
+                label: 'Address City',
+                type: 'text',
+                placeholder: '',
+                hint: 'City name',
+                maxLength: 30
             },
             operatorLicenseNumber: {
                 label: "Operator's License Number",
@@ -621,10 +651,79 @@
             },
             licensePlateTypeCode: {
                 label: 'License Plate Type Code',
-                type: 'text',
-                placeholder: '',
-                hint: 'Plate type (e.g., PC=Passenger Car, CM=Commercial)',
-                maxLength: 2
+                type: 'select',
+                options: [
+                    { value: '', label: 'Select Plate Type...' },
+                    { value: 'PC', label: 'PC - Passenger Car' },
+                    { value: 'CO', label: 'CO - Commercial' },
+                    { value: 'MC', label: 'MC - Motorcycle' },
+                    { value: 'TM', label: 'TM - Temporary' },
+                    { value: 'TK', label: 'TK - Truck' },
+                    { value: 'TL', label: 'TL - Trailer' },
+                    { value: 'TX', label: 'TX - Taxi' },
+                    { value: 'BU', label: 'BU - Bus' },
+                    { value: 'AF', label: 'AF - Alternative Fuel' },
+                    { value: 'AM', label: 'AM - Ambulance' },
+                    { value: 'AP', label: 'AP - Apportioned' },
+                    { value: 'AQ', label: 'AQ - Antique' },
+                    { value: 'AR', label: 'AR - Amateur Radio/Ham Radio' },
+                    { value: 'AT', label: 'AT - All-Terrain Vehicles' },
+                    { value: 'CC', label: 'CC - Consular Corps' },
+                    { value: 'CI', label: 'CI - City-Owned' },
+                    { value: 'CL', label: 'CL - Collegiate' },
+                    { value: 'CM', label: 'CM - Commemorative' },
+                    { value: 'CN', label: 'CN - Conservation' },
+                    { value: 'CU', label: 'CU - County-Owned' },
+                    { value: 'DA', label: 'DA - Drive-Away' },
+                    { value: 'DB', label: 'DB - Dune Buggy' },
+                    { value: 'DD', label: 'DD - Dentist' },
+                    { value: 'DL', label: 'DL - Dealer' },
+                    { value: 'DP', label: 'DP - Diplomatic' },
+                    { value: 'DU', label: 'DU - Duplicate/Reissue' },
+                    { value: 'DV', label: 'DV - Disabled Veteran' },
+                    { value: 'DX', label: 'DX - Disabled Person' },
+                    { value: 'EX', label: 'EX - Exempt' },
+                    { value: 'FD', label: 'FD - Fire Department' },
+                    { value: 'FG', label: 'FG - Foreign Government' },
+                    { value: 'FM', label: 'FM - Farm Vehicle' },
+                    { value: 'HI', label: 'HI - Hearing Impaired' },
+                    { value: 'IP', label: 'IP - International Plate' },
+                    { value: 'IT', label: 'IT - In-Transit' },
+                    { value: 'JJ', label: 'JJ - Judge or Justice' },
+                    { value: 'LE', label: 'LE - Law Enforcement' },
+                    { value: 'LF', label: 'LF - Legislative (Federal)' },
+                    { value: 'LS', label: 'LS - Legislative (State)' },
+                    { value: 'MD', label: 'MD - Motorcycle Dealer' },
+                    { value: 'MF', label: 'MF - Manufacturer' },
+                    { value: 'ML', label: 'ML - Military Vehicle (Canadian)' },
+                    { value: 'MP', label: 'MP - Moped' },
+                    { value: 'MR', label: 'MR - Armed Forces Reservist' },
+                    { value: 'MV', label: 'MV - Military Vehicle (U.S.)' },
+                    { value: 'MY', label: 'MY - Military Aircraft' },
+                    { value: 'NG', label: 'NG - National Guard' },
+                    { value: 'NP', label: 'NP - Nonpassenger (Civilian Aircraft)' },
+                    { value: 'OB', label: 'OB - Omnibus' },
+                    { value: 'OR', label: 'OR - Organization' },
+                    { value: 'PE', label: 'PE - Personalized/Customized' },
+                    { value: 'PF', label: 'PF - Professions' },
+                    { value: 'PH', label: 'PH - Pharmacist' },
+                    { value: 'PP', label: 'PP - Passenger (Civilian Aircraft)' },
+                    { value: 'PR', label: 'PR - Press' },
+                    { value: 'PS', label: 'PS - Professional Sports Team' },
+                    { value: 'PX', label: 'PX - Physician/Doctor' },
+                    { value: 'RE', label: 'RE - Reciprocal/Reciprocity' },
+                    { value: 'RV', label: 'RV - Rented Vehicle' },
+                    { value: 'SC', label: 'SC - Special Purpose Commercial' },
+                    { value: 'SN', label: 'SN - Snowmobile' },
+                    { value: 'ST', label: 'ST - State-Owned' },
+                    { value: 'SV', label: 'SV - School Vehicle' },
+                    { value: 'TP', label: 'TP - Transporter' },
+                    { value: 'TR', label: 'TR - Semitruck Cab' },
+                    { value: 'US', label: 'US - U.S. Government' },
+                    { value: 'VF', label: 'VF - Veteran' },
+                    { value: 'ZZ', label: 'ZZ - Other (ATV/Snowmobile/Equipment)' }
+                ],
+                hint: 'Select Plate Type for best results'
             },
             licensePlateYear: {
                 label: 'License Plate Year',
@@ -790,9 +889,11 @@
             if (currentQueryType === 'article') {
                 fieldOrder = ['purposeCode', 'articleSerialNumber', 'articleTypeCode', 'articleCategory', 'articleBrand'];
             } else if (currentQueryType === 'vehicle-registration') {
-                // Specific order for vehicle registration: Purpose Code, State, then Plate/VIN fields
-                fieldOrder = ['purposeCode', 'state', 'licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear',
-                             'vehicleIdentificationNumber', 'vehicleMakeCode', 'vehicleYear'];
+                // Specific order for vehicle registration: Purpose Code, State, Plate/VIN fields, then Name/Address/BirthDate
+                fieldOrder = ['purposeCode', 'state',
+                             'licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear',
+                             'vehicleIdentificationNumber', 'vehicleMakeCode', 'vehicleYear',
+                             'name', 'addressStreetNumber', 'addressCity', 'birthDate'];
             } else {
                 // For other query types, convert Set to Array
                 fieldOrder = Array.from(allFields);
@@ -815,8 +916,17 @@
 
                 // Vehicle registration field visibility logic
                 if (currentQueryType === 'vehicle-registration') {
-                    // Add "AND" separator between CA Purpose Code and State
-                    if (fieldName === 'state') {
+                    const hasPlateNumber = formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '';
+                    const hasVIN = formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '';
+                    const hasName = formData.name && formData.name.trim() !== '';
+                    const hasBirthDate = formData.birthDate && formData.birthDate.trim() !== '';
+                    const hasAddress = (formData.addressStreetNumber && formData.addressStreetNumber.trim() !== '') ||
+                                      (formData.addressCity && formData.addressCity.trim() !== '');
+                    const stateValue = formData.state ? formData.state.trim().toUpperCase() : '';
+                    const isCAOrEmpty = stateValue === '' || stateValue === 'CA';
+
+                    // Add "AND" separator between CA Purpose Code and State (hide when Name has data)
+                    if (fieldName === 'state' && !hasName) {
                         html += `
                             <div style="text-align: center; margin: 20px 0; position: relative;">
                                 <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
@@ -825,11 +935,8 @@
                         `;
                     }
 
-                    const hasPlateNumber = formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '';
-                    const hasVIN = formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '';
-
-                    // Add "THEN" separator between State and License Plate Number
-                    if (fieldName === 'licensePlateNumber') {
+                    // Add "THEN" separator between State and License Plate Number (hide when Name has data)
+                    if (fieldName === 'licensePlateNumber' && !hasName) {
                         html += `
                             <div style="text-align: center; margin: 20px 0; position: relative;">
                                 <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
@@ -838,14 +945,75 @@
                         `;
                     }
 
-                    // Add "OR" separator before VIN field (only if neither field has data yet)
-                    if (fieldName === 'vehicleIdentificationNumber' && !hasPlateNumber && !hasVIN) {
+                    // Add "OR" separator before VIN field (only if neither field has data yet and Name is empty)
+                    if (fieldName === 'vehicleIdentificationNumber' && !hasPlateNumber && !hasVIN && !hasName) {
                         html += `
                             <div style="text-align: center; margin: 20px 0; position: relative;">
                                 <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
                                 <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #666; font-size: 14px;">OR</span>
                             </div>
                         `;
+                    }
+
+                    // Add "OR" separator before Name field (separating VIN section from Name section, hide when Name has data or state is not CA/empty)
+                    if (fieldName === 'name' && !hasName && isCAOrEmpty) {
+                        html += `
+                            <div style="text-align: center; margin: 20px 0; position: relative;">
+                                <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
+                                <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #666; font-size: 14px;">OR</span>
+                            </div>
+                        `;
+                    }
+
+                    // Add "THEN EITHER BY" separator before AddressStreetNumber field (only show when Name has data and birthDate is empty)
+                    if (fieldName === 'addressStreetNumber' && hasName && !hasBirthDate) {
+                        html += `
+                            <div style="text-align: center; margin: 20px 0; position: relative;">
+                                <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
+                                <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #3498db; font-size: 14px;">THEN EITHER BY</span>
+                            </div>
+                        `;
+                    }
+
+                    // Add "AND" separator before AddressCity field (only show when Name has data and birthDate is empty)
+                    if (fieldName === 'addressCity' && hasName && !hasBirthDate) {
+                        html += `
+                            <div style="text-align: center; margin: 20px 0; position: relative;">
+                                <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
+                                <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #2ecc71; font-size: 14px;">AND</span>
+                            </div>
+                        `;
+                    }
+
+                    // Add "OR" separator before BirthDate field (only show when Name has data and address is empty)
+                    if (fieldName === 'birthDate' && hasName && !hasAddress) {
+                        html += `
+                            <div style="text-align: center; margin: 20px 0; position: relative;">
+                                <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
+                                <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #666; font-size: 14px;">OR</span>
+                            </div>
+                        `;
+                    }
+
+                    // Add "THEN" separator before BirthDate field (only show when Name has data and birthDate has data)
+                    if (fieldName === 'birthDate' && hasName && hasBirthDate) {
+                        html += `
+                            <div style="text-align: center; margin: 20px 0; position: relative;">
+                                <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
+                                <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #3498db; font-size: 14px;">THEN</span>
+                            </div>
+                        `;
+                    }
+
+                    // Hide State field when Name has data
+                    if (hasName && fieldName === 'state') {
+                        return; // Skip rendering this field
+                    }
+
+                    // Hide Name and related fields if State is not CA and not empty (Name only works for in-state CA)
+                    if (!isCAOrEmpty && (fieldName === 'name' || fieldName === 'addressStreetNumber' ||
+                                         fieldName === 'addressCity' || fieldName === 'birthDate')) {
+                        return; // Skip rendering these fields
                     }
 
                     // Hide plate detail fields if no plate number entered yet
@@ -858,13 +1026,36 @@
                         return; // Skip rendering these fields
                     }
 
-                    // Hide VIN and its detail fields if license plate number has data
-                    if (hasPlateNumber && (fieldName === 'vehicleIdentificationNumber' || fieldName === 'vehicleMakeCode' || fieldName === 'vehicleYear')) {
+                    // Hide name detail fields if no name entered yet
+                    if (!hasName && (fieldName === 'addressStreetNumber' || fieldName === 'addressCity' || fieldName === 'birthDate')) {
                         return; // Skip rendering these fields
                     }
 
-                    // Hide plate and its detail fields if VIN has data
-                    if (hasVIN && (fieldName === 'licensePlateNumber' || fieldName === 'licensePlateTypeCode' || fieldName === 'licensePlateYear')) {
+                    // Hide address fields if birthDate has data (mutual exclusivity)
+                    if (hasBirthDate && (fieldName === 'addressStreetNumber' || fieldName === 'addressCity')) {
+                        return; // Skip rendering these fields
+                    }
+
+                    // Hide birthDate field if address has data (mutual exclusivity)
+                    if (hasAddress && fieldName === 'birthDate') {
+                        return; // Skip rendering this field
+                    }
+
+                    // Hide VIN and Name sections if license plate number has data
+                    if (hasPlateNumber && (fieldName === 'vehicleIdentificationNumber' || fieldName === 'vehicleMakeCode' || fieldName === 'vehicleYear' ||
+                                          fieldName === 'name' || fieldName === 'addressStreetNumber' || fieldName === 'addressCity' || fieldName === 'birthDate')) {
+                        return; // Skip rendering these fields
+                    }
+
+                    // Hide plate and Name sections if VIN has data
+                    if (hasVIN && (fieldName === 'licensePlateNumber' || fieldName === 'licensePlateTypeCode' || fieldName === 'licensePlateYear' ||
+                                  fieldName === 'name' || fieldName === 'addressStreetNumber' || fieldName === 'addressCity' || fieldName === 'birthDate')) {
+                        return; // Skip rendering these fields
+                    }
+
+                    // Hide plate and VIN sections if Name has data
+                    if (hasName && (fieldName === 'licensePlateNumber' || fieldName === 'licensePlateTypeCode' || fieldName === 'licensePlateYear' ||
+                                   fieldName === 'vehicleIdentificationNumber' || fieldName === 'vehicleMakeCode' || fieldName === 'vehicleYear')) {
                         return; // Skip rendering these fields
                     }
                 }
@@ -887,7 +1078,7 @@
                 `;
 
                 if (field.type === 'select') {
-                    html += `<select id="${fieldName}" onchange="updateFormData('${fieldName}', this.value)">`;
+                    html += `<select id="${fieldName}" tabindex="0" onchange="updateFormData('${fieldName}', this.value)">`;
                     field.options.forEach(opt => {
                         html += `<option value="${opt.value}" ${value === opt.value ? 'selected' : ''}>${opt.label}</option>`;
                     });
@@ -895,7 +1086,12 @@
                 } else if (field.type === 'datalist') {
                     const attrs = field.maxLength ? `maxlength="${field.maxLength}"` : '';
                     const datalistId = `${fieldName}-list`;
-                    html += `<input type="text" id="${fieldName}" list="${datalistId}" placeholder="${field.placeholder}" value="${value}" ${attrs} oninput="updateFormData('${fieldName}', this.value)" style="text-transform: uppercase;">`;
+                    // Add blur handler for state field in vehicle registration
+                    let blurHandler = '';
+                    if (fieldName === 'state' && currentQueryType === 'vehicle-registration') {
+                        blurHandler = ` onblur="handleStateBlur(event)"`;
+                    }
+                    html += `<input type="text" id="${fieldName}" list="${datalistId}" placeholder="${field.placeholder}" value="${value}" ${attrs} tabindex="0" oninput="updateFormData('${fieldName}', this.value)" style="text-transform: uppercase;"${blurHandler}>`;
                     html += `<datalist id="${datalistId}">`;
                     if (field.options) {
                         field.options.forEach(opt => {
@@ -905,14 +1101,24 @@
                     html += `</datalist>`;
                 } else {
                     const attrs = field.maxLength ? `maxlength="${field.maxLength}"` : '';
-                    // Add onblur handlers for license plate and VIN fields to trigger field showing/hiding
+                    // Add onblur handlers for license plate, VIN, name, state, and address/birthdate fields to trigger field showing/hiding
                     let blurHandler = '';
                     if (fieldName === 'licensePlateNumber') {
-                        blurHandler = ` onblur="handleLicensePlateBlur()"`;
+                        blurHandler = ` onblur="handleLicensePlateBlur(event)"`;
                     } else if (fieldName === 'vehicleIdentificationNumber') {
-                        blurHandler = ` onblur="handleVINBlur()"`;
+                        blurHandler = ` onblur="handleVINBlur(event)"`;
+                    } else if (fieldName === 'name' && currentQueryType === 'vehicle-registration') {
+                        blurHandler = ` onblur="handleNameBlur(event)"`;
+                    } else if (fieldName === 'state' && currentQueryType === 'vehicle-registration') {
+                        blurHandler = ` onblur="handleStateBlur(event)"`;
+                    } else if (fieldName === 'birthDate' && currentQueryType === 'vehicle-registration') {
+                        blurHandler = ` onblur="handleBirthDateBlur(event)"`;
+                    } else if (fieldName === 'addressStreetNumber' && currentQueryType === 'vehicle-registration') {
+                        blurHandler = ` onblur="handleAddressStreetNumberBlur(event)"`;
+                    } else if (fieldName === 'addressCity' && currentQueryType === 'vehicle-registration') {
+                        blurHandler = ` onblur="handleAddressBlur(event)"`;
                     }
-                    html += `<input type="${field.type}" id="${fieldName}" placeholder="${field.placeholder}" value="${value}" ${attrs} oninput="updateFormData('${fieldName}', this.value)"${blurHandler}>`;
+                    html += `<input type="${field.type}" id="${fieldName}" placeholder="${field.placeholder}" value="${value}" ${attrs} tabindex="0" oninput="updateFormData('${fieldName}', this.value)"${blurHandler}>`;
                 }
 
                 // Add hint text if available
@@ -975,11 +1181,15 @@
             // Re-render form when user exits license plate number field
             if (currentQueryType === 'vehicle-registration') {
                 const plateValue = formData.licensePlateNumber;
-                // Clear VIN-related fields when license plate is entered
+                // Clear VIN and Name-related fields when license plate is entered
                 if (plateValue && plateValue.trim() !== '') {
                     formData.vehicleIdentificationNumber = '';
                     formData.vehicleMakeCode = '';
                     formData.vehicleYear = '';
+                    formData.name = '';
+                    formData.addressStreetNumber = '';
+                    formData.addressCity = '';
+                    formData.birthDate = '';
                 }
                 renderForm();
 
@@ -992,6 +1202,123 @@
                         }
                     }, 0);
                 }
+            }
+        }
+
+        function handleNameBlur(event) {
+            // Re-render form when user exits name field
+            if (currentQueryType === 'vehicle-registration') {
+                const nameValue = formData.name;
+                // Clear License Plate and VIN-related fields when name is entered
+                if (nameValue && nameValue.trim() !== '') {
+                    formData.licensePlateNumber = '';
+                    formData.licensePlateTypeCode = '';
+                    formData.licensePlateYear = '';
+                    formData.vehicleIdentificationNumber = '';
+                    formData.vehicleMakeCode = '';
+                    formData.vehicleYear = '';
+                }
+
+                // Store the relatedTarget (where focus is going) before renderForm
+                const nextFocusTarget = event && event.relatedTarget ? event.relatedTarget.id : null;
+
+                renderForm();
+
+                // Restore focus to the next field if user was tabbing
+                if (nextFocusTarget) {
+                    setTimeout(() => {
+                        const targetField = document.getElementById(nextFocusTarget);
+                        if (targetField) {
+                            targetField.focus();
+                        }
+                    }, 0);
+                }
+            }
+        }
+
+        function handleStateBlur() {
+            // Re-render form when user exits state field
+            if (currentQueryType === 'vehicle-registration') {
+                const stateValue = formData.state ? formData.state.trim().toUpperCase() : '';
+                const isCAOrEmpty = stateValue === '' || stateValue === 'CA';
+
+                // Clear name-related fields if state is not CA and not empty
+                if (!isCAOrEmpty) {
+                    formData.name = '';
+                    formData.addressStreetNumber = '';
+                    formData.addressCity = '';
+                    formData.birthDate = '';
+                }
+                renderForm();
+
+                // Auto-focus on the next appropriate field after form renders
+                setTimeout(() => {
+                    if (!isCAOrEmpty) {
+                        // If non-CA state, focus on License Plate Number (Name is hidden)
+                        const licensePlateField = document.getElementById('licensePlateNumber');
+                        if (licensePlateField) {
+                            licensePlateField.focus();
+                        }
+                    } else {
+                        // If CA or empty, focus on License Plate Number (first visible field after State)
+                        const licensePlateField = document.getElementById('licensePlateNumber');
+                        if (licensePlateField) {
+                            licensePlateField.focus();
+                        }
+                    }
+                }, 0);
+            }
+        }
+
+        function handleAddressStreetNumberBlur(event) {
+            // Re-render form when user exits address street number field
+            if (currentQueryType === 'vehicle-registration') {
+                const addressStreetNumberValue = formData.addressStreetNumber;
+                // Clear birthDate when address street number is entered
+                if (addressStreetNumberValue && addressStreetNumberValue.trim() !== '') {
+                    formData.birthDate = '';
+                }
+
+                // Store the relatedTarget (where focus is going) before renderForm
+                const nextFocusTarget = event && event.relatedTarget ? event.relatedTarget.id : null;
+
+                renderForm();
+
+                // Restore focus to the next field if user was tabbing
+                if (nextFocusTarget) {
+                    setTimeout(() => {
+                        const targetField = document.getElementById(nextFocusTarget);
+                        if (targetField) {
+                            targetField.focus();
+                        }
+                    }, 0);
+                }
+            }
+        }
+
+        function handleBirthDateBlur() {
+            // Re-render form when user exits birth date field
+            if (currentQueryType === 'vehicle-registration') {
+                const birthDateValue = formData.birthDate;
+                // Clear address fields when birth date is entered
+                if (birthDateValue && birthDateValue.trim() !== '') {
+                    formData.addressStreetNumber = '';
+                    formData.addressCity = '';
+                }
+                renderForm();
+            }
+        }
+
+        function handleAddressBlur() {
+            // Re-render form when user exits address field
+            if (currentQueryType === 'vehicle-registration') {
+                const hasAddress = (formData.addressStreetNumber && formData.addressStreetNumber.trim() !== '') ||
+                                  (formData.addressCity && formData.addressCity.trim() !== '');
+                // Clear birth date when address is entered
+                if (hasAddress) {
+                    formData.birthDate = '';
+                }
+                renderForm();
             }
         }
 
@@ -1127,11 +1454,15 @@
 
             // Re-render form when user exits VIN field (only if valid or acknowledged)
             if (currentQueryType === 'vehicle-registration') {
-                // Clear plate-related fields when VIN is entered
+                // Clear plate and name-related fields when VIN is entered
                 if (vinValue && vinValue.trim() !== '') {
                     formData.licensePlateNumber = '';
                     formData.licensePlateTypeCode = '';
                     formData.licensePlateYear = '';
+                    formData.name = '';
+                    formData.addressStreetNumber = '';
+                    formData.addressCity = '';
+                    formData.birthDate = '';
                 }
                 renderForm();
 
@@ -1279,8 +1610,8 @@
             }
 
             // Add other fields in appropriate order
-            // Order: Name, BirthDate, SexCode, OperatorLicenseNumber, State, then vehicle fields, then article fields
-            const fieldOrder = ['name', 'birthDate', 'sexCode', 'operatorLicenseNumber', 'state',
+            // Order: Name, Address, BirthDate, SexCode, OperatorLicenseNumber, State, then vehicle fields, then article fields
+            const fieldOrder = ['name', 'addressStreetNumber', 'addressCity', 'birthDate', 'sexCode', 'operatorLicenseNumber', 'state',
                                'licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear',
                                'vehicleIdentificationNumber', 'vehicleMakeCode', 'vehicleYear',
                                'articleSerialNumber', 'articleTypeCode', 'articleCategory', 'articleBrand'];
@@ -1294,6 +1625,10 @@
                 if (key === 'name') {
                     // Name field is sent as-is per CA eSUN spec (format: LAST, FIRST MIDDLE)
                     xml += `  <Name>${value}</Name>\n`;
+                } else if (key === 'addressStreetNumber') {
+                    xml += `  <AddressStreetNumber>${value}</AddressStreetNumber>\n`;
+                } else if (key === 'addressCity') {
+                    xml += `  <AddressCity>${value}</AddressCity>\n`;
                 } else if (key === 'birthDate') {
                     // Convert YYYY-MM-DD to YYYYMMDD format
                     const dateFormatted = value.replace(/-/g, '');
