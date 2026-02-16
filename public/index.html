@@ -191,6 +191,23 @@
             transform: translateY(1px);
         }
 
+        .validate-btn.not-ready {
+            background: #e74c3c;
+            cursor: not-allowed;
+        }
+
+        .validate-btn.not-ready:hover {
+            background: #c0392b;
+        }
+
+        .validate-btn.ready {
+            background: #2ecc71;
+        }
+
+        .validate-btn.ready:hover {
+            background: #27ae60;
+        }
+
         .results {
             position: sticky;
             top: 20px;
@@ -362,7 +379,7 @@
 
                 <div id="form-fields"></div>
 
-                <button class="validate-btn" onclick="validateQuery()">Validate Query</button>
+                <div id="validate-button-container"></div>
             </div>
 
             <div class="section results">
@@ -1060,11 +1077,25 @@
                     }
                 }
 
-                const isRequired = fieldName === 'purposeCode';
+                // Determine if field is required
+                let isRequired = fieldName === 'purposeCode';
 
-                // Set default value for licensePlateYear to current year if not already set
+                // For vehicle registration, license plate type and year are required for out-of-state queries
+                if (currentQueryType === 'vehicle-registration') {
+                    const stateValue = formData.state ? formData.state.trim().toUpperCase() : '';
+                    const isOutOfState = stateValue !== '' && stateValue !== 'CA';
+                    const hasPlateNumber = formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '';
+
+                    if (isOutOfState && hasPlateNumber) {
+                        if (fieldName === 'licensePlateTypeCode' || fieldName === 'licensePlateYear') {
+                            isRequired = true;
+                        }
+                    }
+                }
+
+                // Set default value for licensePlateYear to current year for out-of-state queries only
                 let value = formData[fieldName] || '';
-                if (fieldName === 'licensePlateYear' && !value) {
+                if (fieldName === 'licensePlateYear' && !value && currentState === 'out-of-state') {
                     value = new Date().getFullYear().toString();
                     formData[fieldName] = value;
                 }
@@ -1130,6 +1161,62 @@
             });
 
             formContainer.innerHTML = html;
+            updateValidateButton();
+        }
+
+        function isFormReadyToValidate() {
+            // Check if purpose code is filled (always required)
+            if (!formData.purposeCode) {
+                return false;
+            }
+
+            // Check if at least one query field is filled
+            const hasPlateNumber = formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '';
+            const hasVIN = formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '';
+            const hasName = formData.name && formData.name.trim() !== '';
+            const hasAddress = (formData.addressStreetNumber && formData.addressStreetNumber.trim() !== '') ||
+                              (formData.addressCity && formData.addressCity.trim() !== '');
+            const hasBirthDate = formData.birthDate && formData.birthDate.trim() !== '';
+            const stateValue = formData.state ? formData.state.trim().toUpperCase() : '';
+            const isOutOfState = stateValue !== '' && stateValue !== 'CA';
+
+            // For vehicle registration, need at least one of: plate, VIN, or name+(address or birthdate)
+            if (currentQueryType === 'vehicle-registration') {
+                // If using license plate for out-of-state, require type and year
+                if (hasPlateNumber) {
+                    if (isOutOfState) {
+                        const hasPlateType = formData.licensePlateTypeCode && formData.licensePlateTypeCode.trim() !== '';
+                        const hasPlateYear = formData.licensePlateYear && formData.licensePlateYear.trim() !== '';
+                        return hasPlateType && hasPlateYear;
+                    }
+                    return true;
+                }
+                if (hasVIN) {
+                    return true;
+                }
+                if (hasName && (hasAddress || hasBirthDate)) {
+                    return true;
+                }
+                return false;
+            }
+
+            // For other query types, check if at least one field is filled
+            const filledFields = Object.keys(formData).filter(key => {
+                return formData[key] && formData[key].trim() !== '' && key !== 'purposeCode';
+            });
+
+            return filledFields.length > 0;
+        }
+
+        function updateValidateButton() {
+            const buttonContainer = document.getElementById('validate-button-container');
+            const isReady = isFormReadyToValidate();
+
+            if (isReady) {
+                buttonContainer.innerHTML = `<button class="validate-btn ready" onclick="validateQuery()">SUBMIT</button>`;
+            } else {
+                buttonContainer.innerHTML = `<button class="validate-btn not-ready" onclick="return false;">NOT READY</button>`;
+            }
         }
 
         function updateFormData(field, value) {
@@ -1165,10 +1252,15 @@
                 const stateValue = value ? value.trim().toUpperCase() : '';
                 if (stateValue === '' || stateValue === 'CA') {
                     currentState = 'in-state';
+                    // Clear License Plate Year for in-state CA queries
+                    formData.licensePlateYear = '';
                 } else {
                     currentState = 'out-of-state';
                 }
             }
+
+            // Update validate button state
+            updateValidateButton();
         }
 
         function acknowledgeVINError() {
