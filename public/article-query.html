@@ -232,6 +232,10 @@
             <a href="index.html" style="color: #3498db; text-decoration: none; font-size: 14px; display: inline-block; margin-bottom: 10px;">&larr; Back to Query Types</a>
             <h1>Article Query Validator</h1>
             <p>Validate stolen article queries for California eSUN system</p>
+            <p style="color: #ffffff; margin-top: 15px; font-size: 14px; line-height: 1.6;">
+                <strong style="color: #ff0000;">IMPORTANT:</strong> Inquiries using Serial (SER) or an Owner Applied Number (OAN) must be used in conjunction with TYP or BRA.
+                Inquiries using SER or OAN with TYP will be forwarded to NCIC. Using SER or OAN with BRA will only search APS.
+            </p>
         </div>
 
         <div class="main-content">
@@ -262,27 +266,24 @@
                 combinations: [
                     {
                         id: 1,
-                        description: 'ArticleSerialNumber only',
-                        fields: ['articleSerialNumber'],
-                        keyReference: 'AQ'
+                        description: 'Serial + Type + Category (forwarded to NCIC)',
+                        fields: ['articleSerialNumber', 'articleTypeCode', 'articleCategory'],
+                        keyReference: 'AQ',
+                        note: 'SER/OAN with TYP forwarded to NCIC'
                     },
                     {
                         id: 2,
-                        description: 'ArticleSerialNumber, ArticleTypeCode',
-                        fields: ['articleSerialNumber', 'articleTypeCode'],
-                        keyReference: 'AQ'
+                        description: 'Serial + Brand (searches APS only)',
+                        fields: ['articleSerialNumber', 'articleBrand'],
+                        keyReference: 'AQ',
+                        note: 'SER/OAN with BRA searches APS only'
                     },
                     {
                         id: 3,
-                        description: 'ArticleSerialNumber, ArticleTypeCode, ArticleBrand',
-                        fields: ['articleSerialNumber', 'articleTypeCode', 'articleBrand'],
-                        keyReference: 'AQ'
-                    },
-                    {
-                        id: 4,
-                        description: 'ArticleSerialNumber, ArticleTypeCode, ArticleCategory',
-                        fields: ['articleSerialNumber', 'articleTypeCode', 'articleCategory'],
-                        keyReference: 'AQ'
+                        description: 'Serial + Type + Category + Brand',
+                        fields: ['articleSerialNumber', 'articleTypeCode', 'articleCategory', 'articleBrand'],
+                        keyReference: 'AQ',
+                        note: 'Complete query with both TYP and BRA'
                     }
                 ]
             }
@@ -1307,14 +1308,15 @@
             },
             articleBrand: {
                 label: 'Article Brand',
-                type: 'text',
-                placeholder: '',
-                hint: 'Article brand (max 20 characters)',
+                type: 'datalist',
+                placeholder: 'Type to search brands...',
+                hint: 'Article brand - type to search from 12,650+ options',
                 maxLength: 20
             },
             articleCategory: {
                 label: 'Article Category',
                 type: 'select',
+                hint: 'Auto-populated when Article Type Code is selected',
                 options: [
                     { value: "", label: "Select..." },
                     { value: "S", label: "S - A RIDE" },
@@ -3253,8 +3255,64 @@ const articleCodeToCategory = {
         let currentQueryType = 'article';
         let formData = {};
 
+        // Global variable for article brand options
+        let articleBrandOptions = [];
+
+        // Load article brand dropdown options
+        async function loadArticleBrandOptions() {
+            try {
+                const response = await fetch('article-brand-dropdown.json');
+                articleBrandOptions = await response.json();
+                console.log(`Loaded ${articleBrandOptions.length} article brand options`);
+                // Populate datalist after loading
+                populateArticleBrandDatalist();
+            } catch (error) {
+                console.error('Error loading article brand options:', error);
+                articleBrandOptions = [];
+            }
+        }
+
+        // Populate the datalist with all brand options
+        function populateArticleBrandDatalist() {
+            const datalist = document.getElementById('articleBrandList');
+            if (!datalist) return;
+
+            // Clear existing options
+            datalist.innerHTML = '';
+
+            // Add all options (browser will handle filtering)
+            articleBrandOptions.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option.value;
+                optionElement.textContent = option.label;
+                datalist.appendChild(optionElement);
+            });
+        }
+
+        // Filter and show article brand suggestions
+        function filterArticleBrands(searchTerm) {
+            if (!searchTerm) {
+                document.getElementById('brandSearchResults').textContent = '';
+                return;
+            }
+
+            const searchUpper = searchTerm.toUpperCase();
+            const matches = articleBrandOptions.filter(option =>
+                option.label.toUpperCase().includes(searchUpper) ||
+                option.value.toUpperCase().includes(searchUpper)
+            );
+
+            const resultsDiv = document.getElementById('brandSearchResults');
+            if (matches.length > 0) {
+                resultsDiv.textContent = `Found ${matches.length} matching brand${matches.length !== 1 ? 's' : ''}`;
+            } else {
+                resultsDiv.textContent = 'No matches found';
+            }
+        }
+
         // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadArticleBrandOptions();
             renderForm();
         });
 
@@ -3300,17 +3358,35 @@ const articleCodeToCategory = {
 
                 if (field.type === 'select') {
                     let extraHandlers = '';
+                    let disabledAttr = '';
                     if (fieldName === 'articleCategory') {
                         extraHandlers = ` onfocus="restoreCategoryLabels()" onmousedown="restoreCategoryLabels()"`;
+                        disabledAttr = ' disabled';
                     } else if (fieldName === 'articleTypeCode') {
                         extraHandlers = ` onchange="updateFormData('${fieldName}', this.value); autoPopulateCategoryFromCode();"`;
                     }
                     const changeHandler = fieldName === 'articleTypeCode' ? '' : ` onchange="updateFormData('${fieldName}', this.value)"`;
-                    html += `<select id="${fieldName}"${changeHandler}${extraHandlers}>`;
+                    html += `<select id="${fieldName}"${changeHandler}${extraHandlers}${disabledAttr}>`;
                     field.options.forEach(opt => {
                         html += `<option value="${opt.value}" ${value === opt.value ? 'selected' : ''}>${opt.label}</option>`;
                     });
                     html += `</select>`;
+                } else if (field.type === 'datalist' && fieldName === 'articleBrand') {
+                    // Datalist for article brand (searchable dropdown)
+                    const attrs = field.maxLength ? `maxlength="${field.maxLength}"` : '';
+                    html += `
+                        <input type="text"
+                               id="${fieldName}"
+                               list="${fieldName}List"
+                               placeholder="${field.placeholder}"
+                               value="${value}"
+                               ${attrs}
+                               oninput="updateFormData('${fieldName}', this.value); filterArticleBrands(this.value)"
+                               autocomplete="off">
+                        <datalist id="${fieldName}List">
+                        </datalist>
+                        <div id="brandSearchResults" style="margin-top: 5px; font-size: 12px; color: #666;"></div>
+                    `;
                 } else {
                     const attrs = field.maxLength ? `maxlength="${field.maxLength}"` : '';
                     html += `<input type="${field.type}" id="${fieldName}" placeholder="${field.placeholder}" value="${value}" ${attrs} oninput="updateFormData('${fieldName}', this.value)">`;
@@ -3325,12 +3401,26 @@ const articleCodeToCategory = {
             });
 
             formContainer.innerHTML = html;
+
+            // Populate article brand datalist after form is rendered
+            populateArticleBrandDatalist();
+
             updateValidateButton();
         }
 
         function isFormReadyToValidate() {
             if (!formData.purposeCode) return false;
             if (!formData.articleSerialNumber || formData.articleSerialNumber.trim() === '') return false;
+
+            // Require either Article Type Code OR Article Brand
+            const hasTypeCode = formData.articleTypeCode && formData.articleTypeCode.trim() !== '';
+            const hasBrand = formData.articleBrand && formData.articleBrand.trim() !== '';
+            if (!hasTypeCode && !hasBrand) return false;
+
+            // If Article Type Code is populated, Article Category must also be populated
+            if (hasTypeCode && (!formData.articleCategory || formData.articleCategory.trim() === '')) {
+                return false;
+            }
 
             return true;
         }
@@ -3419,6 +3509,19 @@ const articleCodeToCategory = {
 
             if (!formData.articleSerialNumber || formData.articleSerialNumber.trim() === '') {
                 results.errors.push('Article Serial Number is required');
+            }
+
+            // Validate that either Article Type Code OR Article Brand is provided
+            const hasTypeCode = formData.articleTypeCode && formData.articleTypeCode.trim() !== '';
+            const hasBrand = formData.articleBrand && formData.articleBrand.trim() !== '';
+
+            if (!hasTypeCode && !hasBrand) {
+                results.errors.push('Either Article Type Code (TYP) or Article Brand (BRA) must be provided');
+            }
+
+            // If Article Type Code is populated, Article Category must also be populated
+            if (hasTypeCode && (!formData.articleCategory || formData.articleCategory.trim() === '')) {
+                results.errors.push('Article Category is required when Article Type Code is provided');
             }
 
             const filledFields = Object.keys(formData).filter(key => {
@@ -3537,13 +3640,19 @@ const articleCodeToCategory = {
             html += `<h3>Valid Field Combinations for ${spec.name}</h3>`;
 
             html += `<p style="margin-bottom: 12px; font-size: 13px; color: #555; line-height: 1.6;">`;
-            html += `Article queries require at minimum the Article Serial Number. Additional fields can be added for more specific searches:`;
+            html += `<strong>Required fields:</strong> CA Purpose Code + Article Serial Number (SER/OAN) + either Article Type Code (TYP) or Article Brand (BRA) or both.<br>`;
+            html += `<strong>Important:</strong> If Article Type Code is populated, Article Category must also be populated.`;
             html += `</p>`;
 
             html += `<ul style="line-height: 1.8;">`;
 
             spec.combinations.forEach(combo => {
-                html += `<li style="margin-bottom: 8px;"><strong>${combo.description}</strong></li>`;
+                html += `<li style="margin-bottom: 8px;">`;
+                html += `<strong>${combo.description}</strong>`;
+                if (combo.note) {
+                    html += `<br><span style="font-size: 12px; color: #666; font-style: italic;">${combo.note}</span>`;
+                }
+                html += `</li>`;
             });
 
             html += `</ul>`;
