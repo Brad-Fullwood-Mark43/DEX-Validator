@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver License Query - CA eSUN Validator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+
+        .state-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .state-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .state-btn:hover {
+            border-color: #2ecc71;
+        }
+
+        .state-btn.active {
+            background: #2ecc71;
+            color: white;
+            border-color: #2ecc71;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group label .required {
+            color: #e74c3c;
+            margin-left: 3px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-group input:disabled {
+            background: #ecf0f1;
+            cursor: not-allowed;
+        }
+
+        .validate-btn {
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .validate-btn.not-ready {
+            background: #e74c3c;
+            cursor: not-allowed;
+        }
+
+        .validate-btn.not-ready:hover {
+            background: #c0392b;
+        }
+
+        .validate-btn.ready {
+            background: #2ecc71;
+        }
+
+        .validate-btn.ready:hover {
+            background: #27ae60;
+        }
+
+        .results {
+            position: sticky;
+            top: 20px;
+        }
+
+        .validation-status {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .validation-status.valid {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .validation-status.invalid {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .error-list {
+            list-style: none;
+            margin-top: 10px;
+        }
+
+        .error-list li {
+            padding: 8px 12px;
+            background: white;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            border-left: 3px solid #e74c3c;
+        }
+
+        .combination-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #90caf9;
+        }
+
+        .combination-info h3 {
+            font-size: 14px;
+            color: #1976d2;
+            margin-bottom: 8px;
+        }
+
+        .xml-output {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.5;
+        }
+
+        .field-requirements {
+            background: #fff9e6;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border: 1px solid #ffe082;
+        }
+
+        .field-requirements h3 {
+            font-size: 14px;
+            color: #f57c00;
+            margin-bottom: 10px;
+        }
+
+        .field-requirements ul {
+            margin-left: 20px;
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .results {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" style="color: #3498db; text-decoration: none; font-size: 14px; display: inline-block; margin-bottom: 10px;">&larr; Back to Query Types</a>
+            <h1>Driver License Query Validator</h1>
+            <p>Validate driver license queries for California eSUN system</p>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <h2>Query Configuration</h2>
+
+                <div class="state-selector" id="state-selector">
+                    <button class="state-btn active" data-state="in-state">In-State (CA)</button>
+                    <button class="state-btn" data-state="out-of-state">Out-of-State</button>
+                </div>
+
+                <div id="form-fields"></div>
+
+                <div id="validate-button-container"></div>
+            </div>
+
+            <div class="section results">
+                <h2>Validation Results</h2>
+                <div id="validation-results">
+                    <div class="validation-status" style="background: #e8f4f8; color: #546e7a; border-color: #b0bec5;">
+                        Enter query details and click "Validate Query" to see results
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Query specifications based on CA eSUN documentation
+        const querySpecs = {
+            'driver-license': {
+                name: 'Driver License Query',
+                combinations: [
+                    {
+                        id: 1,
+                        description: '(In) Name only',
+                        fields: ['name'],
+                        state: 'in-state',
+                        keyReference: 'DQ'
+                    },
+                    {
+                        id: 2,
+                        description: '(In) OperatorLicenseNumber only',
+                        fields: ['operatorLicenseNumber'],
+                        state: 'in-state',
+                        keyReference: 'DQ'
+                    },
+                    {
+                        id: 3,
+                        description: '(In/Out) BirthDate, Name, SexCode, [State]',
+                        fields: ['birthDate', 'name', 'sexCode'],
+                        optionalFields: ['state'],
+                        state: 'both',
+                        keyReference: 'DQ'
+                    },
+                    {
+                        id: 4,
+                        description: '(In/Out) OperatorLicenseNumber, [State]',
+                        fields: ['operatorLicenseNumber'],
+                        optionalFields: ['state'],
+                        state: 'both',
+                        keyReference: 'DQ'
+                    }
+                ]
+            }
+        };
+
+        // Field definitions
+        const fieldDefinitions = {
+            name: {
+                label: 'Name',
+                type: 'text',
+                placeholder: 'Last, First Middle',
+                hint: 'Format: LAST, FIRST MIDDLE'
+            },
+            operatorLicenseNumber: {
+                label: "Operator's License Number",
+                type: 'text',
+                placeholder: '',
+                hint: 'Driver license number'
+            },
+            birthDate: {
+                label: 'Birth Date',
+                type: 'date',
+                placeholder: 'YYYY-MM-DD',
+                hint: 'Date of birth'
+            },
+            sexCode: {
+                label: 'Sex Code',
+                type: 'select',
+                options: [
+                    { value: '', label: 'Select...' },
+                    { value: 'M', label: 'M - Male' },
+                    { value: 'F', label: 'F - Female' },
+                    { value: 'U', label: 'U - Unknown' }
+                ],
+                hint: 'Gender'
+            },
+            state: {
+                label: 'State',
+                type: 'datalist',
+                placeholder: 'Type or select...',
+                hint: '<strong>If querying CA drivers leave blank.</strong> Otherwise choose appropriate 2 letter state code',
+                maxLength: 2,
+                options: [
+                    { value: 'AL', label: 'AL - Alabama' },
+                    { value: 'AK', label: 'AK - Alaska' },
+                    { value: 'AZ', label: 'AZ - Arizona' },
+                    { value: 'AR', label: 'AR - Arkansas' },
+                    { value: 'CA', label: 'CA - California' },
+                    { value: 'CO', label: 'CO - Colorado' },
+                    { value: 'CT', label: 'CT - Connecticut' },
+                    { value: 'DE', label: 'DE - Delaware' },
+                    { value: 'FL', label: 'FL - Florida' },
+                    { value: 'GA', label: 'GA - Georgia' },
+                    { value: 'HI', label: 'HI - Hawaii' },
+                    { value: 'ID', label: 'ID - Idaho' },
+                    { value: 'IL', label: 'IL - Illinois' },
+                    { value: 'IN', label: 'IN - Indiana' },
+                    { value: 'IA', label: 'IA - Iowa' },
+                    { value: 'KS', label: 'KS - Kansas' },
+                    { value: 'KY', label: 'KY - Kentucky' },
+                    { value: 'LA', label: 'LA - Louisiana' },
+                    { value: 'ME', label: 'ME - Maine' },
+                    { value: 'MD', label: 'MD - Maryland' },
+                    { value: 'MA', label: 'MA - Massachusetts' },
+                    { value: 'MI', label: 'MI - Michigan' },
+                    { value: 'MN', label: 'MN - Minnesota' },
+                    { value: 'MS', label: 'MS - Mississippi' },
+                    { value: 'MO', label: 'MO - Missouri' },
+                    { value: 'MT', label: 'MT - Montana' },
+                    { value: 'NE', label: 'NE - Nebraska' },
+                    { value: 'NV', label: 'NV - Nevada' },
+                    { value: 'NH', label: 'NH - New Hampshire' },
+                    { value: 'NJ', label: 'NJ - New Jersey' },
+                    { value: 'NM', label: 'NM - New Mexico' },
+                    { value: 'NY', label: 'NY - New York' },
+                    { value: 'NC', label: 'NC - North Carolina' },
+                    { value: 'ND', label: 'ND - North Dakota' },
+                    { value: 'OH', label: 'OH - Ohio' },
+                    { value: 'OK', label: 'OK - Oklahoma' },
+                    { value: 'OR', label: 'OR - Oregon' },
+                    { value: 'PA', label: 'PA - Pennsylvania' },
+                    { value: 'RI', label: 'RI - Rhode Island' },
+                    { value: 'SC', label: 'SC - South Carolina' },
+                    { value: 'SD', label: 'SD - South Dakota' },
+                    { value: 'TN', label: 'TN - Tennessee' },
+                    { value: 'TX', label: 'TX - Texas' },
+                    { value: 'UT', label: 'UT - Utah' },
+                    { value: 'VT', label: 'VT - Vermont' },
+                    { value: 'VA', label: 'VA - Virginia' },
+                    { value: 'WA', label: 'WA - Washington' },
+                    { value: 'WV', label: 'WV - West Virginia' },
+                    { value: 'WI', label: 'WI - Wisconsin' },
+                    { value: 'WY', label: 'WY - Wyoming' },
+                    { value: 'DC', label: 'DC - District of Columbia' },
+                    { value: 'PR', label: 'PR - Puerto Rico' }
+                ]
+            },
+            purposeCode: {
+                label: 'CA Purpose Code',
+                type: 'select',
+                options: [
+                    { value: '', label: 'Select...' },
+                    { value: 'C', label: 'C - Criminal' },
+                    { value: 'I', label: 'I - Intelligence' },
+                    { value: 'U', label: 'U - Immigration Violations (Section 1325)' }
+                ],
+                hint: 'Required per AB 1747 (mandatory since July 21, 2021)',
+                required: true
+            }
+        };
+
+        let currentQueryType = 'driver-license';
+        let currentState = 'in-state';
+        let formData = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            renderForm();
+        });
+
+        function setupEventListeners() {
+            // State buttons
+            document.querySelectorAll('.state-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentState = this.dataset.state;
+                    renderForm();
+                });
+            });
+        }
+
+        function renderForm() {
+            const formContainer = document.getElementById('form-fields');
+            const spec = querySpecs[currentQueryType];
+
+            // Get all possible fields for this query type
+            const allFields = new Set();
+            spec.combinations.forEach(combo => {
+                combo.fields.forEach(f => allFields.add(f));
+                if (combo.optionalFields) {
+                    combo.optionalFields.forEach(f => allFields.add(f));
+                }
+            });
+
+            // Always add purposeCode
+            allFields.add('purposeCode');
+
+            // Define field order
+            const fieldOrder = ['purposeCode', 'name', 'birthDate', 'sexCode', 'operatorLicenseNumber', 'state'];
+
+            let orderedFields = fieldOrder.filter(f => allFields.has(f));
+
+            let html = '';
+
+            orderedFields.forEach(fieldName => {
+                const field = fieldDefinitions[fieldName];
+                if (!field) return;
+
+                // Determine if field is required
+                let isRequired = fieldName === 'purposeCode';
+
+                let value = formData[fieldName] || '';
+
+                html += `
+                    <div class="form-group">
+                        <label>
+                            ${field.label}
+                            ${isRequired ? '<span class="required">*</span>' : ''}
+                        </label>
+                `;
+
+                if (field.type === 'select') {
+                    html += `<select id="${fieldName}" onchange="updateFormData('${fieldName}', this.value)">`;
+                    field.options.forEach(opt => {
+                        html += `<option value="${opt.value}" ${value === opt.value ? 'selected' : ''}>${opt.label}</option>`;
+                    });
+                    html += `</select>`;
+                } else if (field.type === 'datalist') {
+                    const attrs = field.maxLength ? `maxlength="${field.maxLength}"` : '';
+                    const datalistId = `${fieldName}-list`;
+                    html += `<input type="text" id="${fieldName}" list="${datalistId}" placeholder="${field.placeholder}" value="${value}" ${attrs} oninput="updateFormData('${fieldName}', this.value)" style="text-transform: uppercase;">`;
+                    html += `<datalist id="${datalistId}">`;
+                    if (field.options) {
+                        field.options.forEach(opt => {
+                            html += `<option value="${opt.value}">${opt.label}</option>`;
+                        });
+                    }
+                    html += `</datalist>`;
+                } else {
+                    const attrs = field.maxLength ? `maxlength="${field.maxLength}"` : '';
+                    html += `<input type="${field.type}" id="${fieldName}" placeholder="${field.placeholder}" value="${value}" ${attrs} oninput="updateFormData('${fieldName}', this.value)">`;
+                }
+
+                // Add hint text if available
+                if (field.hint) {
+                    html += `<small style="display: block; margin-top: 5px; color: #666; font-size: 12px;">${field.hint}</small>`;
+                }
+
+                html += `</div>`;
+            });
+
+            formContainer.innerHTML = html;
+            updateValidateButton();
+        }
+
+        function isFormReadyToValidate() {
+            if (!formData.purposeCode) return false;
+
+            const filledFields = Object.keys(formData).filter(key => {
+                return formData[key] && formData[key].trim() !== '' && key !== 'purposeCode';
+            });
+
+            return filledFields.length > 0;
+        }
+
+        function updateValidateButton() {
+            const buttonContainer = document.getElementById('validate-button-container');
+            const isReady = isFormReadyToValidate();
+
+            if (isReady) {
+                buttonContainer.innerHTML = `<button class="validate-btn ready" onclick="validateQuery()">SUBMIT</button>`;
+            } else {
+                buttonContainer.innerHTML = `<button class="validate-btn not-ready" onclick="return false;">NOT READY</button>`;
+            }
+        }
+
+        function updateFormData(field, value) {
+            formData[field] = value;
+            updateValidateButton();
+        }
+
+        function validateQuery() {
+            const spec = querySpecs[currentQueryType];
+            const results = {
+                valid: false,
+                errors: [],
+                warnings: [],
+                matchedCombination: null,
+                xml: ''
+            };
+
+            if (!formData.purposeCode) {
+                results.errors.push('CA Purpose Code is mandatory per AB 1747 (required since July 21, 2021)');
+            }
+
+            const filledFields = Object.keys(formData).filter(key => {
+                return formData[key] && formData[key].trim() !== '' && key !== 'purposeCode';
+            });
+
+            if (filledFields.length === 0) {
+                results.errors.push('At least one query field must be provided');
+                displayResults(results);
+                return;
+            }
+
+            const validCombinations = spec.combinations.filter(combo => {
+                if (combo.state === 'in-state' && currentState !== 'in-state') return false;
+                if (combo.state === 'out-of-state' && currentState !== 'out-of-state') return false;
+
+                const allowedFields = [...combo.fields];
+                if (combo.optionalFields) {
+                    allowedFields.push(...combo.optionalFields);
+                }
+
+                const invalidFields = filledFields.filter(f => !allowedFields.includes(f));
+                if (invalidFields.length > 0) return false;
+
+                const missingRequired = combo.fields.filter(f => !filledFields.includes(f));
+                if (missingRequired.length > 0) return false;
+
+                return true;
+            });
+
+            if (validCombinations.length === 0) {
+                results.errors.push('The provided field combination is not valid for this query type and state selection');
+                results.errors.push('📋 Valid combinations are listed in the Field Requirements section below');
+            } else {
+                results.valid = true;
+                results.matchedCombination = validCombinations[0];
+            }
+
+            if (results.valid) {
+                results.xml = generateXML(spec.name, formData, currentState);
+            }
+
+            displayResults(results);
+        }
+
+        function generateXML(queryType, data, state) {
+            const queryTypeTag = queryType.replace(/ /g, '');
+
+            let xml = `<Request>\n`;
+            xml += `  <MessageType>${queryTypeTag}</MessageType>\n`;
+            xml += `  <Id>MARK43GENERATEDMSGID</Id>\n`;
+
+            if (data.purposeCode) {
+                xml += `  <CaRequestPurposeCode>${data.purposeCode}</CaRequestPurposeCode>\n`;
+            }
+
+            const fieldOrder = ['name', 'birthDate', 'sexCode', 'operatorLicenseNumber', 'state'];
+
+            fieldOrder.forEach(key => {
+                if (key === 'purposeCode' || !data[key]) return;
+
+                const value = data[key];
+
+                if (key === 'name') {
+                    xml += `  <Name>${value}</Name>\n`;
+                } else if (key === 'birthDate') {
+                    const dateFormatted = value.replace(/-/g, '');
+                    xml += `  <BirthDate>${dateFormatted}</BirthDate>\n`;
+                } else if (key === 'sexCode') {
+                    xml += `  <SexCode>${value}</SexCode>\n`;
+                } else if (key === 'operatorLicenseNumber') {
+                    xml += `  <OperatorLicenseNumber>${value}</OperatorLicenseNumber>\n`;
+                } else if (key === 'state') {
+                    if (state === 'out-of-state' && value) {
+                        xml += `  <State>${value.toUpperCase()}</State>\n`;
+                    }
+                }
+            });
+
+            xml += `</Request>`;
+
+            return xml;
+        }
+
+        function displayResults(results) {
+            const container = document.getElementById('validation-results');
+            let html = '';
+
+            if (results.valid && results.errors.length === 0) {
+                html += `<div class="validation-status valid">✓ Query is valid and ready to submit</div>`;
+            } else if (results.errors.length > 0) {
+                html += `<div class="validation-status invalid">✗ Query has validation errors</div>`;
+            }
+
+            if (results.errors.length > 0) {
+                html += `<ul class="error-list">`;
+                results.errors.forEach(error => {
+                    html += `<li>❌ ${error}</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            if (results.matchedCombination) {
+                html += `<div class="combination-info">`;
+                html += `<h3>Matched Valid Combination</h3>`;
+                html += `<code>${results.matchedCombination.description}</code>`;
+                html += `</div>`;
+            }
+
+            if (results.xml) {
+                html += `<h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 14px;">Expected XML Output</h3>`;
+                html += `<div class="xml-output">${escapeHtml(results.xml)}</div>`;
+            }
+
+            html += generateFieldRequirements();
+
+            container.innerHTML = html;
+        }
+
+        function generateFieldRequirements() {
+            const spec = querySpecs[currentQueryType];
+            let html = `<div class="field-requirements">`;
+
+            const stateText = ` (${currentState === 'in-state' ? 'In-State CA' : 'Out-of-State'})`;
+            html += `<h3>Valid Field Combinations for ${spec.name}${stateText}</h3>`;
+
+            html += `<ul style="line-height: 1.8;">`;
+
+            spec.combinations.forEach(combo => {
+                if (combo.state === 'in-state' && currentState !== 'in-state') return;
+                if (combo.state === 'out-of-state' && currentState !== 'out-of-state') return;
+                if (combo.state === 'both' || combo.state === currentState) {
+                    html += `<li style="margin-bottom: 8px;"><strong>${combo.description}</strong></li>`;
+                }
+            });
+
+            html += `</ul>`;
+            html += `</div>`;
+
+            return html;
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+    </script>
+</body>
+</html>
