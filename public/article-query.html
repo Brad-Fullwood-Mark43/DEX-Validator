@@ -1316,7 +1316,7 @@
             articleCategory: {
                 label: 'Article Category',
                 type: 'select',
-                hint: 'Auto-populated when Article Type Code is selected',
+                hint: 'Populated Automatically based on TYP code selection. Only change value if you are sure it is wrong!',
                 options: [
                     { value: "", label: "Select..." },
                     { value: "S", label: "S - A RIDE" },
@@ -2239,8 +2239,7 @@
                     { value: "E", label: "E - WIREST" },
                     { value: "H", label: "H - WOODST" },
                     { value: "E", label: "E - WRENCH" }
-                ],
-                hint: 'Article category (max 1 character)'
+                ]
             },
             purposeCode: {
                 label: 'CA Purpose Code',
@@ -3358,15 +3357,13 @@ const articleCodeToCategory = {
 
                 if (field.type === 'select') {
                     let extraHandlers = '';
-                    let disabledAttr = '';
                     if (fieldName === 'articleCategory') {
                         extraHandlers = ` onfocus="restoreCategoryLabels()" onmousedown="restoreCategoryLabels()"`;
-                        disabledAttr = ' disabled';
                     } else if (fieldName === 'articleTypeCode') {
                         extraHandlers = ` onchange="updateFormData('${fieldName}', this.value); autoPopulateCategoryFromCode();"`;
                     }
                     const changeHandler = fieldName === 'articleTypeCode' ? '' : ` onchange="updateFormData('${fieldName}', this.value)"`;
-                    html += `<select id="${fieldName}"${changeHandler}${extraHandlers}${disabledAttr}>`;
+                    html += `<select id="${fieldName}"${changeHandler}${extraHandlers}>`;
                     field.options.forEach(opt => {
                         html += `<option value="${opt.value}" ${value === opt.value ? 'selected' : ''}>${opt.label}</option>`;
                     });
@@ -3398,6 +3395,13 @@ const articleCodeToCategory = {
                 }
 
                 html += `</div>`;
+
+                // Add separators after specific fields
+                if (fieldName === 'purposeCode') {
+                    html += `<div style="text-align: center; margin: 20px 0; font-size: 16px; font-weight: bold; color: #2196F3;">THEN</div>`;
+                } else if (fieldName === 'articleSerialNumber') {
+                    html += `<div style="text-align: center; margin: 20px 0; font-size: 16px; font-weight: bold; color: #2196F3;">THEN CHOOSE TYP or BRA or BOTH</div>`;
+                }
             });
 
             formContainer.innerHTML = html;
