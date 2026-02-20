@@ -158,6 +158,16 @@
         </div>
 
         <div class="content">
+            <div class="info-section" style="margin-top: 0; margin-bottom: 30px;">
+                <h2>About This Tool</h2>
+                <ul>
+                    <li><strong>Purpose:</strong> Validate query field combinations and generate spec-compliant XML</li>
+                    <li><strong>Required:</strong> All queries require CA Purpose Code (per AB 1747)</li>
+                    <li><strong>State Handling:</strong> In-state CA queries omit State field; out-of-state queries include it</li>
+                    <li><strong>XML Output:</strong> Generates properly formatted XML according to CA eSUN specifications</li>
+                </ul>
+            </div>
+
             <h2 style="font-size: 20px; margin-bottom: 10px; color: #2c3e50;">Select Query Type</h2>
             <p style="color: #666; margin-bottom: 20px;">Choose the type of query you want to validate</p>
 
@@ -185,17 +195,14 @@
                     <p>Query stolen articles by serial number, type, and brand</p>
                     <span class="badge active">ACTIVE</span>
                 </a>
+
+                <a href="response-viewer.html" class="query-card primary">
+                    <h3>Response Viewer</h3>
+                    <p>Parse and display ConnectCIC request/response transaction data</p>
+                    <span class="badge active">ACTIVE</span>
+                </a>
             </div>
 
-            <div class="info-section">
-                <h2>About This Validator</h2>
-                <ul>
-                    <li><strong>Purpose:</strong> Validate query field combinations and generate spec-compliant XML</li>
-                    <li><strong>Required:</strong> All queries require CA Purpose Code (per AB 1747)</li>
-                    <li><strong>State Handling:</strong> In-state CA queries omit State field; out-of-state queries include it</li>
-                    <li><strong>XML Output:</strong> Generates properly formatted XML according to CA eSUN specifications</li>
-                </ul>
-            </div>
         </div>
     </div>
 </body>
