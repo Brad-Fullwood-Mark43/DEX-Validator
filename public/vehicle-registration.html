@@ -153,8 +153,8 @@
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            border-color: #e74c3c;
+            box-shadow: 0 0 32px 12px rgba(231, 76, 60, 0.9);
         }
 
         .form-group input.error {
@@ -500,7 +500,7 @@
             },
             birthDate: {
                 label: 'Birth Date',
-                type: 'date',
+                type: 'text',
                 placeholder: 'YYYY-MM-DD',
                 hint: 'Date of birth'
             },
@@ -1793,7 +1793,7 @@
                         html += `
                             <div style="text-align: center; margin: 20px 0; position: relative;">
                                 <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
-                                <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #2ecc71; font-size: 14px;">AND</span>
+                                <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">AND</span>
                             </div>
                         `;
                     }
@@ -1803,7 +1803,7 @@
                         html += `
                             <div id="sep-then-plate" style="text-align: center; margin: 20px 0; position: relative;">
                                 <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
-                                <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #3498db; font-size: 14px;">THEN</span>
+                                <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">THEN ONE OF THE FOLLOWING</span>
                             </div>
                         `;
                     }
@@ -1813,7 +1813,7 @@
                         html += `
                             <div id="sep-or-vin" style="text-align: center; margin: 20px 0; position: relative;">
                                 <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
-                                <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #666; font-size: 14px;">OR</span>
+                                <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">OR</span>
                             </div>
                         `;
                     }
@@ -1823,47 +1823,45 @@
                         html += `
                             <div id="sep-or-name" style="text-align: center; margin: 20px 0; position: relative;">
                                 <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
-                                <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #666; font-size: 14px;">OR</span>
+                                <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">OR</span>
                             </div>
                         `;
                     }
 
-                    // Add "THEN EITHER BY" separator before AddressStreetNumber field (only show when Name has data and birthDate is empty)
-                    if (fieldName === 'addressStreetNumber' && hasName && !hasBirthDate) {
+                    // Always render address/birthDate separators but hidden until name is entered
+                    if (fieldName === 'addressStreetNumber') {
+                        const _hide = !hasName || hasBirthDate || hasAddress;
                         html += `
-                            <div style="text-align: center; margin: 20px 0; position: relative;">
+                            <div id="sep-then-either-by" style="text-align: center; margin: 20px 0; position: relative;${_hide ? ' display:none;' : ''}">
                                 <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
-                                <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #3498db; font-size: 14px;">THEN EITHER BY</span>
+                                <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">THEN EITHER BY</span>
                             </div>
                         `;
                     }
 
-                    // Add "AND" separator before AddressCity field (only show when Name has data and birthDate is empty)
-                    if (fieldName === 'addressCity' && hasName && !hasBirthDate) {
+                    if (fieldName === 'addressCity') {
+                        const _hide = !hasName || hasBirthDate;
                         html += `
-                            <div style="text-align: center; margin: 20px 0; position: relative;">
+                            <div id="sep-and-address-city" style="text-align: center; margin: 20px 0; position: relative;${_hide ? ' display:none;' : ''}">
                                 <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
-                                <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #2ecc71; font-size: 14px;">AND</span>
+                                <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">AND</span>
                             </div>
                         `;
                     }
 
-                    // Add "OR" separator before BirthDate field (only show when Name has data and address is empty)
-                    if (fieldName === 'birthDate' && hasName && !hasAddress) {
+                    if (fieldName === 'birthDate') {
+                        const _hideOr = !hasName || hasAddress;
                         html += `
-                            <div style="text-align: center; margin: 20px 0; position: relative;">
+                            <div id="sep-or-birthdate" style="text-align: center; margin: 20px 0; position: relative;${_hideOr ? ' display:none;' : ''}">
                                 <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
-                                <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #666; font-size: 14px;">OR</span>
+                                <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">OR</span>
                             </div>
                         `;
-                    }
-
-                    // Add "THEN" separator before BirthDate field (only show when Name has data and birthDate has data)
-                    if (fieldName === 'birthDate' && hasName && hasBirthDate) {
+                        const _hideThen = !hasName || !hasBirthDate;
                         html += `
-                            <div style="text-align: center; margin: 20px 0; position: relative;">
+                            <div id="sep-then-birthdate" style="text-align: center; margin: 20px 0; position: relative;${_hideThen ? ' display:none;' : ''}">
                                 <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
-                                <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #3498db; font-size: 14px;">THEN</span>
+                                <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">THEN</span>
                             </div>
                         `;
                     }
@@ -1883,10 +1881,7 @@
 
                     // VIN detail fields are always rendered but hidden until VIN is entered (handled via onVINInput)
 
-                    // Hide name detail fields if no name entered yet
-                    if (!hasName && (fieldName === 'addressStreetNumber' || fieldName === 'addressCity' || fieldName === 'birthDate')) {
-                        return; // Skip rendering these fields
-                    }
+                    // Name detail fields are always rendered but hidden until name is entered (handled via onNameInput)
 
                     // Hide address fields if birthDate has data (mutual exclusivity)
                     if (hasBirthDate && (fieldName === 'addressStreetNumber' || fieldName === 'addressCity')) {
@@ -1952,12 +1947,15 @@
 
                 const _hasPlate = !!(formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '');
                 const _hasVIN = !!(formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '');
+                const _hasName = !!(formData.name && formData.name.trim() !== '');
                 const _plateDetailHidden = currentQueryType === 'vehicle-registration' && !_hasPlate &&
                     (fieldName === 'licensePlateTypeCode' || fieldName === 'licensePlateYear');
                 const _vinDetailHidden = currentQueryType === 'vehicle-registration' && !_hasVIN &&
                     (fieldName === 'vehicleMakeCode' || fieldName === 'vehicleYear');
+                const _nameDetailHidden = currentQueryType === 'vehicle-registration' && !_hasName &&
+                    (fieldName === 'addressStreetNumber' || fieldName === 'addressCity' || fieldName === 'birthDate');
                 html += `
-                    <div class="form-group" id="form-group-${fieldName}"${(_plateDetailHidden || _vinDetailHidden) ? ' style="display:none"' : ''}>
+                    <div class="form-group" id="form-group-${fieldName}"${(_plateDetailHidden || _vinDetailHidden || _nameDetailHidden) ? ' style="display:none"' : ''}>
                         <label>
                             ${field.label}
                             ${isRequired ? '<span class="required">*</span>' : ''}
@@ -2012,6 +2010,15 @@
                     if (fieldName === 'vehicleIdentificationNumber' && currentQueryType === 'vehicle-registration') {
                         oninputHandler += `; onVINInput(this.value)`;
                     }
+                    if (fieldName === 'name' && currentQueryType === 'vehicle-registration') {
+                        oninputHandler += `; onNameInput(this.value)`;
+                    }
+                    if (fieldName === 'addressStreetNumber' && currentQueryType === 'vehicle-registration') {
+                        oninputHandler += `; onAddressStreetNumberInput(this.value)`;
+                    }
+                    if (fieldName === 'birthDate' && currentQueryType === 'vehicle-registration') {
+                        oninputHandler += `; onBirthDateInput(this.value)`;
+                    }
                     html += `<input type="${field.type}" id="${fieldName}" placeholder="${field.placeholder}" value="${value}" ${attrs} tabindex="0" oninput="${oninputHandler}"${blurHandler}>`;
                 }
 
@@ -2024,6 +2031,36 @@
             });
 
             formContainer.innerHTML = html;
+
+            // Enforce visibility rules after render
+            if (currentQueryType === 'vehicle-registration') {
+                const _name = !!(formData.name && formData.name.trim() !== '');
+                const _plate = !!(formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '');
+                const _vin = !!(formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '');
+
+                // Address/birthDate: only visible when name has data
+                ['addressStreetNumber', 'addressCity', 'birthDate'].forEach(f => {
+                    const el = document.getElementById('form-group-' + f);
+                    if (el) el.style.display = _name ? '' : 'none';
+                });
+
+                // Plate detail fields: only visible when plate has data and no name
+                ['licensePlateTypeCode', 'licensePlateYear'].forEach(f => {
+                    const el = document.getElementById('form-group-' + f);
+                    if (el) el.style.display = (_plate && !_name) ? '' : 'none';
+                });
+
+                // VIN detail fields: only visible when VIN has data and no name
+                ['vehicleMakeCode', 'vehicleYear'].forEach(f => {
+                    const el = document.getElementById('form-group-' + f);
+                    if (el) el.style.display = (_vin && !_name) ? '' : 'none';
+                });
+
+                // sep-then-either-by: always hidden after render (only shown by onNameInput while user is typing in Name)
+                const _sepEitherBy = document.getElementById('sep-then-either-by');
+                if (_sepEitherBy) _sepEitherBy.style.display = 'none';
+            }
+
             updateValidateButton();
         }
 
@@ -2157,12 +2194,36 @@
             // Auto-determine In-State vs Out-of-State for vehicle registration based on State field
             if (currentQueryType === 'vehicle-registration' && field === 'state') {
                 const stateValue = value ? value.trim().toUpperCase() : '';
-                if (stateValue === '' || stateValue === 'CA') {
+                const isCAOrEmpty = stateValue === '' || stateValue === 'CA';
+                if (isCAOrEmpty) {
                     currentState = 'in-state';
                     // Clear License Plate Year for in-state CA queries
                     formData.licensePlateYear = '';
+                    // Restore Name section if no plate/VIN data
+                    const hasPlate = !!(formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '');
+                    const hasVIN = !!(formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '');
+                    const hasName = !!(formData.name && formData.name.trim() !== '');
+                    if (!hasPlate && !hasVIN) {
+                        // Only restore name field itself; address/birthDate only show when name has data
+                        const nameEl = document.getElementById('form-group-name');
+                        if (nameEl) nameEl.style.display = '';
+                        const sepOrName = document.getElementById('sep-or-name');
+                        if (sepOrName) sepOrName.style.display = '';
+                        // Address/birthDate only visible if name already has data
+                        ['addressStreetNumber', 'addressCity', 'birthDate'].forEach(f => {
+                            const el = document.getElementById('form-group-' + f);
+                            if (el) el.style.display = hasName ? '' : 'none';
+                        });
+                    }
                 } else {
                     currentState = 'out-of-state';
+                    // Immediately hide Name and related fields
+                    ['name', 'addressStreetNumber', 'addressCity', 'birthDate'].forEach(f => {
+                        const el = document.getElementById('form-group-' + f);
+                        if (el) el.style.display = 'none';
+                    });
+                    const sepOrName = document.getElementById('sep-or-name');
+                    if (sepOrName) sepOrName.style.display = 'none';
                 }
             }
 
@@ -2208,6 +2269,9 @@
             // Re-render form when user exits name field
             if (currentQueryType === 'vehicle-registration') {
                 const nameValue = formData.name;
+                // Hide THEN EITHER BY separator as soon as user tabs out of Name
+                const sepThenEitherBy = document.getElementById('sep-then-either-by');
+                if (sepThenEitherBy) sepThenEitherBy.style.display = 'none';
                 // Clear License Plate and VIN-related fields when name is entered
                 if (nameValue && nameValue.trim() !== '') {
                     formData.licensePlateNumber = '';
@@ -2216,8 +2280,11 @@
                     formData.vehicleIdentificationNumber = '';
                     formData.vehicleMakeCode = '';
                     formData.vehicleYear = '';
-                    // Delay renderForm to allow tab navigation to complete
-                    setTimeout(() => renderForm(), 50);
+                    setTimeout(() => {
+                        const focusedId = document.activeElement ? document.activeElement.id : null;
+                        renderForm();
+                        if (focusedId) { const el = document.getElementById(focusedId); if (el) el.focus(); }
+                    }, 50);
                 }
             }
         }
@@ -2234,8 +2301,11 @@
                     formData.addressStreetNumber = '';
                     formData.addressCity = '';
                     formData.birthDate = '';
-                    // Delay renderForm to allow tab navigation to complete
-                    setTimeout(() => renderForm(), 50);
+                    setTimeout(() => {
+                        const focusedId = document.activeElement ? document.activeElement.id : null;
+                        renderForm();
+                        if (focusedId) { const el = document.getElementById(focusedId); if (el) el.focus(); }
+                    }, 50);
                 }
             }
         }
@@ -2244,11 +2314,30 @@
             // Re-render form when user exits address street number field
             if (currentQueryType === 'vehicle-registration') {
                 const addressStreetNumberValue = formData.addressStreetNumber;
-                // Clear birthDate when address street number is entered
                 if (addressStreetNumberValue && addressStreetNumberValue.trim() !== '') {
+                    // Has data: clear birthDate and re-render
                     formData.birthDate = '';
-                    // Delay renderForm to allow tab navigation to complete
-                    setTimeout(() => renderForm(), 50);
+                    setTimeout(() => {
+                        const focusedId = document.activeElement ? document.activeElement.id : null;
+                        renderForm();
+                        if (focusedId) { const el = document.getElementById(focusedId); if (el) el.focus(); }
+                    }, 50);
+                } else {
+                    // No data: hide address street number, address city and all separators, show only birth date
+                    const addressStreetEl = document.getElementById('form-group-addressStreetNumber');
+                    if (addressStreetEl) addressStreetEl.style.display = 'none';
+                    const addressCityEl = document.getElementById('form-group-addressCity');
+                    if (addressCityEl) addressCityEl.style.display = 'none';
+                    ['sep-then-either-by', 'sep-and-address-city', 'sep-or-birthdate', 'sep-then-birthdate'].forEach(id => {
+                        const sep = document.getElementById(id);
+                        if (sep) sep.style.display = 'none';
+                    });
+                    const birthDateEl = document.getElementById('form-group-birthDate');
+                    if (birthDateEl) birthDateEl.style.display = '';
+                    setTimeout(() => {
+                        const birthDateInput = document.getElementById('birthDate');
+                        if (birthDateInput) birthDateInput.focus();
+                    }, 0);
                 }
             }
         }
@@ -2262,8 +2351,17 @@
                     formData.addressStreetNumber = '';
                     formData.addressCity = '';
                 }
-                // Delay renderForm to allow tab navigation to complete
-                setTimeout(() => renderForm(), 50);
+                setTimeout(() => {
+                    renderForm();
+                    // Hide all separators after render
+                    ['sep-then-either-by', 'sep-and-address-city', 'sep-or-birthdate', 'sep-then-birthdate'].forEach(id => {
+                        const sep = document.getElementById(id);
+                        if (sep) sep.style.display = 'none';
+                    });
+                    // Focus the submit button
+                    const submitBtn = document.querySelector('#validate-button-container .validate-btn');
+                    if (submitBtn) submitBtn.focus();
+                }, 50);
             }
         }
 
@@ -2272,12 +2370,15 @@
             if (currentQueryType === 'vehicle-registration') {
                 const hasAddress = (formData.addressStreetNumber && formData.addressStreetNumber.trim() !== '') ||
                                   (formData.addressCity && formData.addressCity.trim() !== '');
-                // Clear birth date when address is entered
-                if (hasAddress) {
+                // Only re-render if birthDate needs clearing
+                if (hasAddress && formData.birthDate) {
                     formData.birthDate = '';
+                    setTimeout(() => {
+                        const focusedId = document.activeElement ? document.activeElement.id : null;
+                        renderForm();
+                        if (focusedId) { const el = document.getElementById(focusedId); if (el) el.focus(); }
+                    }, 50);
                 }
-                // Delay renderForm to allow tab navigation to complete
-                setTimeout(() => renderForm(), 50);
             }
         }
 
@@ -2430,17 +2531,30 @@
 
         function onVRPlateInput(value) {
             const hasPlate = value.trim() !== '';
-            // Hide VIN and Name sections when plate has content; restore when cleared
-            ['vehicleIdentificationNumber', 'vehicleMakeCode', 'vehicleYear',
-             'name', 'addressStreetNumber', 'addressCity', 'birthDate'].forEach(f => {
+            const hasName = !!(formData.name && formData.name.trim() !== '');
+            const hasVIN = !!(formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '');
+            // VIN field: hide when plate has content, restore when cleared
+            const vinEl = document.getElementById('form-group-vehicleIdentificationNumber');
+            if (vinEl) vinEl.style.display = hasPlate ? 'none' : '';
+            // VIN detail fields: only visible if VIN has data and no plate
+            ['vehicleMakeCode', 'vehicleYear'].forEach(f => {
                 const el = document.getElementById('form-group-' + f);
-                if (el) el.style.display = hasPlate ? 'none' : '';
+                if (el) el.style.display = (hasPlate || !hasVIN) ? 'none' : '';
             });
+            // Name field: hide when plate has content, restore when cleared
+            const nameEl = document.getElementById('form-group-name');
+            if (nameEl) nameEl.style.display = hasPlate ? 'none' : '';
+            // Address/birthDate: only visible if name has data and no plate
+            ['addressStreetNumber', 'addressCity', 'birthDate'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = (hasPlate || !hasName) ? 'none' : '';
+            });
+            // Separators
             ['sep-or-vin', 'sep-or-name'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = hasPlate ? 'none' : '';
             });
-            // Show plate detail fields when plate has content; hide when cleared
+            // Plate detail fields: only visible when plate has content
             ['licensePlateTypeCode', 'licensePlateYear'].forEach(f => {
                 const el = document.getElementById('form-group-' + f);
                 if (el) el.style.display = hasPlate ? '' : 'none';
@@ -2449,20 +2563,103 @@
 
         function onVINInput(value) {
             const hasVIN = value.trim() !== '';
-            // Hide License Plate and Name sections when VIN has content; restore when cleared
-            ['licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear',
-             'name', 'addressStreetNumber', 'addressCity', 'birthDate'].forEach(f => {
+            const hasName = !!(formData.name && formData.name.trim() !== '');
+            const hasPlate = !!(formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '');
+            // Plate field: hide when VIN has content, restore when cleared
+            const plateEl = document.getElementById('form-group-licensePlateNumber');
+            if (plateEl) plateEl.style.display = hasVIN ? 'none' : '';
+            // Plate detail fields: only visible if plate has data and no VIN
+            ['licensePlateTypeCode', 'licensePlateYear'].forEach(f => {
                 const el = document.getElementById('form-group-' + f);
-                if (el) el.style.display = hasVIN ? 'none' : '';
+                if (el) el.style.display = (hasVIN || !hasPlate) ? 'none' : '';
             });
+            // Name field: hide when VIN has content, restore when cleared
+            const nameEl = document.getElementById('form-group-name');
+            if (nameEl) nameEl.style.display = hasVIN ? 'none' : '';
+            // Address/birthDate: only visible if name has data and no VIN
+            ['addressStreetNumber', 'addressCity', 'birthDate'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = (hasVIN || !hasName) ? 'none' : '';
+            });
+            // Separators
             ['sep-then-plate', 'sep-or-vin', 'sep-or-name'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = hasVIN ? 'none' : '';
             });
-            // Show VIN detail fields when VIN has content; hide when cleared
+            // VIN detail fields: only visible when VIN has content
             ['vehicleMakeCode', 'vehicleYear'].forEach(f => {
                 const el = document.getElementById('form-group-' + f);
                 if (el) el.style.display = hasVIN ? '' : 'none';
+            });
+        }
+
+        function onNameInput(value) {
+            const hasName = value.trim() !== '';
+            const hasPlate = !!(formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '');
+            const hasVIN = !!(formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '');
+            // Plate field: hide when name has content, restore when cleared
+            const plateEl = document.getElementById('form-group-licensePlateNumber');
+            if (plateEl) plateEl.style.display = hasName ? 'none' : '';
+            // Plate detail fields: only visible if plate has data and no name
+            ['licensePlateTypeCode', 'licensePlateYear'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = (hasName || !hasPlate) ? 'none' : '';
+            });
+            // VIN field: hide when name has content, restore when cleared
+            const vinEl = document.getElementById('form-group-vehicleIdentificationNumber');
+            if (vinEl) vinEl.style.display = hasName ? 'none' : '';
+            // VIN detail fields: only visible if VIN has data and no name
+            ['vehicleMakeCode', 'vehicleYear'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = (hasName || !hasVIN) ? 'none' : '';
+            });
+            // Separators: hide when name has content
+            ['sep-then-plate', 'sep-or-vin', 'sep-or-name'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = hasName ? 'none' : '';
+            });
+            // Address/birthDate: only visible when name has content
+            ['addressStreetNumber', 'addressCity', 'birthDate'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = hasName ? '' : 'none';
+            });
+            // Address/birthDate separators: show when name has content, hide when cleared
+            const _hasAddress = !!(formData.addressStreetNumber && formData.addressStreetNumber.trim() !== '');
+            const _hasBirthDate = !!(formData.birthDate && formData.birthDate.trim() !== '');
+            // sep-then-either-by: only show when name has data but neither address nor birthDate committed yet
+            const sepEitherBy = document.getElementById('sep-then-either-by');
+            if (sepEitherBy) sepEitherBy.style.display = (hasName && !_hasAddress && !_hasBirthDate) ? '' : 'none';
+            // sep-and-address-city and sep-or-birthdate follow standard name visibility
+            ['sep-and-address-city', 'sep-or-birthdate'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = hasName ? '' : 'none';
+            });
+            // sep-then-birthdate stays hidden (only shown when birthDate has data)
+            const sepThenBirthdate = document.getElementById('sep-then-birthdate');
+            if (sepThenBirthdate) sepThenBirthdate.style.display = 'none';
+        }
+
+        function onAddressStreetNumberInput(value) {
+            const hasAddress = value.trim() !== '';
+            // Hide birth date and its separators as soon as address street number has content
+            const el = document.getElementById('form-group-birthDate');
+            if (el) el.style.display = hasAddress ? 'none' : '';
+            ['sep-or-birthdate', 'sep-then-birthdate', 'sep-then-either-by'].forEach(id => {
+                const sep = document.getElementById(id);
+                if (sep) sep.style.display = hasAddress ? 'none' : '';
+            });
+        }
+
+        function onBirthDateInput(value) {
+            const hasBirthDate = value.trim() !== '';
+            // Hide address street number, city and their separators as soon as birth date has content
+            ['addressStreetNumber', 'addressCity'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = hasBirthDate ? 'none' : '';
+            });
+            ['sep-then-either-by', 'sep-and-address-city'].forEach(id => {
+                const sep = document.getElementById(id);
+                if (sep) sep.style.display = hasBirthDate ? 'none' : '';
             });
         }
 

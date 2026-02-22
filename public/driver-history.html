@@ -588,7 +588,7 @@
         function isFormReadyToValidate() {
             if (!formData.purposeCode) return false;
 
-            const headerFields = ['purposeCode', 'attention', 'dexPurposeCode'];
+            const headerFields = ['purposeCode', 'attention', 'dexPurposeCode', 'state'];
             const filledFields = Object.keys(formData).filter(key => {
                 return formData[key] && formData[key].trim() !== '' && !headerFields.includes(key);
             });
@@ -647,8 +647,8 @@
                 return true;
             });
 
-            if (filledFields.length === 0) {
-                results.errors.push('At least one query field must be provided');
+            if (filledFields.length === 0 || filledFields.filter(f => f !== 'state').length === 0) {
+                results.errors.push('At least one query field beyond State must be provided');
                 displayResults(results);
                 return;
             }
