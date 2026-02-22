@@ -51,7 +51,7 @@
         }
 
         .section {
-            background: #f8f9fa;
+            background: #000000;
             padding: 20px;
             border-radius: 6px;
             border: 1px solid #e0e0e0;
@@ -60,7 +60,7 @@
         .section h2 {
             font-size: 18px;
             margin-bottom: 15px;
-            color: #2c3e50;
+            color: #ffffff;
             border-bottom: 2px solid #3498db;
             padding-bottom: 8px;
         }
@@ -99,7 +99,7 @@
             display: block;
             margin-bottom: 5px;
             font-weight: 500;
-            color: #555;
+            color: #e0e0e0;
         }
 
         .form-group label .required {
@@ -264,12 +264,30 @@
             <div class="section">
                 <h2>Query Configuration</h2>
 
-                <div class="state-selector" id="state-selector">
-                    <button class="state-btn active" data-state="in-state">In-State (CA)</button>
-                    <button class="state-btn" data-state="out-of-state">Out-of-State</button>
-                </div>
-
                 <div id="form-fields"></div>
+
+                <div id="ncic-fields" style="display:none;">
+                    <div id="ncic-checkbox-group" style="margin: 10px 0 5px 0;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #e0e0e0; font-weight: 500;">
+                            <input type="checkbox" id="ncicCheckbox" checked style="width: auto; cursor: pointer;">
+                            NCIC Response Desired
+                        </label>
+                    </div>
+                    <div id="sep-name-and" style="text-align: center; margin: 20px 0; font-size: 16px; font-weight: bold; color: #2196F3; display:none;">AND</div>
+                    <div class="form-group" id="form-group-birthDate" style="display:none;">
+                        <label>Birth Date <span class="required" id="req-birthDate" style="display:none">*</span></label>
+                        <input type="date" id="birthDate" oninput="updateFormData('birthDate', this.value)">
+                    </div>
+                    <div class="form-group" id="form-group-sexCode" style="display:none;">
+                        <label>Sex Code <span class="required" id="req-sexCode" style="display:none">*</span></label>
+                        <select id="sexCode" onchange="updateFormData('sexCode', this.value)">
+                            <option value="">Select...</option>
+                            <option value="M">M - Male</option>
+                            <option value="F">F - Female</option>
+                            <option value="U">U - Unknown</option>
+                        </select>
+                    </div>
+                </div>
 
                 <div id="validate-button-container"></div>
             </div>
@@ -315,7 +333,7 @@
                     },
                     {
                         id: 4,
-                        description: '(In/Out) OperatorLicenseNumber, [State]',
+                        description: '(In/Out) OperatorLicenseNumber, [PurposeCode, Attention, State]',
                         fields: ['operatorLicenseNumber'],
                         optionalFields: ['state'],
                         state: 'both',
@@ -327,6 +345,25 @@
 
         // Field definitions
         const fieldDefinitions = {
+            attention: {
+                label: 'Attention',
+                type: 'text',
+                placeholder: 'LName, FInitial of Mark43 User',
+                hint: '<span style="color: #e74c3c; font-weight: bold;">PULL FROM USER PROFILE</span>'
+            },
+            dexPurposeCode: {
+                label: 'OOSPurposeCode',
+                type: 'select',
+                options: [
+                    { value: 'C', label: 'C - Criminal Justice' },
+                    { value: 'D', label: 'D - Domestic Violence Related (Courts)' },
+                    { value: 'E', label: 'E - Employment' },
+                    { value: 'F', label: 'F - Fire Arms Related' },
+                    { value: 'J', label: 'J - Criminal Justice Employment' },
+                    { value: 'S', label: 'S - Sensitive Public Trust, Classified Information Investigations' }
+                ],
+                hint: 'OOS query purpose code'
+            },
             name: {
                 label: 'Name',
                 type: 'text',
@@ -433,7 +470,8 @@
 
         let currentQueryType = 'driver-history';
         let currentState = 'in-state';
-        let formData = {};
+        let formData = { dexPurposeCode: 'C', attention: 'LName, FInitial of Mark43 User', state: 'CA' };
+        let ncicChecked = true;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -442,14 +480,9 @@
         });
 
         function setupEventListeners() {
-            // State buttons
-            document.querySelectorAll('.state-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    currentState = this.dataset.state;
-                    renderForm();
-                });
+            // NCIC checkbox - static element, attach once
+            document.getElementById('ncicCheckbox').addEventListener('change', function() {
+                onNCICChange(this.checked);
             });
         }
 
@@ -466,11 +499,13 @@
                 }
             });
 
-            // Always add purposeCode
+            // Always add purposeCode, attention, dexPurposeCode
             allFields.add('purposeCode');
+            allFields.add('attention');
+            allFields.add('dexPurposeCode');
 
-            // Define field order
-            const fieldOrder = ['purposeCode', 'name', 'birthDate', 'sexCode', 'operatorLicenseNumber', 'state'];
+            // Define field order (birthDate/sexCode are in static #ncic-fields section)
+            const fieldOrder = ['purposeCode', 'state', 'operatorLicenseNumber', 'name', 'dexPurposeCode', 'attention'];
 
             let orderedFields = fieldOrder.filter(f => allFields.has(f));
 
@@ -485,8 +520,15 @@
 
                 let value = formData[fieldName] || '';
 
+                const hasQueryData = !!(formData.name || formData.operatorLicenseNumber);
+                const isCAState = (formData.state || '').toUpperCase() === 'CA';
+                const shouldHide = fieldName !== 'purposeCode' && (
+                                   (['attention', 'dexPurposeCode'].includes(fieldName) && (!hasQueryData || isCAState)) ||
+                                   (fieldName === 'name' && !!formData.operatorLicenseNumber) ||
+                                   (fieldName === 'operatorLicenseNumber' && !!formData.name));
+
                 html += `
-                    <div class="form-group">
+                    <div class="form-group" id="form-group-${fieldName}"${shouldHide ? ' style="display:none"' : ''}>
                         <label>
                             ${field.label}
                             ${isRequired ? '<span class="required">*</span>' : ''}
@@ -502,7 +544,8 @@
                 } else if (field.type === 'datalist') {
                     const attrs = field.maxLength ? `maxlength="${field.maxLength}"` : '';
                     const datalistId = `${fieldName}-list`;
-                    html += `<input type="text" id="${fieldName}" list="${datalistId}" placeholder="${field.placeholder}" value="${value}" ${attrs} oninput="updateFormData('${fieldName}', this.value)" style="text-transform: uppercase;">`;
+                    const extraDL = fieldName === 'state' ? ' onDHStateInput(this.value);' : '';
+                    html += `<input type="text" id="${fieldName}" list="${datalistId}" placeholder="${field.placeholder}" value="${value}" ${attrs} oninput="updateFormData('${fieldName}', this.value);${extraDL}" onchange="updateFormData('${fieldName}', this.value);${extraDL}" style="text-transform: uppercase;">`;
                     html += `<datalist id="${datalistId}">`;
                     if (field.options) {
                         field.options.forEach(opt => {
@@ -512,7 +555,10 @@
                     html += `</datalist>`;
                 } else {
                     const attrs = field.maxLength ? `maxlength="${field.maxLength}"` : '';
-                    html += `<input type="${field.type}" id="${fieldName}" placeholder="${field.placeholder}" value="${value}" ${attrs} oninput="updateFormData('${fieldName}', this.value)">`;
+                    let extraInput = '';
+                    if (fieldName === 'operatorLicenseNumber') extraInput = ' onDHLicInput(this.value);';
+                    if (fieldName === 'name') extraInput = ' onDHNameInput(this.value);';
+                    html += `<input type="${field.type}" id="${fieldName}" placeholder="${field.placeholder}" value="${value}" ${attrs} oninput="updateFormData('${fieldName}', this.value);${extraInput}">`;
                 }
 
                 // Add hint text if available
@@ -521,6 +567,15 @@
                 }
 
                 html += `</div>`;
+
+                // Add separators
+                if (fieldName === 'purposeCode') {
+                    html += `<div id="sep-and" style="text-align: center; margin: 20px 0; font-size: 16px; font-weight: bold; color: #2196F3;">AND</div>`;
+                } else if (fieldName === 'state') {
+                    html += `<div id="sep-then-by" style="text-align: center; margin: 20px 0; font-size: 16px; font-weight: bold; color: #2196F3;">THEN BY</div>`;
+                } else if (fieldName === 'operatorLicenseNumber') {
+                    html += `<div id="sep-or" style="text-align: center; margin: 20px 0; font-size: 16px; font-weight: bold; color: #2196F3;">OR</div>`;
+                }
             });
 
             formContainer.innerHTML = html;
@@ -530,11 +585,19 @@
         function isFormReadyToValidate() {
             if (!formData.purposeCode) return false;
 
+            const headerFields = ['purposeCode', 'attention', 'dexPurposeCode'];
             const filledFields = Object.keys(formData).filter(key => {
-                return formData[key] && formData[key].trim() !== '' && key !== 'purposeCode';
+                return formData[key] && formData[key].trim() !== '' && !headerFields.includes(key);
             });
 
-            return filledFields.length > 0;
+            if (filledFields.length === 0) return false;
+
+            const hasName = (formData.name || '').trim() !== '';
+            if (hasName && ncicChecked) {
+                if (!formData.birthDate || !formData.sexCode) return false;
+            }
+
+            return true;
         }
 
         function updateValidateButton() {
@@ -559,6 +622,7 @@
                 valid: false,
                 errors: [],
                 warnings: [],
+                notes: [],
                 matchedCombination: null,
                 xml: ''
             };
@@ -567,8 +631,17 @@
                 results.errors.push('CA Purpose Code is mandatory per AB 1747 (required since July 21, 2021)');
             }
 
+            const hasNameQuery = (formData.name || '').trim() !== '';
+            if (hasNameQuery && ncicChecked) {
+                if (!formData.birthDate) results.errors.push('Birth Date is required');
+                if (!formData.sexCode) results.errors.push('Sex Code is required');
+            }
+
+            const headerFields = ['purposeCode', 'attention', 'dexPurposeCode'];
             const filledFields = Object.keys(formData).filter(key => {
-                return formData[key] && formData[key].trim() !== '' && key !== 'purposeCode';
+                if (!formData[key] || formData[key].trim() === '' || headerFields.includes(key)) return false;
+                if (key === 'state' && formData[key].toUpperCase() === 'CA') return false;
+                return true;
             });
 
             if (filledFields.length === 0) {
@@ -605,6 +678,9 @@
 
             if (results.valid) {
                 results.xml = generateXML(spec.name, formData, currentState);
+                if (formData.state && formData.state.toUpperCase() === 'CA') {
+                    results.notes.push('DO NOT SEND STATE WHEN CA');
+                }
             }
 
             displayResults(results);
@@ -616,6 +692,18 @@
             let xml = `<Request>\n`;
             xml += `  <MessageType>${queryTypeTag}</MessageType>\n`;
             xml += `  <Id>MARK43GENERATEDMSGID</Id>\n`;
+
+            const isCAState = (data.state || '').toUpperCase() === 'CA';
+            const includeOOSFields = (ncicChecked && data.birthDate && data.sexCode) ||
+                                     (!isCAState && !!data.operatorLicenseNumber);
+
+            if (data.attention && includeOOSFields) {
+                xml += `  <Attention>${data.attention}</Attention>\n`;
+            }
+
+            if (data.dexPurposeCode && includeOOSFields) {
+                xml += `  <PurposeCode>${data.dexPurposeCode}</PurposeCode>\n`;
+            }
 
             if (data.purposeCode) {
                 xml += `  <CaRequestPurposeCode>${data.purposeCode}</CaRequestPurposeCode>\n`;
@@ -638,7 +726,7 @@
                 } else if (key === 'operatorLicenseNumber') {
                     xml += `  <OperatorLicenseNumber>${value}</OperatorLicenseNumber>\n`;
                 } else if (key === 'state') {
-                    if (state === 'out-of-state' && value) {
+                    if (value && value.toUpperCase() !== 'CA') {
                         xml += `  <State>${value.toUpperCase()}</State>\n`;
                     }
                 }
@@ -674,6 +762,12 @@
                 html += `</div>`;
             }
 
+            if (results.notes.length > 0) {
+                results.notes.forEach(note => {
+                    html += `<div style="color: #e74c3c; font-weight: bold; margin: 10px 0;">⚠ NOTE: ${note}</div>`;
+                });
+            }
+
             if (results.xml) {
                 html += `<h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 14px;">Expected XML Output</h3>`;
                 html += `<div class="xml-output">${escapeHtml(results.xml)}</div>`;
@@ -705,6 +799,95 @@
             html += `</div>`;
 
             return html;
+        }
+
+        function onNCICChange(checked) {
+            ncicChecked = checked;
+            const showBirthSex = checked;
+            const bdEmpty = !formData.birthDate || formData.birthDate.trim() === '';
+            const sexEmpty = !formData.sexCode || formData.sexCode.trim() === '';
+
+            document.getElementById('sep-name-and').style.display = showBirthSex ? 'block' : 'none';
+            document.getElementById('form-group-birthDate').style.display = showBirthSex ? 'block' : 'none';
+            document.getElementById('form-group-sexCode').style.display = showBirthSex ? 'block' : 'none';
+
+            // If unchecked and BD/Sex empty, collapse the entire NCIC section
+            if (!checked && bdEmpty && sexEmpty) {
+                document.getElementById('ncic-fields').style.display = 'none';
+            }
+
+            updateCARequirements();
+            updateValidateButton();
+        }
+
+        function updateCARequirements() {
+            const isCA = (formData.state || '').toUpperCase() === 'CA';
+            const hasName = (formData.name || '').trim() !== '';
+            const required = hasName && ncicChecked;
+            ['birthDate', 'sexCode'].forEach(f => {
+                const reqSpan = document.getElementById('req-' + f);
+                if (reqSpan) reqSpan.style.display = required ? 'inline' : 'none';
+            });
+        }
+
+        function onDHStateInput(value) {
+            const isCA = value.trim().toUpperCase() === 'CA';
+            const hasName = (formData.name || '').trim() !== '';
+            const hasLic = (formData.operatorLicenseNumber || '').trim() !== '';
+            ['attention', 'dexPurposeCode'].forEach(f => {
+                const group = document.getElementById('form-group-' + f);
+                if (group) group.style.display = (!isCA && (hasName || hasLic)) ? 'block' : 'none';
+            });
+            if (hasName) {
+                document.getElementById('sep-name-and').style.display = ncicChecked ? 'block' : 'none';
+                document.getElementById('form-group-birthDate').style.display = ncicChecked ? 'block' : 'none';
+                document.getElementById('form-group-sexCode').style.display = ncicChecked ? 'block' : 'none';
+            }
+            updateCARequirements();
+            updateValidateButton();
+        }
+
+        function onDHLicInput(value) {
+            const hasLic = value.trim() !== '';
+            const isCA = (formData.state || '').toUpperCase() === 'CA';
+            const nameGroup = document.getElementById('form-group-name');
+            if (nameGroup) nameGroup.style.display = hasLic ? 'none' : 'block';
+            ['sep-and', 'sep-then-by', 'sep-or'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = hasLic ? 'none' : 'block';
+            });
+            ['attention', 'dexPurposeCode'].forEach(f => {
+                const group = document.getElementById('form-group-' + f);
+                if (group) group.style.display = (hasLic && !isCA) ? 'block' : 'none';
+            });
+            // Hide NCIC section when license is used
+            const ncicFieldsDiv = document.getElementById('ncic-fields');
+            if (ncicFieldsDiv) ncicFieldsDiv.style.display = hasLic ? 'none' : 'block';
+        }
+
+        function onDHNameInput(value) {
+            const hasName = value.trim() !== '';
+            const isCA = (formData.state || '').toUpperCase() === 'CA';
+            const licGroup = document.getElementById('form-group-operatorLicenseNumber');
+            if (licGroup) licGroup.style.display = hasName ? 'none' : 'block';
+            ['sep-and', 'sep-then-by', 'sep-or'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = hasName ? 'none' : 'block';
+            });
+            // Show/hide static NCIC section
+            const ncicFieldsDiv = document.getElementById('ncic-fields');
+            if (ncicFieldsDiv) ncicFieldsDiv.style.display = hasName ? 'block' : 'none';
+            if (hasName) {
+                document.getElementById('sep-name-and').style.display = ncicChecked ? 'block' : 'none';
+                document.getElementById('form-group-birthDate').style.display = ncicChecked ? 'block' : 'none';
+                document.getElementById('form-group-sexCode').style.display = ncicChecked ? 'block' : 'none';
+            }
+            const hasLic = (formData.operatorLicenseNumber || '').trim() !== '';
+            ['attention', 'dexPurposeCode'].forEach(f => {
+                const group = document.getElementById('form-group-' + f);
+                if (group) group.style.display = ((hasName || hasLic) && !isCA) ? 'block' : 'none';
+            });
+            updateCARequirements();
         }
 
         function escapeHtml(text) {

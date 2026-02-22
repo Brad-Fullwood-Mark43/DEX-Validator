@@ -51,7 +51,7 @@
         }
 
         .section {
-            background: #f8f9fa;
+            background: #000000;
             padding: 20px;
             border-radius: 6px;
             border: 1px solid #e0e0e0;
@@ -60,7 +60,7 @@
         .section h2 {
             font-size: 18px;
             margin-bottom: 15px;
-            color: #2c3e50;
+            color: #ffffff;
             border-bottom: 2px solid #3498db;
             padding-bottom: 8px;
         }
@@ -73,7 +73,7 @@
             display: block;
             margin-bottom: 5px;
             font-weight: 500;
-            color: #555;
+            color: #e0e0e0;
         }
 
         .form-group label .required {
@@ -229,7 +229,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <a href="index.html" style="color: #3498db; text-decoration: none; font-size: 14px; display: inline-block; margin-bottom: 10px;">&larr; Back to Query Types</a>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <a href="index.html" style="color: #3498db; text-decoration: none; font-size: 14px;">&larr; Back to Query Types</a>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="exportArticleTypesCSV()" style="background: #27ae60; color: white; border: none; border-radius: 4px; padding: 6px 14px; font-size: 13px; cursor: pointer;">&#8595; Article Types</button>
+                    <button onclick="exportArticleCategoryCSV()" style="background: #27ae60; color: white; border: none; border-radius: 4px; padding: 6px 14px; font-size: 13px; cursor: pointer;">&#8595; Categories</button>
+                    <button onclick="exportArticleBrandCSV()" style="background: #27ae60; color: white; border: none; border-radius: 4px; padding: 6px 14px; font-size: 13px; cursor: pointer;">&#8595; Brands</button>
+                </div>
+            </div>
             <h1>Article Query Validator</h1>
             <p>Validate stolen article queries for California eSUN system</p>
             <p style="color: #ffffff; margin-top: 15px; font-size: 14px; line-height: 1.6;">
@@ -278,13 +285,6 @@
                         keyReference: 'AQ',
                         note: 'SER/OAN with BRA searches APS only'
                     },
-                    {
-                        id: 3,
-                        description: 'Serial + Type + Category + Brand',
-                        fields: ['articleSerialNumber', 'articleTypeCode', 'articleCategory', 'articleBrand'],
-                        keyReference: 'AQ',
-                        note: 'Complete query with both TYP and BRA'
-                    }
                 ]
             }
         };
@@ -3347,8 +3347,13 @@ const articleCodeToCategory = {
 
                 let value = formData[fieldName] || '';
 
+                const shouldHideCategory = fieldName === 'articleCategory' && !formData.articleTypeCode;
+                const shouldHideBrand = fieldName === 'articleBrand' && !!formData.articleTypeCode;
+                const shouldHideTypeCode = fieldName === 'articleTypeCode' && !!formData.articleBrand;
+
+
                 html += `
-                    <div class="form-group">
+                    <div class="form-group" id="form-group-${fieldName}"${(shouldHideCategory || shouldHideBrand || shouldHideTypeCode) ? ' style="display:none"' : ''}>
                         <label>
                             ${field.label}
                             ${isRequired ? '<span class="required">*</span>' : ''}
@@ -3378,7 +3383,7 @@ const articleCodeToCategory = {
                                placeholder="${field.placeholder}"
                                value="${value}"
                                ${attrs}
-                               oninput="updateFormData('${fieldName}', this.value); filterArticleBrands(this.value)"
+                               oninput="updateFormData('${fieldName}', this.value); filterArticleBrands(this.value); onBrandInput(this.value);"
                                autocomplete="off">
                         <datalist id="${fieldName}List">
                         </datalist>
@@ -3400,11 +3405,23 @@ const articleCodeToCategory = {
                 if (fieldName === 'purposeCode') {
                     html += `<div style="text-align: center; margin: 20px 0; font-size: 16px; font-weight: bold; color: #2196F3;">THEN</div>`;
                 } else if (fieldName === 'articleSerialNumber') {
-                    html += `<div style="text-align: center; margin: 20px 0; font-size: 16px; font-weight: bold; color: #2196F3;">THEN CHOOSE TYP or BRA or BOTH</div>`;
+                    html += `<div style="text-align: center; margin: 20px 0; font-size: 16px; font-weight: bold; color: #2196F3;">THEN CHOOSE TYP OR BRA</div>`;
                 }
             });
 
             formContainer.innerHTML = html;
+
+            // When user tabs out of articleTypeCode: hide brand, show category (or reverse if empty)
+            const typeCodeSelect = document.getElementById('articleTypeCode');
+            if (typeCodeSelect) {
+                typeCodeSelect.addEventListener('blur', function() {
+                    const hasType = this.value.trim() !== '';
+                    const catGroup = document.getElementById('form-group-articleCategory');
+                    const brandGroup = document.getElementById('form-group-articleBrand');
+                    if (catGroup) catGroup.style.display = hasType ? 'block' : 'none';
+                    if (brandGroup) brandGroup.style.display = hasType ? 'none' : 'block';
+                });
+            }
 
             // Populate article brand datalist after form is rendered
             populateArticleBrandDatalist();
@@ -3665,6 +3682,12 @@ const articleCodeToCategory = {
             return html;
         }
 
+        function onBrandInput(value) {
+            const hasBrand = value.trim() !== '';
+            const typeGroup = document.getElementById('form-group-articleTypeCode');
+            if (typeGroup) typeGroup.style.display = hasBrand ? 'none' : 'block';
+        }
+
         function escapeHtml(text) {
             const map = {
                 '&': '&amp;',
@@ -3674,6 +3697,55 @@ const articleCodeToCategory = {
                 "'": '&#039;'
             };
             return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function downloadCSV(rows, filename) {
+            const csvContent = rows.map(row =>
+                row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+            ).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function exportArticleTypesCSV() {
+            const options = fieldDefinitions.articleTypeCode.options.filter(o => o.value !== '');
+            const rows = [['Code', 'Description']];
+            options.forEach(opt => {
+                const code = opt.value;
+                const parts = opt.label.split(' - ');
+                const description = parts.length > 1 ? parts.slice(1).join(' - ') : opt.label;
+                rows.push([code, description]);
+            });
+            downloadCSV(rows, 'article-types.csv');
+        }
+
+        function exportArticleCategoryCSV() {
+            const options = fieldDefinitions.articleCategory.options.filter(o => o.value !== '');
+            const rows = [['Category Code', 'Article Type Code']];
+            options.forEach(opt => {
+                const parts = opt.label.split(' - ');
+                const categoryCode = parts[0].trim();
+                const typeCode = parts.length > 1 ? parts.slice(1).join(' - ').trim() : '';
+                rows.push([categoryCode, typeCode]);
+            });
+            downloadCSV(rows, 'article-categories.csv');
+        }
+
+        function exportArticleBrandCSV() {
+            const rows = [['Code', 'Brand Name']];
+            articleBrandOptions.forEach(opt => {
+                const parts = opt.label.split(' - ');
+                const brandName = parts.length > 1 ? parts.slice(1).join(' - ') : opt.label;
+                rows.push([opt.value, brandName]);
+            });
+            downloadCSV(rows, 'article-brands.csv');
         }
     </script>
 </body>

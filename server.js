@@ -38,7 +38,7 @@ app.get('/health', (req, res) => {
 app.use(basicAuth);
 
 // Serve static files
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Route for the main page
 app.get('/', (req, res) => {

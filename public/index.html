@@ -85,6 +85,18 @@
             box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
         }
 
+        .query-card.danger {
+            background: #e74c3c;
+            color: white;
+            border-color: #e74c3c;
+        }
+
+        .query-card.danger:hover {
+            background: #c0392b;
+            border-color: #c0392b;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+        }
+
         .query-card h3 {
             font-size: 22px;
             margin-bottom: 10px;
@@ -196,7 +208,7 @@
                     <span class="badge active">ACTIVE</span>
                 </a>
 
-                <a href="response-viewer.html" class="query-card primary">
+                <a href="response-viewer.html" class="query-card danger">
                     <h3>Response Viewer</h3>
                     <p>Parse and display ConnectCIC request/response transaction data</p>
                     <span class="badge active">ACTIVE</span>

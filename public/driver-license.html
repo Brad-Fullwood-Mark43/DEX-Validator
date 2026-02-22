@@ -51,7 +51,7 @@
         }
 
         .section {
-            background: #f8f9fa;
+            background: #000000;
             padding: 20px;
             border-radius: 6px;
             border: 1px solid #e0e0e0;
@@ -60,7 +60,7 @@
         .section h2 {
             font-size: 18px;
             margin-bottom: 15px;
-            color: #2c3e50;
+            color: #ffffff;
             border-bottom: 2px solid #3498db;
             padding-bottom: 8px;
         }
@@ -99,7 +99,7 @@
             display: block;
             margin-bottom: 5px;
             font-weight: 500;
-            color: #555;
+            color: #e0e0e0;
         }
 
         .form-group label .required {
@@ -470,7 +470,7 @@
             allFields.add('purposeCode');
 
             // Define field order
-            const fieldOrder = ['purposeCode', 'name', 'birthDate', 'sexCode', 'operatorLicenseNumber', 'state'];
+            const fieldOrder = ['purposeCode', 'state', 'name', 'birthDate', 'sexCode', 'operatorLicenseNumber'];
 
             let orderedFields = fieldOrder.filter(f => allFields.has(f));
 
@@ -485,8 +485,13 @@
 
                 let value = formData[fieldName] || '';
 
+                const hiddenWhenNoName = ['birthDate', 'sexCode'];
+                const hiddenWhenName = ['operatorLicenseNumber'];
+                const shouldHide = (hiddenWhenNoName.includes(fieldName) && !formData.name) ||
+                                   (hiddenWhenName.includes(fieldName) && !!formData.name);
+
                 html += `
-                    <div class="form-group">
+                    <div class="form-group" id="form-group-${fieldName}"${shouldHide ? ' style="display:none"' : ''}>
                         <label>
                             ${field.label}
                             ${isRequired ? '<span class="required">*</span>' : ''}
@@ -524,6 +529,21 @@
             });
 
             formContainer.innerHTML = html;
+
+            // Show/hide birthDate and sexCode based on name field blur
+            const nameInput = document.getElementById('name');
+            if (nameInput) {
+                nameInput.addEventListener('blur', function() {
+                    const hasName = this.value.trim() !== '';
+                    ['birthDate', 'sexCode'].forEach(f => {
+                        const group = document.getElementById('form-group-' + f);
+                        if (group) group.style.display = hasName ? 'block' : 'none';
+                    });
+                    const licGroup = document.getElementById('form-group-operatorLicenseNumber');
+                    if (licGroup) licGroup.style.display = hasName ? 'none' : 'block';
+                });
+            }
+
             updateValidateButton();
         }
 
