@@ -258,10 +258,13 @@
             <a href="index.html" style="color: #3498db; text-decoration: none; font-size: 14px; display: inline-block; margin-bottom: 10px;">&larr; Back to Query Types</a>
             <h1>Driver History Query Validator</h1>
             <p>Validate driver history queries for California eSUN system</p>
+            <div style="margin-top: 12px;">
+                <button onclick="exportOOSPurposeCodeCSV()" style="background: #e74c3c; color: white; border: none; padding: 6px 14px; border-radius: 4px; font-size: 13px; cursor: pointer;">Export OOS Purpose Codes CSV</button>
+            </div>
         </div>
 
         <div class="main-content">
-            <div class="section">
+            <div class="section" style="border: 9px solid red; border-radius: 6px; padding: 16px;">
                 <h2>Query Configuration</h2>
 
                 <div id="form-fields"></div>
@@ -888,6 +891,19 @@
                 if (group) group.style.display = ((hasName || hasLic) && !isCA) ? 'block' : 'none';
             });
             updateCARequirements();
+        }
+
+        function exportOOSPurposeCodeCSV() {
+            const rows = [['Code', 'Description']];
+            fieldDefinitions.dexPurposeCode.options.forEach(opt => {
+                rows.push([opt.value, opt.label.replace(/^.\s-\s/, '')]);
+            });
+            const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'oos-purpose-codes.csv';
+            a.click();
         }
 
         function escapeHtml(text) {

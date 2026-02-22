@@ -360,10 +360,21 @@
             <a href="index.html" style="color: #3498db; text-decoration: none; font-size: 14px; display: inline-block; margin-bottom: 10px;">&larr; Back to Query Types</a>
             <h1>Vehicle Registration Query Validator</h1>
             <p>Validate vehicle registration queries for California eSUN system</p>
+            <div style="margin-top: 12px;">
+                <button onclick="exportVehicleMakeCodeCSV()" title="Export Vehicle Make Codes" style="background: #e74c3c; color: white; border: none; padding: 6px 14px; border-radius: 4px; font-size: 13px; cursor: pointer;">VEH Make Codes CSV</button>
+                <button onclick="document.getElementById('importVMAInput').click()" title="Import Vehicle Make Codes from CSV file" style="background: #27ae60; color: white; border: none; padding: 6px 14px; border-radius: 4px; font-size: 13px; cursor: pointer; margin-left: 8px;">Import VEH Make Codes CSV</button>
+                <input type="file" id="importVMAInput" accept=".csv" style="display:none" onchange="importVehicleMakeCodeCSV(this)">
+                <button onclick="exportStateCodesCSV()" title="Export State Codes" style="background: #e74c3c; color: white; border: none; padding: 6px 14px; border-radius: 4px; font-size: 13px; cursor: pointer; margin-left: 8px;">State Codes CSV</button>
+                <button onclick="document.getElementById('importStateInput').click()" title="Import State Codes from CSV file" style="background: #27ae60; color: white; border: none; padding: 6px 14px; border-radius: 4px; font-size: 13px; cursor: pointer; margin-left: 8px;">Import State Codes CSV</button>
+                <input type="file" id="importStateInput" accept=".csv" style="display:none" onchange="importStateCodesCSV(this)">
+                <button onclick="exportLicensePlateTypeCodesCSV()" title="Export License Plate Type Codes" style="background: #e74c3c; color: white; border: none; padding: 6px 14px; border-radius: 4px; font-size: 13px; cursor: pointer; margin-left: 8px;">LIC Plate Type Codes CSV</button>
+                <button onclick="document.getElementById('importPlateTypeInput').click()" title="Import License Plate Type Codes from CSV file" style="background: #27ae60; color: white; border: none; padding: 6px 14px; border-radius: 4px; font-size: 13px; cursor: pointer; margin-left: 8px;">Import LIC Plate Type Codes CSV</button>
+                <input type="file" id="importPlateTypeInput" accept=".csv" style="display:none" onchange="importLicensePlateTypeCodesCSV(this)">
+            </div>
         </div>
 
         <div class="main-content">
-            <div class="section">
+            <div class="section" style="border: 9px solid red; border-radius: 6px; padding: 16px;">
                 <h2>Query Configuration</h2>
 
                 <div class="state-selector" id="state-selector">
@@ -562,7 +573,15 @@
                     { value: 'WI', label: 'WI - Wisconsin' },
                     { value: 'WY', label: 'WY - Wyoming' },
                     { value: 'DC', label: 'DC - District of Columbia' },
-                    { value: 'PR', label: 'PR - Puerto Rico' }
+                    { value: 'PR', label: 'PR - Puerto Rico' },
+                    { value: 'A1', label: 'NLETS Region A1' },
+                    { value: 'B1', label: 'NLETS Region B1' },
+                    { value: 'C1', label: 'NLETS Region C1' },
+                    { value: 'D1', label: 'NLETS Region D1' },
+                    { value: 'E1', label: 'NLETS Region E1' },
+                    { value: 'F1', label: 'NLETS Region F1' },
+                    { value: 'G1', label: 'NLETS Region G1' },
+                    { value: 'H1', label: 'NLETS Region H1' }
                 ]
             },
             licensePlateNumber: {
@@ -664,10 +683,931 @@
             },
             vehicleMakeCode: {
                 label: 'Vehicle Make Code',
-                type: 'text',
-                placeholder: '',
-                hint: 'Vehicle make code (4 characters)',
-                maxLength: 4
+                type: 'select',
+                hint: 'NCIC vehicle make code',
+                options: [
+                    { value: '', label: 'Select...' },
+                    { value: '4WN', label: '4WN - FOUR WINNS' },
+                    { value: 'AAL', label: 'AAL - ATLANTIC BOAT WORKS' },
+                    { value: 'ABM', label: 'ABM - APOLLO BOAT MFG. CO.' },
+                    { value: 'ABW', label: 'ABW - ATLANTIC BOAT WORKS' },
+                    { value: 'AC', label: 'AC - AC' },
+                    { value: 'ACB', label: 'ACB - ALUMACRAFT BOAT CO.' },
+                    { value: 'ACH', label: 'ACH - ACHILLES KCI CORP.' },
+                    { value: 'ACM', label: 'ACM - ACTION MARINE INC.' },
+                    { value: 'ACUR', label: 'ACUR - ACURA' },
+                    { value: 'ADK', label: 'ADK - ATLANTIC BOAT WORKS' },
+                    { value: 'ADVN', label: 'ADVN - ADVANCE MACHINE CO' },
+                    { value: 'AERA', label: 'AERA - AEROCAR' },
+                    { value: 'AFC', label: 'AFC - AMERICAN FIBERGLASS CO.' },
+                    { value: 'AFD', label: 'AFD - AIRBOAT ENGINEERING' },
+                    { value: 'AFF', label: 'AFF - AMERICAN FIBERGLASS' },
+                    { value: 'AFG', label: 'AFG - AMERICAN FIBER-LITE' },
+                    { value: 'AGB', label: 'AGB - AERO-GLASS BOAT CO. (PHANTOM BOATS)' },
+                    { value: 'AGC', label: 'AGC - BAJA (AEROGLASTICS INC)' },
+                    { value: 'AHE', label: 'AHE - APACHE AIRBOATS, INC.' },
+                    { value: 'AIH', label: 'AIH - AMERICAN IRONHORSE' },
+                    { value: 'AIRS', label: 'AIRS - AIRSTREAM' },
+                    { value: 'AJAX', label: 'AJAX - AJAX TRAILER CO.' },
+                    { value: 'ALAB', label: 'ALAB - ALABAMA TRAILER' },
+                    { value: 'ALD', label: 'ALD - YAZOO BOATS (ALADDIN MFG. CO.)' },
+                    { value: 'ALFA', label: 'ALFA - ALFA ROMEO' },
+                    { value: 'ALFB', label: 'ALFB - ALFAB, INC.' },
+                    { value: 'ALIE', label: 'ALIE - ALLIED' },
+                    { value: 'ALIS', label: 'ALIS - ALLIS CHALMERS' },
+                    { value: 'ALKO', label: 'ALKO - ALOIS KOBER' },
+                    { value: 'ALL', label: 'ALL - ALLISON CRAFT BOAT CO.' },
+                    { value: 'ALOU', label: 'ALOU - ALOUETTE' },
+                    { value: 'ALS', label: 'ALS - ALL SEASONS INDUSTRIES' },
+                    { value: 'ALT', label: 'ALT - ALLISON CRAFT BOATS' },
+                    { value: 'ALUE', label: 'ALUE - ALOUETTE' },
+                    { value: 'AMER', label: 'AMER - AMERICAN MOTORS' },
+                    { value: 'AMF', label: 'AMF - AMF ALCORT' },
+                    { value: 'AMF', label: 'AMF - AMF LAWN & GARDEN DIV.' },
+                    { value: 'AMGN', label: 'AMGN - AM GENERAL' },
+                    { value: 'ANG', label: 'ANG - ANGLER BOAT CORP.' },
+                    { value: 'ANP', label: 'ANP - ANCHOR INDUSTRIES, INC' },
+                    { value: 'ANT', label: 'ANT - ANTHONY BOAT CO.' },
+                    { value: 'APAC', label: 'APAC - APACHE' },
+                    { value: 'APB', label: 'APB - APPLEBY MFG. CO.' },
+                    { value: 'APG', label: 'APG - APOLLO BOATS' },
+                    { value: 'APH', label: 'APH - APACHE' },
+                    { value: 'APL', label: 'APL - APOLLO BOATS' },
+                    { value: 'APRI', label: 'APRI - APRILIA MOTORCYCLES' },
+                    { value: 'ARCC', label: 'ARCC - ARCTIC CAT (ARCTCO)' },
+                    { value: 'ARCC', label: 'ARCC - ARCTIC CAT (ARTCO)' },
+                    { value: 'ARGS', label: 'ARGS - ARGOSY TRAVEL TRAILER' },
+                    { value: 'ARK', label: 'ARK - ARKANSAS TRAVELER BOAT' },
+                    { value: 'ARLB', label: 'ARLB - ARLBERG' },
+                    { value: 'ARR', label: 'ARR - ARROW CRAFT' },
+                    { value: 'ARRO', label: 'ARRO - ARROW' },
+                    { value: 'ARW', label: 'ARW - ARROW GLASS (DAY CO & ARROWGLASS)' },
+                    { value: 'ASK', label: 'ASK - ARIZONA SKI BOATS' },
+                    { value: 'ASP', label: 'ASP - AQUASPORT, INC.' },
+                    { value: 'AST', label: 'AST - PRO CRAFT (ASTROGLASS BOATS)' },
+                    { value: 'ASTO', label: 'ASTO - ASTON-MARTIN' },
+                    { value: 'ASUN', label: 'ASUN - ASUNA' },
+                    { value: 'ATL', label: 'ATL - ARISTO CRAFT BOAT CORP. (ATLANTABOAT WORKS)' },
+                    { value: 'ATM', label: 'ATM - ATLANTIC BOAT WORKS' },
+                    { value: 'AUDI', label: 'AUDI - AUDI' },
+                    { value: 'AUHE', label: 'AUHE - AUSTIN-HEALY' },
+                    { value: 'AURR', label: 'AURR - AURORA' },
+                    { value: 'AUST', label: 'AUST - AUSTIN' },
+                    { value: 'AUTC', label: 'AUTC - AUTOCAR' },
+                    { value: 'AUTO', label: 'AUTO - AUTOCAR' },
+                    { value: 'AUTS', label: 'AUTS - AUTO SKI- INC.' },
+                    { value: 'AVB', label: 'AVB - AVON RUBBER CO.' },
+                    { value: 'AVN', label: 'AVN - AVENGER MFG. CO. (ADVANCED MARINE CONCEPTS INC)' },
+                    { value: 'AVTI', label: 'AVTI - AVANTI' },
+                    { value: 'AWB', label: 'AWB - ALUMAWELD BOATS' },
+                    { value: 'AXC', label: 'AXC - ARCTIC ENTERPRISE (SPIRIT MARINE)' },
+                    { value: 'AXT', label: 'AXT - AZTEC BOAT CORP.' },
+                    { value: 'AYR', label: 'AYR - AYR-WAY INDUSTRIES' },
+                    { value: 'AZU', label: 'AZU - AZURE DYNAMICS CORPORATION' },
+                    { value: 'BAH', label: 'BAH - BAHNER CUSTOM BOATS, INC.' },
+                    { value: 'BAM', label: 'BAM - THUNDERBIRD PRODUCTS CORP.(BROWNING AEROCRAFT MARI' },
+                    { value: 'BAR', label: 'BAR - BARRON BOATS, INC.' },
+                    { value: 'BAS', label: 'BAS - BASS CATS BOATS' },
+                    { value: 'BASH', label: 'BASH - BASHAN MOTORCYCLE' },
+                    { value: 'BBW', label: 'BBW - BOURGETS BIKE WORKS' },
+                    { value: 'BCB', label: 'BCB - B-CRAFT BOAT MFG. CO.' },
+                    { value: 'BCC', label: 'BCC - BEACH CRAFT MARINE' },
+                    { value: 'BEM', label: 'BEM - CORNERSPORT CRESTLINERS (BEMIDJI BOAT CO)' },
+                    { value: 'BENS', label: 'BENS - BENSON' },
+                    { value: 'BENT', label: 'BENT - BENTLEY' },
+                    { value: 'BER', label: 'BER - BERTRAM YACHT (WHITTAKER CORP.)' },
+                    { value: 'BERO', label: 'BERO - BERTONE' },
+                    { value: 'BETA', label: 'BETA - BETA MOTORCYCLES' },
+                    { value: 'BFF', label: 'BFF - BLUE FIN INDUSTRIES, INC' },
+                    { value: 'BGDG', label: 'BGDG - BIG DOG MOTORCYCLES' },
+                    { value: 'BIGT', label: 'BIGT - BIG TEX TRAILERS' },
+                    { value: 'BIRM', label: 'BIRM - BIRMINGHAM MFG' },
+                    { value: 'BITT', label: 'BITT - BITTER' },
+                    { value: 'BJC', label: 'BJC - BOJO BOATCO. (DURKEE ENTERPRISES INC.)' },
+                    { value: 'BKH', label: 'BKH - BASS HUNTER' },
+                    { value: 'BL1', label: 'BL1 - BAYLINER MARINE, INC.' },
+                    { value: 'BL2', label: 'BL2 - BAYLINER MARINE, INC.' },
+                    { value: 'BL3', label: 'BL3 - BAYLINER MARINE, INC.' },
+                    { value: 'BL4', label: 'BL4 - BAYLINER MARINE, INC.' },
+                    { value: 'BL5', label: 'BL5 - BAYLINER MARINE, INC.' },
+                    { value: 'BLB', label: 'BLB - BAYLINER MARINE, INC.' },
+                    { value: 'BLP', label: 'BLP - BOMBER RAIDER' },
+                    { value: 'BLS', label: 'BLS - BLUE STAR MARINE CORP.' },
+                    { value: 'BLUB', label: 'BLUB - BLUE BIRD' },
+                    { value: 'BLUG', label: 'BLUG - BLUE RIDGE PRE-BUILT MOBILE HOMES' },
+                    { value: 'BLY', label: 'BLY - BAYOU BOATS' },
+                    { value: 'BMBR', label: 'BMBR - CAN-AM ATV' },
+                    { value: 'BMBR', label: 'BMBR - SKI-DOO' },
+                    { value: 'BMC', label: 'BMC - BMC' },
+                    { value: 'BMR', label: 'BMR - BIESMEYER BOATS' },
+                    { value: 'BMW', label: 'BMW - BMW' },
+                    { value: 'BNB', label: 'BNB - BONAIR BOATS, INC.' },
+                    { value: 'BNDR', label: 'BNDR - BOUNDER' },
+                    { value: 'BNDT', label: 'BNDT - BANDIT INDUSTRIES' },
+                    { value: 'BNM', label: 'BNM - BONANZA MOLDING CORP.' },
+                    { value: 'BNT', label: 'BNT - BONITO BOATS, INC.' },
+                    { value: 'BOAS', label: 'BOAS - ALSPORT' },
+                    { value: 'BOAT', label: 'BOAT - BOATEL SKI' },
+                    { value: 'BORG', label: 'BORG - BORGWARD' },
+                    { value: 'BRC', label: 'BRC - BRAMCO, INC.' },
+                    { value: 'BRDL', label: 'BRDL - BRADLEY GT' },
+                    { value: 'BREN', label: 'BREN - BRENNER' },
+                    { value: 'BRIC', label: 'BRIC - BRICKLIN' },
+                    { value: 'BRIS', label: 'BRIS - BRISTOL' },
+                    { value: 'BRNG', label: 'BRNG - BERING TRUCK DISTRIBUTOR' },
+                    { value: 'BROK', label: 'BROK - BROKEN ARROW MOBILE HOME' },
+                    { value: 'BRU', label: 'BRU - SMYRNA SKIFFS' },
+                    { value: 'BRUZ', label: 'BRUZ - BRUTANZA' },
+                    { value: 'BRW', label: 'BRW - HARWILL, INC. (BROWNING MARINE DIV.& AERO-CRAFT BO' },
+                    { value: 'BSA', label: 'BSA - BSA' },
+                    { value: 'BTD', label: 'BTD - B-CRAFT BOAT CO.' },
+                    { value: 'BUDC', label: 'BUDC - BUDD CO. TRAILER DIVISION' },
+                    { value: 'BUEL', label: 'BUEL - BUELL MOTOR CO' },
+                    { value: 'BUGA', label: 'BUGA - BUGATTI' },
+                    { value: 'BUIC', label: 'BUIC - BUICK' },
+                    { value: 'BUJ', label: 'BUJ - BASS TRACKER CORP.' },
+                    { value: 'BUSP', label: 'BUSP - BUFFALO SPRINGFIELD' },
+                    { value: 'BVD', label: 'BVD - BREVARD BOAT WORKS' },
+                    { value: 'BWC', label: 'BWC - BOSTON WHALER, INC.' },
+                    { value: 'BXE', label: 'BXE - BELLCO BOATS, INC.' },
+                    { value: 'CAB', label: 'CAB - CAL BOATS (BANGOR PUNTA MARINE)' },
+                    { value: 'CADI', label: 'CADI - CADILLAC' },
+                    { value: 'CALK', label: 'CALK - CALKINS TRAILER' },
+                    { value: 'CANA', label: 'CANA - CAN-AM ATV' },
+                    { value: 'CAP', label: 'CAP - CAPRI' },
+                    { value: 'CAPR', label: 'CAPR - CAPRI' },
+                    { value: 'CASE', label: 'CASE - CASE (J.I. , CO.)' },
+                    { value: 'CAT', label: 'CAT - CATERPILLAR TRACTOR' },
+                    { value: 'CBA', label: 'CBA - COBIA BOAT CO.' },
+                    { value: 'CBC', label: 'CBC - CHRYSLER BOAT CORP (TEXAS MARINE INTERNATIONAL)' },
+                    { value: 'CBM', label: 'CBM - CEE BEE MFG. CO.' },
+                    { value: 'CCA', label: 'CCA - CHRIS CRAFT' },
+                    { value: 'CCB', label: 'CCB - CHRIS CRAFT' },
+                    { value: 'CCD', label: 'CCD - CHRIS CRAFT' },
+                    { value: 'CCF', label: 'CCF - CHRIS CRAFT' },
+                    { value: 'CCH', label: 'CCH - CHRIS CRAFT' },
+                    { value: 'CCK', label: 'CCK - COLLINSCRAFT, INC.' },
+                    { value: 'CCM', label: 'CCM - HOBIE CAT (COAST CATAMARAN CORP.)' },
+                    { value: 'CCN', label: 'CCN - CHRIS CRAFT' },
+                    { value: 'CCR', label: 'CCR - CHRIS CRAFT ROAMER' },
+                    { value: 'CCT', label: 'CCT - CHRIS CRAFT' },
+                    { value: 'CCU', label: 'CCU - CHRIS CRAFT' },
+                    { value: 'CCV', label: 'CCV - CHRIS CRAFT' },
+                    { value: 'CCX', label: 'CCX - CRUISE BOATS, INC.' },
+                    { value: 'CDR', label: 'CDR - CARVER BOAT CORP. (CABRAL BOATS)' },
+                    { value: 'CEB', label: 'CEB - CENTURY BOAT CO.' },
+                    { value: 'CEE', label: 'CEE - CENTURIAN BOATS, INC.' },
+                    { value: 'CEM', label: 'CEM - COLE BOATS (COLE MARINE)' },
+                    { value: 'CFHG', label: 'CFHG - CHUNFENG HOLDING GROUP (ATV)' },
+                    { value: 'CFS', label: 'CFS - COLUMBIA FIBERGLASS' },
+                    { value: 'CFT', label: 'CFT - CACCI CRAFT, INC.' },
+                    { value: 'CFY', label: 'CFY - COBRA MFG. CO.' },
+                    { value: 'CGF', label: 'CGF - COLLINS CRAFT, INC.' },
+                    { value: 'CHAM', label: 'CHAM - CHAMPION' },
+                    { value: 'CHAM', label: 'CHAM - TRANS VAN' },
+                    { value: 'CHE', label: 'CHE - CHALLENGER BOAT, INC.' },
+                    { value: 'CHEC', label: 'CHEC - CHECKER' },
+                    { value: 'CHEV', label: 'CHEV - CHEVROLET' },
+                    { value: 'CHJ', label: 'CHJ - CHARGER CUSTOMBOATS (TRITON CUSTOM BOATS)' },
+                    { value: 'CHK', label: 'CHK - CHECKMATE BOATS, INC.' },
+                    { value: 'CHM', label: 'CHM - CRITCHFIELD MARINE, INC.' },
+                    { value: 'CHOC', label: 'CHOC - CHRYSLER OUTBOARD' },
+                    { value: 'CHPR', label: 'CHPR - CHAPARRAL' },
+                    { value: 'CHRY', label: 'CHRY - CHRYSLER' },
+                    { value: 'CHT', label: 'CHT - CHEETAH BOAT MFG., INC.' },
+                    { value: 'CIMC', label: 'CIMC - CHINA INTERNATIONAL MARINE CONTAINERS CO' },
+                    { value: 'CISI', label: 'CISI - CISITALIA' },
+                    { value: 'CITI', label: 'CITI - CITICAR' },
+                    { value: 'CITR', label: 'CITR - CITROEN' },
+                    { value: 'CKB', label: 'CKB - CHEROKEE BOAT CO.' },
+                    { value: 'CKL', label: 'CKL - CONCORD BOAT CORP.' },
+                    { value: 'CLA', label: 'CLA - CLASSIC BOAT, CORP.' },
+                    { value: 'CLAR', label: 'CLAR - CLARK EQUIP. COMPANY' },
+                    { value: 'CLEM', label: 'CLEM - CLEMENT BRASWELL' },
+                    { value: 'CLEN', label: 'CLEN - CLENET COACH WORKS' },
+                    { value: 'CLK', label: 'CLK - CLARK BOAT CO.' },
+                    { value: 'CMA', label: 'CMA - CROSBY MARINE ENGR CORP' },
+                    { value: 'CMCO', label: 'CMCO - CONCHEMCO HOMES GROUP' },
+                    { value: 'CMN', label: 'CMN - CUSTOM MARINE' },
+                    { value: 'CMP', label: 'CMP - CAMP WAYS, INC.' },
+                    { value: 'CMPG', label: 'CMPG - CAMPAGNA MOTO SPORT' },
+                    { value: 'CNE', label: 'CNE - CAROLINA BOAT CO.' },
+                    { value: 'CNH', label: 'CNH - CENTARK INDUSTRIES, INC.' },
+                    { value: 'CNP', label: 'CNP - COLEMAN CO., INC.' },
+                    { value: 'CNT', label: 'CNT - CORONET BOATS OF NORTH AMERICA' },
+                    { value: 'COBR', label: 'COBR - AC COBRA' },
+                    { value: 'COCA', label: 'COCA - COCAR (LIMITED USE AUTO)' },
+                    { value: 'COLE', label: 'COLE - COLEMAN CAMPING TRAILERS' },
+                    { value: 'COLL', label: 'COLL - COLLINS BUS' },
+                    { value: 'COLT', label: 'COLT - COLT' },
+                    { value: 'CONC', label: 'CONC - CONCORD' },
+                    { value: 'CONT', label: 'CONT - CONTINENTAL' },
+                    { value: 'CONU', label: 'CONU - CONSULIER' },
+                    { value: 'COVA', label: 'COVA - COVAN (LIMITED USE AUTO)' },
+                    { value: 'CP2', label: 'CP2 - COLEMAN CO., INC.' },
+                    { value: 'CRAN', label: 'CRAN - CRANE CARRIER' },
+                    { value: 'CRL', label: 'CRL - CRESTLINER DIV. (AMF CRESTLINER)' },
+                    { value: 'CRMT', label: 'CRMT - CAR MATE TRAILERS' },
+                    { value: 'CRS', label: 'CRS - MIRRO MARINE DIV. (CRUISERS DIV.)' },
+                    { value: 'CRT', label: 'CRT - CIGARETTE RACING TEAM' },
+                    { value: 'CRW', label: 'CRW - CREWS CRAFT, INC.' },
+                    { value: 'CSB', label: 'CSB - CLASSIC BOAT, INC.' },
+                    { value: 'CSHM', label: 'CSHM - CUSHMAN' },
+                    { value: 'CST', label: 'CST - AQUARIUS DIV. OF LAGUNA YACHTSCOASTAL RECREATION' },
+                    { value: 'CTC', label: 'CTC - CORRECT CRAFT, INC.' },
+                    { value: 'CTL', label: 'CTL - CONTINENTAL BOAT CO. (ANSWER MARINE)' },
+                    { value: 'CTY', label: 'CTY - CATALINA YACHTS' },
+                    { value: 'CUB', label: 'CUB - CUB CRAFT' },
+                    { value: 'CUC', label: 'CUC - CUSTOM MARINE' },
+                    { value: 'CUP', label: 'CUP - CUSTOM MARINE' },
+                    { value: 'CUSM', label: 'CUSM - CUSTOM TRAILERS' },
+                    { value: 'CVB', label: 'CVB - CARAVELLE BOAT CO.' },
+                    { value: 'CXN', label: 'CXN - CRUSADER CUSTOM BOATS' },
+                    { value: 'CYCL', label: 'CYCL - UNPUBLISHED MOTORCYCLE MFR.' },
+                    { value: 'CYV', label: 'CYV - COBRA BOAT MFG., INC.' },
+                    { value: 'DAEW', label: 'DAEW - DAEWOO' },
+                    { value: 'DAIH', label: 'DAIH - DAIHATSU' },
+                    { value: 'DAIR', label: 'DAIR - DIAMOND REO' },
+                    { value: 'DAIX', label: 'DAIX - DAIXI ZHENHUA TECH (MOTORCYCLE)' },
+                    { value: 'DATS', label: 'DATS - DATSUN' },
+                    { value: 'DAUP', label: 'DAUP - DAUPHIN' },
+                    { value: 'DAW', label: 'DAW - DAWSON BOAT CO.' },
+                    { value: 'DCB', label: 'DCB - DEM-CRAFT BOAT CO.' },
+                    { value: 'DEER', label: 'DEER - JOHN DEERE' },
+                    { value: 'DEL', label: 'DEL - DELTA MARINE, INC.' },
+                    { value: 'DELO', label: 'DELO - DELOREAN' },
+                    { value: 'DEM', label: 'DEM - DELHI MFG. CORP. (DELCRAFT)' },
+                    { value: 'DERB', label: 'DERB - DERBI MOTOR CORP.' },
+                    { value: 'DES', label: 'DES - DESOTO MFG. & SUPPLY CO.' },
+                    { value: 'DESO', label: 'DESO - DESOTO' },
+                    { value: 'DETO', label: 'DETO - DETOMASO' },
+                    { value: 'DFL', label: 'DFL - DOLPHIN BOATS, INC.' },
+                    { value: 'DFM', label: 'DFM - MOSSBACK BOAT MFG. CO.' },
+                    { value: 'DFP', label: 'DFP - DELCO FIBERGLASS PRODUCTS' },
+                    { value: 'DIAT', label: 'DIAT - DIAMOND T' },
+                    { value: 'DIPL', label: 'DIPL - DIPLOMAT' },
+                    { value: 'DIVC', label: 'DIVC - DIVCO' },
+                    { value: 'DIVE', label: 'DIVE - DIVELY MFG CO (TRAILER)' },
+                    { value: 'DLN', label: 'DLN - DOLPHIN BOATS, INC.' },
+                    { value: 'DMB', label: 'DMB - DI MARCO BOATS' },
+                    { value: 'DMH', label: 'DMH - HOSEA MFG. CO.' },
+                    { value: 'DMP', label: 'DMP - DAYTON MARINE PRODUCTS' },
+                    { value: 'DMR', label: 'DMR - DONZI MARINE, INC.' },
+                    { value: 'DNC', label: 'DNC - DURANAUTIC MFG. CORP.' },
+                    { value: 'DNU', label: 'DNU - DURANAUTIC, INC.' },
+                    { value: 'DODG', label: 'DODG - DODGE' },
+                    { value: 'DOOL', label: 'DOOL - DOOLITTLE' },
+                    { value: 'DORS', label: 'DORS - DORSEY TRAILER' },
+                    { value: 'DPD', label: 'DPD - DOLPHIN CANOE CO.' },
+                    { value: 'DST', label: 'DST - DORSETT MARINE, INC.' },
+                    { value: 'DUCA', label: 'DUCA - DUCATI' },
+                    { value: 'DUES', label: 'DUES - DUESENBERG' },
+                    { value: 'DUPL', label: 'DUPL - DUPLEX TRUCK' },
+                    { value: 'DUR', label: 'DUR - DURACRAFT BOATS, INC.' },
+                    { value: 'DUS', label: 'DUS - DUSKY MARINE, INC.' },
+                    { value: 'DUT', label: 'DUT - DURATECH MFG. CO.' },
+                    { value: 'DWE', label: 'DWE - CHIEF MFG., INC. (D & W ENTERPRISES)' },
+                    { value: 'DXA', label: 'DXA - DIXIE AIRBOATS, INC.' },
+                    { value: 'DXE', label: 'DXE - DIXIE BOAT WORKS' },
+                    { value: 'DXF', label: 'DXF - DIXIE FIBERGLASS PRODUCTS' },
+                    { value: 'DXM', label: 'DXM - DIXIE CRAFT (DIXIE MARINE MFG)' },
+                    { value: 'DYE', label: 'DYE - DYERCRAFT BOATS' },
+                    { value: 'EADU', label: 'EADU - EAST DUMP TRAILER' },
+                    { value: 'EAGI', label: 'EAGI - EAGLE INTERNATIONAL' },
+                    { value: 'EALO', label: 'EALO - EASY LOADER TRAILER' },
+                    { value: 'EAST', label: 'EAST - EASTON CAR & CONSTRUCTION' },
+                    { value: 'EBK', label: 'EBK - EBKO INDUSTRIES' },
+                    { value: 'ECX', label: 'ECX - CANE CUTTER, INC.' },
+                    { value: 'EDSE', label: 'EDSE - EDSEL' },
+                    { value: 'EGIL', label: 'EGIL - EAGLE' },
+                    { value: 'EKW', label: 'EKW - MARLIN BOATS, INC.' },
+                    { value: 'ELB', label: 'ELB - ELIMINATOR BOATS' },
+                    { value: 'ELD', label: 'ELD - ELDO CRAFT BOAT CO.' },
+                    { value: 'ELDO', label: 'ELDO - ELDORADO' },
+                    { value: 'ELE', label: 'ELE - ELITE BOATS' },
+                    { value: 'ELG', label: 'ELG - ELGIN' },
+                    { value: 'ELGN', label: 'ELGN - ELGIN SWEEPER' },
+                    { value: 'ELX', label: 'ELX - ELI LAMINATES CO., INC.' },
+                    { value: 'ENGF', label: 'ENGF - ENGLISH FORD' },
+                    { value: 'ENN', label: 'ENN - ENSIGN YACHTS' },
+                    { value: 'ERF', label: 'ERF - EASY RIDER FIBERGLASS' },
+                    { value: 'ESCP', label: 'ESCP - ESCAPADE' },
+                    { value: 'ESK', label: 'ESK - ESKAY PLASTICS, LTD.' },
+                    { value: 'ESN', label: 'ESN - RANDALL CRAFT, INC.' },
+                    { value: 'ESSE', label: 'ESSE - ESSEX' },
+                    { value: 'ETC', label: 'ETC - EBBTIDE CORP.' },
+                    { value: 'ETF', label: 'ETF - EAST TEX FIBERGLASS PRODUCTS' },
+                    { value: 'EXCL', label: 'EXCL - EXCALIBUR' },
+                    { value: 'EXPL', label: 'EXPL - EXPLORER MOTOR HOME' },
+                    { value: 'EXU', label: 'EXU - ASTRO PLASTICS CORP.' },
+                    { value: 'EZDU', label: 'EZDU - EZ DUMPER TRAILERS' },
+                    { value: 'FAB', label: 'FAB - FABUGLASS CO., INC.' },
+                    { value: 'FALC', label: 'FALC - FALCON' },
+                    { value: 'FBF', label: 'FBF - FIBER-FORM (DIV. OF BAYLINER MARINE)' },
+                    { value: 'FBG', label: 'FBG - FIBERFORM (US INDUSTRIES, INC.)' },
+                    { value: 'FBK', label: 'FBK - FIBERKING BOAT CO. (FIBERKING, INC.)' },
+                    { value: 'FCL', label: 'FCL - FIBER-CELL, INC.' },
+                    { value: 'FCN', label: 'FCN - FALCON BOATS OF CALIFORNIA' },
+                    { value: 'FCP', label: 'FCP - FIBERCRAFT MFG. CO.' },
+                    { value: 'FCS', label: 'FCS - FALCON BOATS, INC.' },
+                    { value: 'FEA', label: 'FEA - FEATHERCRAFT' },
+                    { value: 'FELL', label: 'FELL - FELLWON TRAILER' },
+                    { value: 'FEMC', label: 'FEMC - FELDMAN ENGINEERING & MFG.' },
+                    { value: 'FERR', label: 'FERR - FERRARI' },
+                    { value: 'FGB', label: 'FGB - CHAPARRAL BOATS, INC. (FIBERGLASS FABRIC, INC.)' },
+                    { value: 'FGE', label: 'FGE - COBALT BOATS' },
+                    { value: 'FIAT', label: 'FIAT - FIAT' },
+                    { value: 'FIVE', label: 'FIVE - FIVE STAR ENGINEERING, INC.' },
+                    { value: 'FLB', label: 'FLB - FOLBOT CORP.' },
+                    { value: 'FLEX', label: 'FLEX - FLXIBLE BUS CO.' },
+                    { value: 'FLQ', label: 'FLQ - FLAGSHIP YACHT SALES, INC.' },
+                    { value: 'FMC', label: 'FMC - FISHER MARINE, INC.' },
+                    { value: 'FMC', label: 'FMC - FMC' },
+                    { value: 'FMY', label: 'FMY - FM MARINE' },
+                    { value: 'FONA', label: 'FONA - FONTAINE TRUCK' },
+                    { value: 'FORD', label: 'FORD - FORD' },
+                    { value: 'FRAN', label: 'FRAN - FRANKLIN' },
+                    { value: 'FRED', label: 'FRED - FREDERICK-WILLYS' },
+                    { value: 'FRHT', label: 'FRHT - FREIGHTLINER CORP.' },
+                    { value: 'FRK', label: 'FRK - KURTIS KRAFT BOATS' },
+                    { value: 'FRUE', label: 'FRUE - FRAUHAUF' },
+                    { value: 'FSF', label: 'FSF - FOUR STAR FIBERGLASS CORP.' },
+                    { value: 'FSJ', label: 'FSJ - FIBER SKIFF, INCORPORATED' },
+                    { value: 'FSKR', label: 'FSKR - FISKER AUTOMOTIVE' },
+                    { value: 'FSM', label: 'FSM - FISHMASTER' },
+                    { value: 'FSTL', label: 'FSTL - FASTLINE LTD.' },
+                    { value: 'FTWD', label: 'FTWD - FLEETWOOD MOTOR HOME' },
+                    { value: 'FUR', label: 'FUR - FURY BOATS (FURY SPEED AND MARINE)' },
+                    { value: 'FWD', label: 'FWD - FWS' },
+                    { value: 'GAE', label: 'GAE - GALAXIE BOATS, INC.' },
+                    { value: 'GAL', label: 'GAL - GALAXY BOAT MFG. CO.' },
+                    { value: 'GBC', label: 'GBC - GREGOR BOATS' },
+                    { value: 'GBCO', label: 'GBCO - GILSON BROTHERS COMPANY' },
+                    { value: 'GBF', label: 'GBF - OSAGIAN BOATS, INC.' },
+                    { value: 'GBM', label: 'GBM - GRUMMAN ALLIED INDUSTRIES, INC. (GRUMMAN BOATS)' },
+                    { value: 'GBN', label: 'GBN - GIBSON FIBERGLASS PRODUCTS' },
+                    { value: 'GBP', label: 'GBP - GRUMMAN BOATS INC(GRUMAN-CARMICHAELS)' },
+                    { value: 'GBW', label: 'GBW - GALAXIE BOAT WORKS, INC.' },
+                    { value: 'GCV', label: 'GCV - GLASTRON-CARLSON' },
+                    { value: 'GDAN', label: 'GDAN - GREAT DANE TRAILERS' },
+                    { value: 'GEM', label: 'GEM - GEM' },
+                    { value: 'GENI', label: 'GENI - GENIE' },
+                    { value: 'GENS', label: 'GENS - GENESIS' },
+                    { value: 'GEO', label: 'GEO - GEO' },
+                    { value: 'GHE', label: 'GHE - GHEENOE (GHEEN MANUFACTURING)' },
+                    { value: 'GILG', label: 'GILG - GILLIG CORPORATION' },
+                    { value: 'GIND', label: 'GIND - GINDY' },
+                    { value: 'GLA', label: 'GLA - GLASTRON BOAT CO.' },
+                    { value: 'GLSC', label: 'GLSC - GLASSIC' },
+                    { value: 'GLX', label: 'GLX - GREAT LAKE INFLATABLE, INC.' },
+                    { value: 'GM', label: 'GM - GM' },
+                    { value: 'GMA', label: 'GMA - GENERAL MARINE CO.' },
+                    { value: 'GMC', label: 'GMC - GMC' },
+                    { value: 'GNSH', label: 'GNSH - GENERAL SHELTERS' },
+                    { value: 'GPC', label: 'GPC - GLASS MASTER BOAT CO., INC. (GLASSMASTER PLASTICS)' },
+                    { value: 'GPD', label: 'GPD - BEACH COMBER BOATS & GLASS BOATS UNLIMITED CORP' },
+                    { value: 'GRUM', label: 'GRUM - GRUMMAN' },
+                    { value: 'GSY', label: 'GSY - GLASSTREAM BOATS' },
+                    { value: 'GTX', label: 'GTX - GLASTEX CO.' },
+                    { value: 'HAL', label: 'HAL - HALLET' },
+                    { value: 'HALM', label: 'HALM - HALLMARK' },
+                    { value: 'HAUL', label: 'HAUL - HAULETTE TRAILER' },
+                    { value: 'HBU', label: 'HBU - HOLETON BOAT WORKS' },
+                    { value: 'HBY', label: 'HBY - HOWMAR BOATS, INC.' },
+                    { value: 'HCB', label: 'HCB - HOWARD CUSTOM BOATS' },
+                    { value: 'HD', label: 'HD - HARLEY DAVIDSON' },
+                    { value: 'HDMC', label: 'HDMC - HARLEY DAVIDSON (AMF)' },
+                    { value: 'HDSN', label: 'HDSN - HUDSON TRAILER' },
+                    { value: 'HEIL', label: 'HEIL - HEIL' },
+                    { value: 'HER', label: 'HER - HERTERS, INC.' },
+                    { value: 'HEW', label: 'HEW - HEWES MARINE CO. INC.' },
+                    { value: 'HGB', label: 'HGB - HORIS' },
+                    { value: 'HGG', label: 'HGG - HIGGINBOTHAN BOAT CO.' },
+                    { value: 'HIGH', label: 'HIGH - HIGHWAY TRAILER' },
+                    { value: 'HIN', label: 'HIN - HUSTLER INDUSTRIES' },
+                    { value: 'HINO', label: 'HINO - HINO' },
+                    { value: 'HMDE', label: 'HMDE - HOMEMADE' },
+                    { value: 'HMJ', label: 'HMJ - HOLIDAY MANUFACTURING' },
+                    { value: 'HND', label: 'HND - HONDO BOATS' },
+                    { value: 'HNK', label: 'HNK - HANS KLEPPER CORP.' },
+                    { value: 'HOBB', label: 'HOBB - HOBBS TRAILERS' },
+                    { value: 'HODA', label: 'HODA - HODAKA' },
+                    { value: 'HOLR', label: 'HOLR - HOLIDAY RAMBLER' },
+                    { value: 'HOMD', label: 'HOMD - HOMEMADE MOTORCYCLE' },
+                    { value: 'HOME', label: 'HOME - HOMETTE' },
+                    { value: 'HOND', label: 'HOND - HONDA' },
+                    { value: 'HRTI', label: 'HRTI - HERTERS INC.' },
+                    { value: 'HRTO', label: 'HRTO - HORTON' },
+                    { value: 'HSB', label: 'HSB - HUSTLER BOATS' },
+                    { value: 'HSL', label: 'HSL - HUSTLER BOAT CO. (HUSTLER MARINE CO.& HUSTLER, INC' },
+                    { value: 'HSP', label: 'HSP - HYDRO STREAM BOATS' },
+                    { value: 'HST', label: 'HST - HURST ENTERPRISES, INC.(MASTER ENTERPRISES, INC.)' },
+                    { value: 'HSX', label: 'HSX - HYDRA-SPORTS, INC.' },
+                    { value: 'HTB', label: 'HTB - CUSTOM MARINE (HOT BOAT ALLEY & MACHONE BOATS)' },
+                    { value: 'HUB', label: 'HUB - HUBBS YACHT SALES, INC.' },
+                    { value: 'HUDS', label: 'HUDS - HUDSON' },
+                    { value: 'HUL', label: 'HUL - HULLS, INC. (VALCO ALUMINUM BOATS)' },
+                    { value: 'HUMM', label: 'HUMM - HUMMER' },
+                    { value: 'HURU', label: 'HURU - HUSTLER-RUSTLER' },
+                    { value: 'HUS', label: 'HUS - HUSTLER BOAT CO., INC.' },
+                    { value: 'HUSQ', label: 'HUSQ - HUSQVARNA MOTORCYCLES' },
+                    { value: 'HUU', label: 'HUU - HURST ENTERPRISES, INC.' },
+                    { value: 'HUX', label: 'HUX - HUSTLER MARINE, INC.' },
+                    { value: 'HVC', label: 'HVC - U. S. HOVERCRAFT' },
+                    { value: 'HWE', label: 'HWE - HOLLYWOOD ENTERPRISES, INC.' },
+                    { value: 'HYD', label: 'HYD - DYNA-PAC, INC. (HYDROSWIFT CORP)' },
+                    { value: 'HYUN', label: 'HYUN - HYUNDAI' },
+                    { value: 'IMPE', label: 'IMPE - IMPERIAL' },
+                    { value: 'INDI', label: 'INDI - INDIAN MOTORCYCLES' },
+                    { value: 'INFI', label: 'INFI - INFINITI' },
+                    { value: 'INGS', label: 'INGS - INGERSOLL-RAND CO.' },
+                    { value: 'INTL', label: 'INTL - INTERNATIONAL HARVESTER' },
+                    { value: 'INTL', label: 'INTL - TRANSTAR' },
+                    { value: 'IRDG', label: 'IRDG - IRONDOG TRAILERS' },
+                    { value: 'ISLA', label: 'ISLA - ISLANDER MOTOR HOME' },
+                    { value: 'ISO', label: 'ISO - ISO' },
+                    { value: 'ISU', label: 'ISU - ISUZU' },
+                    { value: 'ITAL', label: 'ITAL - ITALJET' },
+                    { value: 'ITAS', label: 'ITAS - ITASCA MOTOR HOME' },
+                    { value: 'IVEC', label: 'IVEC - IVECO (MAGIRUS DISTR.)' },
+                    { value: 'IVEC', label: 'IVEC - IVECO TRUCKS' },
+                    { value: 'JACC', label: 'JACC - JAC-TRAC INC.' },
+                    { value: 'JAGU', label: 'JAGU - JAGUAR' },
+                    { value: 'JAWA', label: 'JAWA - JAWA' },
+                    { value: 'JBC', label: 'JBC - JETT BOAT COMPANY (ALUMA-WELD)' },
+                    { value: 'JBN', label: 'JBN - JET BOAT ENGINEERING (PERFORMANCE ENGINEERING)' },
+                    { value: 'JBX', label: 'JBX - JET BOAT ENGINEERING OF OKLAHOMA' },
+                    { value: 'JCBE', label: 'JCBE - JCB EXCAVATORS' },
+                    { value: 'JCE', label: 'JCE - MAIDEN CRAFT & PRO CRAFT (ASTROGLASS BOATS)' },
+                    { value: 'JDB', label: 'JDB - JOHN DORY BOAT WORKS, INC.' },
+                    { value: 'JDER', label: 'JDER - J DEERE AND COMPANY' },
+                    { value: 'JEB', label: 'JEB - JET-STER BOATS' },
+                    { value: 'JEEP', label: 'JEEP - JEEP' },
+                    { value: 'JENS', label: 'JENS - JENSEN' },
+                    { value: 'JET', label: 'JET - GLEN-COE BOAT MFG.' },
+                    { value: 'JHR', label: 'JHR - INDIAN RIVER BOATS' },
+                    { value: 'JNC', label: 'JNC - JEM-CRAFT' },
+                    { value: 'JRDN', label: 'JRDN - JERR-DAN' },
+                    { value: 'JRS', label: 'JRS - KONABOATS, INC. (JRS FIBERGLASS UNLIMITED, INC.)' },
+                    { value: 'JSB', label: 'JSB - JET-STER BOAT CO.' },
+                    { value: 'JTA', label: 'JTA - JET-STER BOATS OF ALABAMA' },
+                    { value: 'JTB', label: 'JTB - JET-STER BOAT OF MEMPHIS' },
+                    { value: 'KAIS', label: 'KAIS - KAISER' },
+                    { value: 'KARA', label: 'KARA - KARAVAN TRAILERS, INC.' },
+                    { value: 'KARI', label: 'KARI - KARI KOOL TRAILER' },
+                    { value: 'KAW', label: 'KAW - KAWASAKI MOTORS MFG' },
+                    { value: 'KAWK', label: 'KAWK - KAWASAKI' },
+                    { value: 'KBW', label: 'KBW - KENNEDY BOAT CO.' },
+                    { value: 'KCK', label: 'KCK - K-CRAFT, INC.' },
+                    { value: 'KENT', label: 'KENT - KENTUCKY MFG' },
+                    { value: 'KENY', label: 'KENY - KENNY BOYCE MOTORCYCLES' },
+                    { value: 'KIA', label: 'KIA - KIA MOTOR COMPANY' },
+                    { value: 'KMCU', label: 'KMCU - KAWASAKI' },
+                    { value: 'KNG', label: 'KNG - MASTER MOLDERS, INC. (KINGFISHER FIBERGLASS)' },
+                    { value: 'KNNW', label: 'KNNW - KENWORTH NORTHWEST' },
+                    { value: 'KODI', label: 'KODI - KODIAK' },
+                    { value: 'KOMA', label: 'KOMA - KOMATSU AMERICAN CORP.' },
+                    { value: 'KOME', label: 'KOME - KOMETIC' },
+                    { value: 'KRG', label: 'KRG - IMAGE BOAT CO. (KRONENBERG INDUSTRIES, INC.)' },
+                    { value: 'KRU', label: 'KRU - CRUISERS, INC.' },
+                    { value: 'KST', label: 'KST - CHARLOMA FIBERGLASS, INC.' },
+                    { value: 'KTM', label: 'KTM - KTM' },
+                    { value: 'KVA', label: 'KVA - KENOVA INDUSTRIES' },
+                    { value: 'KW', label: 'KW - KENWORTH' },
+                    { value: 'KWDT', label: 'KWDT - KW DART' },
+                    { value: 'KYMC', label: 'KYMC - KYMCO SCOOTERS & MOTORCYCLES' },
+                    { value: 'KYRV', label: 'KYRV - KEYSTONE RV CO.' },
+                    { value: 'LADA', label: 'LADA - LADA' },
+                    { value: 'LAMO', label: 'LAMO - LAMBORGHINI' },
+                    { value: 'LANU', label: 'LANU - LANDAU MOTOR HOME' },
+                    { value: 'LAR', label: 'LAR - LARSON BOAT CO.' },
+                    { value: 'LARV', label: 'LARV - LARVIN - FIRMA LENKO' },
+                    { value: 'LAY', label: 'LAY - LAGUNA YACHTS, INC.' },
+                    { value: 'LBC', label: 'LBC - LIVINGSTON BOAT CO., INC.' },
+                    { value: 'LBD', label: 'LBD - LANDAU BOAT CO.' },
+                    { value: 'LBHR', label: 'LBHR - LIEBHERR' },
+                    { value: 'LBO', label: 'LBO - LANDAU BOAT COMPANY' },
+                    { value: 'LBOS', label: 'LBOS - LOAD BOSS, INC.' },
+                    { value: 'LBTY', label: 'LBTY - LIBERTY, INC.' },
+                    { value: 'LCB', label: 'LCB - LYN-CRAFT BOAT CO.' },
+                    { value: 'LCN', label: 'LCN - LINCOLN CANOE CO. (MAINE MARINE CO.)' },
+                    { value: 'LCR', label: 'LCR - RADISSON CANOES' },
+                    { value: 'LDMS', label: 'LDMS - LOADMASTER, INC.' },
+                    { value: 'LEL', label: 'LEL - CAJUN SPECIAL BOATS (LOLELL IND.)' },
+                    { value: 'LEXS', label: 'LEXS - LEXUS' },
+                    { value: 'LFZA', label: 'LFZA - LAFORZA UTILITY VEHICLE' },
+                    { value: 'LINC', label: 'LINC - LINCOLN' },
+                    { value: 'LIOL', label: 'LIOL - LIONAL ENTERPRISES INC.' },
+                    { value: 'LMA', label: 'LMA - CADDO BOAT MFG. CO., INC' },
+                    { value: 'LNCI', label: 'LNCI - LANCIA' },
+                    { value: 'LNDR', label: 'LNDR - LAND ROVER' },
+                    { value: 'LNS', label: 'LNS - LONE STAR FIBERGLASS CO.' },
+                    { value: 'LONG', label: 'LONG - LONG MFG' },
+                    { value: 'LOTU', label: 'LOTU - LOTUS' },
+                    { value: 'LPB', label: 'LPB - MAKO SHARK BOATS (LYNCH PERFORMANCE BOATS)' },
+                    { value: 'LSKP', label: 'LSKP - LORI ENGINEERING CORP.' },
+                    { value: 'LUFK', label: 'LUFK - LUFKIN TRAILERS' },
+                    { value: 'LUG', label: 'LUG - LUGER INDUSTRIES, INC.' },
+                    { value: 'LUN', label: 'LUN - LUND AMERICAN, INC.' },
+                    { value: 'LWN', label: 'LWN - LOWEINDUSTRIES (CARL A. LOWE INDUSTRIES, INC.)' },
+                    { value: 'LYN', label: 'LYN - LYN CRAFT BOAT CO.' },
+                    { value: 'MAC', label: 'MAC - MACGREGOR YACHT CORP.' },
+                    { value: 'MACK', label: 'MACK - MACK TRUCKS' },
+                    { value: 'MAD', label: 'MAD - MAD RIVER CANOE CO., INC.' },
+                    { value: 'MADM', label: 'MADM - MADAMI MOTOR SCOOTERS' },
+                    { value: 'MAG', label: 'MAG - MAGNUM MARINE' },
+                    { value: 'MAHA', label: 'MAHA - MARMON HARRINGTON' },
+                    { value: 'MAK', label: 'MAK - MONARK BOAT CO.' },
+                    { value: 'MALR', label: 'MALR - MALLARD' },
+                    { value: 'MANT', label: 'MANT - MANTA' },
+                    { value: 'MASE', label: 'MASE - MASERATI' },
+                    { value: 'MASS', label: 'MASS - MASSEY-FERGUSON INC.' },
+                    { value: 'MASS', label: 'MASS - MASSEY-FURGUSON' },
+                    { value: 'MAYB', label: 'MAYB - MAYBACH' },
+                    { value: 'MAZ', label: 'MAZ - MACS AIRBOATS AND SKIFFS' },
+                    { value: 'MAZD', label: 'MAZD - MAZDA' },
+                    { value: 'MBC', label: 'MBC - MASTERCRAFT BOAT CO.' },
+                    { value: 'MBD', label: 'MBD - MARLIN BOAT CO.' },
+                    { value: 'MBE', label: 'MBE - MANTRA BOAT CO.' },
+                    { value: 'MBK', label: 'MBK - MAKAI BOATS, INC.' },
+                    { value: 'MBP', label: 'MBP - MITCHELL BOAT CO.' },
+                    { value: 'MCC', label: 'MCC - MICH-CRAFT CORP' },
+                    { value: 'MCD', label: 'MCD - MCDANIEL BOAT CO., INC.' },
+                    { value: 'MCIN', label: 'MCIN - MOTOR COACH INDUSTRIES (MCI)' },
+                    { value: 'MCLA', label: 'MCLA - MCLAREN' },
+                    { value: 'MDT', label: 'MDT - MIDDLE TENNESSEE FIBERGLASS, INC.' },
+                    { value: 'MELR', label: 'MELR - MELROE DIV (BOBCAT SKID STEER)' },
+                    { value: 'MERC', label: 'MERC - MERCURY' },
+                    { value: 'MERK', label: 'MERK - MERKUR' },
+                    { value: 'MERZ', label: 'MERZ - MERCEDES BENZ' },
+                    { value: 'MESS', label: 'MESS - MESSERSCHMITT' },
+                    { value: 'METR', label: 'METR - METROPOLITAN' },
+                    { value: 'MEY', label: 'MEY - MEYERS INDUSTRIES, INC.' },
+                    { value: 'MFG', label: 'MFG - MFG BOATS (MOLDED FIBER GLASS BOAT)' },
+                    { value: 'MFS', label: 'MFS - WITCHCRAFT & APACHE (MIKE F. SHANNON CO.)' },
+                    { value: 'MG', label: 'MG - MG' },
+                    { value: 'MG', label: 'MG - MGB' },
+                    { value: 'MGM', label: 'MGM - MAGTEX CO. (MAGNUM BOAT)' },
+                    { value: 'MGW', label: 'MGW - MONTGOMERY WARD CO.' },
+                    { value: 'MHP', label: 'MHP - MEL-HART PRODUCTS, INC.' },
+                    { value: 'MIDS', label: 'MIDS - MIDAS MOTOR HOME' },
+                    { value: 'MIFU', label: 'MIFU - MITSUBISHI FUSO' },
+                    { value: 'MILL', label: 'MILL - MILLER TRAILERS' },
+                    { value: 'MITS', label: 'MITS - MITSUBISHI' },
+                    { value: 'MKC', label: 'MKC - MCKEE CRAFT' },
+                    { value: 'MKS', label: 'MKS - MAKO, INC' },
+                    { value: 'MMN', label: 'MMN - MOHAWK MFG. CO.' },
+                    { value: 'MNNI', label: 'MNNI - MINI (COOPER/COOPER-S) (RIGHTS BOUGHT BY BMW)' },
+                    { value: 'MNT', label: 'MNT - MANATEE MARINE PRODUCTS, INC.' },
+                    { value: 'MOBE', label: 'MOBE - MOTO BETA' },
+                    { value: 'MOGU', label: 'MOGU - MOTO GUZZI' },
+                    { value: 'MONA', label: 'MONA - MONARCH' },
+                    { value: 'MONG', label: 'MONG - LAC ST-JEAN MOTONEIGE LTD. - SEE MONTAGNAIS' },
+                    { value: 'MONN', label: 'MONN - MONON TRAILER DIV.' },
+                    { value: 'MONW', label: 'MONW - MONTONE MFG' },
+                    { value: 'MORG', label: 'MORG - MORGAN' },
+                    { value: 'MORR', label: 'MORR - MORRIS' },
+                    { value: 'MOSK', label: 'MOSK - MOSKOVICH' },
+                    { value: 'MOWA', label: 'MOWA - MONTGOMERY WARD' },
+                    { value: 'MPM', label: 'MPM - COMBEE AIRBOATS, INC.' },
+                    { value: 'MRB', label: 'MRB - MARQUIS BOAT CO., INC.' },
+                    { value: 'MRCU', label: 'MRCU - MERCURY' },
+                    { value: 'MRH', label: 'MRH - MARIAH BOATS' },
+                    { value: 'MRJ', label: 'MRJ - MARQUIS BOATS, INC.' },
+                    { value: 'MRK', label: 'MRK - MAKO MARINE, INC.' },
+                    { value: 'MRR', label: 'MRR - MIRRO MARINE DIV. (MIRROCRAFT & MIRRO MARINE)' },
+                    { value: 'MSFI', label: 'MSFI - MASSEY-FERGUSON INC.' },
+                    { value: 'MTD', label: 'MTD - MTD PRODUCTS, INC. (LAWN FLITE - MFD)' },
+                    { value: 'MTM', label: 'MTM - MARK TWAIN MARINE INDUSTRIES' },
+                    { value: 'MTMV', label: 'MTMV - MIGHTY MOVER TRAILERS, INC.' },
+                    { value: 'MTPI', label: 'MTPI - MTD PRODUCTS INC. (COLUMBIA)' },
+                    { value: 'MUNT', label: 'MUNT - MUNTZ' },
+                    { value: 'MYW', label: 'MYW - AMERICAN FIBERLITE, INCORPORATED' },
+                    { value: 'MZ', label: 'MZ - MZ' },
+                    { value: 'NAB', label: 'NAB - NORTH AMERICAN BOAT CORP.' },
+                    { value: 'NABO', label: 'NABO - NABORS TRAILERS' },
+                    { value: 'NAP', label: 'NAP - LIGHTING BOATS (EXCALIBUR MARINE CORP.)' },
+                    { value: 'NASH', label: 'NASH - NASH' },
+                    { value: 'NAVI', label: 'NAVI - NAVISTAR' },
+                    { value: 'NDC', label: 'NDC - NORDIC BOATS' },
+                    { value: 'NEW', label: 'NEW - NEWMAN INDUSTRIES, INC.' },
+                    { value: 'NEWL', label: 'NEWL - NEWELL' },
+                    { value: 'NEWP', label: 'NEWP - NEWPORT' },
+                    { value: 'NFLY', label: 'NFLY - NEW FLYER' },
+                    { value: 'NISS', label: 'NISS - NISSAN' },
+                    { value: 'NNA', label: 'NNA - NONA BOAT CO.' },
+                    { value: 'NORT', label: 'NORT - NORTON' },
+                    { value: 'NRTS', label: 'NRTS - NORTHWAY' },
+                    { value: 'NTL', label: 'NTL - NATIONALBOAT WORKS, INC. (GRADY-WHITE BOATS)' },
+                    { value: 'NWCT', label: 'NWCT - NORTHWEST CUSTOM TRAILER' },
+                    { value: 'OCKE', label: 'OCKE - OCKELBO INDUSTRY AB' },
+                    { value: 'ODGL', label: 'ODGL - ARGO' },
+                    { value: 'ODSS', label: 'ODSS - ODYSSEY' },
+                    { value: 'OLDS', label: 'OLDS - OLDSMOBILE' },
+                    { value: 'OLYM', label: 'OLYM - OLYMPIA' },
+                    { value: 'OMCJ', label: 'OMCJ - JOHNSON (OMC)' },
+                    { value: 'OPEL', label: 'OPEL - OPEL' },
+                    { value: 'ORIG', label: 'ORIG - ORIGINAL EQUIPMENT MANUFACTURING LTD.' },
+                    { value: 'OSHK', label: 'OSHK - OSHKOSH MOTOR TRUCK' },
+                    { value: 'OTPE', label: 'OTPE - OUTDOOR POWER EQUIPMENT' },
+                    { value: 'OUTM', label: 'OUTM - EVINRUDE - SEE OUTBOARD MARINE CORPORATION' },
+                    { value: 'OVEL', label: 'OVEL - OVERLAND MOTOR HOMES' },
+                    { value: 'OVER', label: 'OVER - OVERLAND' },
+                    { value: 'PACK', label: 'PACK - PACKARD' },
+                    { value: 'PANH', label: 'PANH - PANHARD' },
+                    { value: 'PAP', label: 'PAP - PANTHER AIRBOATS CORP.' },
+                    { value: 'PARO', label: 'PARO - PACE ARROW' },
+                    { value: 'PASS', label: 'PASS - PASSPORT' },
+                    { value: 'PDC', label: 'PDC - P & D BOAT CORP.' },
+                    { value: 'PDL', label: 'PDL - SURFGLAS, INC. (PRINDLE CATAMARANS )' },
+                    { value: 'PER', label: 'PER - PERFORMER BOAT CO.' },
+                    { value: 'PEUG', label: 'PEUG - PEUGEOT' },
+                    { value: 'PFS', label: 'PFS - PERFORMANCE SAILCRAFT' },
+                    { value: 'PHB', label: 'PHB - PHANTOM BOAT, INC.' },
+                    { value: 'PHOE', label: 'PHOE - PHOENIX' },
+                    { value: 'PHU', label: 'PHU - PHANTOM BROTHERS, INC. (PHANTOM BOAT, INC.)' },
+                    { value: 'PHV', label: 'PHV - PACIFIC HOVERCRAFT' },
+                    { value: 'PHX', label: 'PHX - PHOENIX PRODUCTS, INC.' },
+                    { value: 'PIAG', label: 'PIAG - PIAGGIO' },
+                    { value: 'PLC', label: 'PLC - PRO-LINE BOAT CO.' },
+                    { value: 'PLR', label: 'PLR - POLAR KRAFT MFG. CO.' },
+                    { value: 'PLRN', label: 'PLRN - POLORON' },
+                    { value: 'PLYC', label: 'PLYC - PLAYCAT INDUSTRIES INC.' },
+                    { value: 'PLYM', label: 'PLYM - PLYMOUTH' },
+                    { value: 'PMR', label: 'PMR - PANTHER MARINE CORP.' },
+                    { value: 'PNT', label: 'PNT - PIONEER BOATS' },
+                    { value: 'POLA', label: 'POLA - POLAR MFG' },
+                    { value: 'POLB', label: 'POLB - POLAR BEAR' },
+                    { value: 'POLS', label: 'POLS - POLARIS INDUSTRIES INC. (E-Z-GO)' },
+                    { value: 'PONI', label: 'PONI - PONTIAC' },
+                    { value: 'PONT', label: 'PONT - PONTIAC' },
+                    { value: 'PORS', label: 'PORS - PORSCHE' },
+                    { value: 'PPE', label: 'PPE - PERFORMANCE PLUS PRODUCTS' },
+                    { value: 'PRCA', label: 'PRCA - PIERCE ARROW' },
+                    { value: 'PREO', label: 'PREO - PREVOST' },
+                    { value: 'PRO', label: 'PRO - PRO CRAFT, INC.' },
+                    { value: 'PSL', label: 'PSL - J BOATS WEST (PERFORMANCE & LASER SAILCRAFT)' },
+                    { value: 'PTRB', label: 'PTRB - PETERBUILT MOTORS' },
+                    { value: 'PUCH', label: 'PUCH - PUCH' },
+                    { value: 'PWR', label: 'PWR - POWER CAT MFG., INC.' },
+                    { value: 'PYB', label: 'PYB - PENN YAN BOATS, INC.' },
+                    { value: 'PYH', label: 'PYH - PYTHON BOATS' },
+                    { value: 'RA1', label: 'RA1 - AMF ROBALO DIVISION' },
+                    { value: 'RAID', label: 'RAID - LEISURE VEHICLES INC.' },
+                    { value: 'RAL', label: 'RAL - AMF ROBALO' },
+                    { value: 'RAM', label: 'RAM - RAM' },
+                    { value: 'RAMB', label: 'RAMB - RAMBLER' },
+                    { value: 'RAS', label: 'RAS - RAYSON MARINE (RAYSONCRAFT)' },
+                    { value: 'RBM', label: 'RBM - RENKEN BOAT MFG. CO' },
+                    { value: 'RCB', label: 'RCB - ROGERS CUSTOM BOATS' },
+                    { value: 'RCH', label: 'RCH - RICH LINE BOATS (RICHLAND MFG. CO.)' },
+                    { value: 'RDA', label: 'RDA - CHARGER BOAT COMPANY' },
+                    { value: 'RELA', label: 'RELA - RELIANT' },
+                    { value: 'REN', label: 'REN - REINELL BOATS, INC.' },
+                    { value: 'RENA', label: 'RENA - RENAULT' },
+                    { value: 'REO', label: 'REO - REO' },
+                    { value: 'RGH', label: 'RGH - ROUGHNECK BOAT CO.' },
+                    { value: 'RGM', label: 'RGM - REGAL MARINE INDUSTRIES, INC.' },
+                    { value: 'RGP', label: 'RGP - RIVERS-GILMAN MOULD PRODS.' },
+                    { value: 'RHE', label: 'RHE - ROCHELL CRAFT CORP.' },
+                    { value: 'RHT', label: 'RHT - SURF-JET CORP.' },
+                    { value: 'RHY', label: 'RHY - RHYAN-CRAFT BOATS MFG.' },
+                    { value: 'RILE', label: 'RILE - RILEY' },
+                    { value: 'RJS', label: 'RJS - OLYMPIAN BOATS (R. J. SMITH CO.)' },
+                    { value: 'RNG', label: 'RNG - WOOD MANUFACTURING CO., INC.(FORREST WOOD MFG. CO.' },
+                    { value: 'RNK', label: 'RNK - RINKER BOAT CO., INC.' },
+                    { value: 'ROCE', label: 'ROCE - ROCKET TRAILER, LTD.' },
+                    { value: 'ROL', label: 'ROL - ROLLS-ROYCE' },
+                    { value: 'ROLF', label: 'ROLF - ROLL-O-FLEX LTD.' },
+                    { value: 'ROV', label: 'ROV - ROVER' },
+                    { value: 'RPII', label: 'RPII - H & H SNOWMOBILES' },
+                    { value: 'RROV', label: 'RROV - RANGE ROVER' },
+                    { value: 'RSB', label: 'RSB - RSB FIBERGLASS FORMS' },
+                    { value: 'RSE', label: 'RSE - CHARGER CUSTOM BOATS' },
+                    { value: 'RUPP', label: 'RUPP - RUPP' },
+                    { value: 'RVR', label: 'RVR - RIVERA BOAT, INC.' },
+                    { value: 'SAA', label: 'SAA - SAAB' },
+                    { value: 'SABE', label: 'SABE - SABRE (RECREATIVES INC.)' },
+                    { value: 'SAG', label: 'SAG - RAY CRAFT (SAN AUGUSTINE FIBERGLASS PRODUCTS)' },
+                    { value: 'SAN', label: 'SAN - SANGER BOAT MFG.' },
+                    { value: 'SATR', label: 'SATR - SATURN CORPORATION' },
+                    { value: 'SAW', label: 'SAW - SAWYER CANOE CO.' },
+                    { value: 'SBC', label: 'SBC - SUMMER BOAT CO.' },
+                    { value: 'SBM', label: 'SBM - SOONER BOAT MFG. CO.' },
+                    { value: 'SBW', label: 'SBW - STAUTER BOAT WORKS' },
+                    { value: 'SCAN', label: 'SCAN - SAAB SCANIA OF AMERICA' },
+                    { value: 'SCAT', label: 'SCAT - SKAT-KITTY' },
+                    { value: 'SCC', label: 'SCC - SCAT-CRAFT MARINE, INC.' },
+                    { value: 'SCIO', label: 'SCIO - SCION' },
+                    { value: 'SCN', label: 'SCN - SEACREST MARINE CORP.' },
+                    { value: 'SCOR', label: 'SCOR - SCORPION INC.' },
+                    { value: 'SCR', label: 'SCR - SPORT CRAFT, INC.' },
+                    { value: 'SCRP', label: 'SCRP - SCORPION INC.' },
+                    { value: 'SCT', label: 'SCT - SCOTT BOAT CO., INC.' },
+                    { value: 'SEA', label: 'SEA - SEA NYMPH MFG.' },
+                    { value: 'SEAR', label: 'SEAR - SEARS' },
+                    { value: 'SEC', label: 'SEC - SEA CRAFT, INC.' },
+                    { value: 'SECE', label: 'SECE - SE/CE (LIMITED USE AUTO)' },
+                    { value: 'SECO', label: 'SECO - SECO' },
+                    { value: 'SEJ', label: 'SEJ - SEAJAY BOATS, INC.' },
+                    { value: 'SEN', label: 'SEN - SEABIRD INDUSTRIES, INC.' },
+                    { value: 'SER', label: 'SER - SEA RAY BOATS, INC.' },
+                    { value: 'SES', label: 'SES - SEARS AND ROEBUCK, MARINE DIV.' },
+                    { value: 'SEV', label: 'SEV - SEVYLOR USA, INC.' },
+                    { value: 'SGN', label: 'SGN - THUNDERBIRD PRODS. (SIGNA CORP.)' },
+                    { value: 'SHAS', label: 'SHAS - SHASTA MOTOR HOME' },
+                    { value: 'SHEB', label: 'SHEB - SHELBY AMERICAN' },
+                    { value: 'SIM', label: 'SIM - SIMCA' },
+                    { value: 'SKB', label: 'SKB - DILKS & CO.' },
+                    { value: 'SKIR', label: 'SKIR - SKIROULE LTD (ARIENS)' },
+                    { value: 'SKJ', label: 'SKJ - SKI BOATS, INC.' },
+                    { value: 'SKM', label: 'SKM - SKIMMAR BOATS' },
+                    { value: 'SLB', label: 'SLB - SHELL LAKE BOATS (DIV. OF LUND AMERICAN)' },
+                    { value: 'SLE', label: 'SLE - SLEEK CRAFT BOATS' },
+                    { value: 'SLK', label: 'SLK - AMF SLICKCRAFT (AMF POWERBOAT & AMFROBALO)' },
+                    { value: 'SLV', label: 'SLV - SILVERLINE, INC. (MOOREHEAD PLASTICS, INC.)' },
+                    { value: 'SMD', label: 'SMD - SEA MAID' },
+                    { value: 'SMK', label: 'SMK - SMOKER LUMBER CO., INC.' },
+                    { value: 'SMRT', label: 'SMRT - SMART' },
+                    { value: 'SNA', label: 'SNA - SNARK PRODUCTS, INC.' },
+                    { value: 'SNOJ', label: 'SNOJ - SABRE JET - SEE SNO*JET, INC.' },
+                    { value: 'SNOW', label: 'SNOW - UNLISTED SNOW MFR' },
+                    { value: 'SNT', label: 'SNT - COLLINS CRAFT, INC. (SANTA ROSE BOATS-CAMPERS)' },
+                    { value: 'SNX', label: 'SNX - SUNDANCE MARINE' },
+                    { value: 'SPA', label: 'SPA - SPACE CRAFT BOATS WORKS, INC' },
+                    { value: 'SPAR', label: 'SPAR - SPARTA' },
+                    { value: 'SPE', label: 'SPE - SPECTRA MARINE' },
+                    { value: 'SPNR', label: 'SPNR - SPRINTER' },
+                    { value: 'SPPI', label: 'SPPI - SPEEDWAY PRODUCTS INC.' },
+                    { value: 'SPR', label: 'SPR - MARLINBOATS (SUPERIOR PLASTICS, INC.)' },
+                    { value: 'SPU', label: 'SPU - SPORTSMAN CANOE CO.' },
+                    { value: 'SPX', label: 'SPX - SPORTSPAL, INC.' },
+                    { value: 'SRC', label: 'SRC - STEURY CORP.' },
+                    { value: 'SRCO', label: 'SRCO - SEARS' },
+                    { value: 'SSB', label: 'SSB - SEA SPRITE BOAT CO., INC.' },
+                    { value: 'SSI', label: 'SSI - SSI' },
+                    { value: 'SSR', label: 'SSR - SEA STAR BOAT CO.' },
+                    { value: 'SSU', label: 'SSU - S2 YACHTS, INC.' },
+                    { value: 'STAO', label: 'STAO - STARCRAFT' },
+                    { value: 'STCO', label: 'STCO - STARCRAFT CORPORATION' },
+                    { value: 'STDP', label: 'STDP - STEYR-DAIMLER-PUCH' },
+                    { value: 'STE', label: 'STE - SKEETER PRODS., INC. (STEMCO MARINE)' },
+                    { value: 'STF', label: 'STF - STERNCRAFT BOAT CO.' },
+                    { value: 'STLG', label: 'STLG - STERLING' },
+                    { value: 'STM', label: 'STM - FOUR WINNS (SAF-T-MATE, INC.)' },
+                    { value: 'STOU', label: 'STOU - STOUGHTON TRAILERS' },
+                    { value: 'STR', label: 'STR - STARCRAFT MARINE' },
+                    { value: 'STRG', label: 'STRG - STERLING' },
+                    { value: 'STRI', label: 'STRI - STRICK TRAILERS' },
+                    { value: 'STRM', label: 'STRM - STREAMLINE MOTOR HOME' },
+                    { value: 'STRN', label: 'STRN - SATURN' },
+                    { value: 'STU', label: 'STU - STUDEBAKER' },
+                    { value: 'STUZ', label: 'STUZ - STUTZ' },
+                    { value: 'SUBA', label: 'SUBA - SUBARU' },
+                    { value: 'SUE', label: 'SUE - SUPERIOR PLASTICS' },
+                    { value: 'SUNB', label: 'SUNB - SUNBEAM' },
+                    { value: 'SUPE', label: 'SUPE - SUPERIOR' },
+                    { value: 'SUR', label: 'SUR - SURFGLAS, INC. (PRINDLE CAT)' },
+                    { value: 'SUZI', label: 'SUZI - SUZUKI' },
+                    { value: 'SVU', label: 'SVU - STINGER BOAT CO.' },
+                    { value: 'SWE', label: 'SWE - THE STOWE CANOE CO. (MANSFIELD CANOE)' },
+                    { value: 'SWGR', label: 'SWGR - SWINGER SNOWMOBILES (GRISWOLD INDUSTRIES)' },
+                    { value: 'SWIN', label: 'SWIN - SWINGER' },
+                    { value: 'SWM', label: 'SWM - SIDEWINDER OF WISCONSIN' },
+                    { value: 'SWT', label: 'SWT - SWITZER CRAFT, INC.' },
+                    { value: 'SXL', label: 'SXL - NORTH AMERICAN CATAMARANS' },
+                    { value: 'SYK', label: 'SYK - STRYKER BOATS (R & R FIBERGLASS CO.)' },
+                    { value: 'SYL', label: 'SYL - SYLVAN INDUSTRIES, INC.' },
+                    { value: 'TAH', label: 'TAH - TAHITI BOATS (BELL INDUSTRIES)' },
+                    { value: 'TAOI', label: 'TAOI - TAOTAO INDUSTRY CO' },
+                    { value: 'TAY', label: 'TAY - TAYLOR BOATS' },
+                    { value: 'TBH', label: 'TBH - THE BLUE HOLE CANOE CO.' },
+                    { value: 'TCT', label: 'TCT - THUNDER CRAFT BOAT, INC.' },
+                    { value: 'TDC', label: 'TDC - TIDE CRAFT, INC.' },
+                    { value: 'TEC', label: 'TEC - TEC' },
+                    { value: 'TER', label: 'TER - TERRY BASS BOAT' },
+                    { value: 'TESL', label: 'TESL - TESLA MOTORS' },
+                    { value: 'THEU', label: 'THEU - TDEURER ATLANTIC' },
+                    { value: 'THMS', label: 'THMS - THOMAS BUILT BUSES' },
+                    { value: 'TIMP', label: 'TIMP - TIMPTE' },
+                    { value: 'TIOG', label: 'TIOG - TIOGA MOTOR HOME' },
+                    { value: 'TMC', label: 'TMC - TRANSPORTATION MFG. CORP.' },
+                    { value: 'TMH', label: 'TMH - TOMAHAWK, INC.' },
+                    { value: 'TMR', label: 'TMR - TOM SAWYER BOATS' },
+                    { value: 'TMS', label: 'TMS - THOMPSON BROS. BOAT MFG.' },
+                    { value: 'TN1', label: 'TN1 - THUNDERBIRD PRODUCTS CORP.' },
+                    { value: 'TNR', label: 'TNR - THUNDERBIRD PRODUCTS CORP.' },
+                    { value: 'TNV', label: 'TNV - TENNESSEE VALLEY FIBERGLASS CO.' },
+                    { value: 'TORO', label: 'TORO - TORO CO.' },
+                    { value: 'TOYT', label: 'TOYT - TOYOTA' },
+                    { value: 'TPC', label: 'TPC - TRIPLE C ENTERPRISES' },
+                    { value: 'TPL', label: 'TPL - TPL BOATS' },
+                    { value: 'TRA', label: 'TRA - TRAILORBOATS CO INC' },
+                    { value: 'TRAB', label: 'TRAB - TRABANT' },
+                    { value: 'TRAI', label: 'TRAI - TRAILEX' },
+                    { value: 'TRAO', label: 'TRAO - TRANSCRAFT CORP' },
+                    { value: 'TREK', label: 'TREK - TREK' },
+                    { value: 'TRIU', label: 'TRIU - TRIUMPH' },
+                    { value: 'TRJ', label: 'TRJ - TROJAN YACHT DIV.' },
+                    { value: 'TRLC', label: 'TRLC - TRAILCO' },
+                    { value: 'TROJ', label: 'TROJ - TROJAN' },
+                    { value: 'TRR', label: 'TRR - TOM ROLAND SAILBO (NORTH AMERICAN CATAMARANS)' },
+                    { value: 'TRS', label: 'TRS - TRI-SONIC MARINE DIV.' },
+                    { value: 'TRUM', label: 'TRUM - TRIUMPH MOTORCYCLES' },
+                    { value: 'TRV', label: 'TRV - STANRY (TRAVELLER BOATS)' },
+                    { value: 'TRVC', label: 'TRVC - TRAVCO CORP' },
+                    { value: 'TSB', label: 'TSB - CHAMPION BOATS (THE STORIE CO.)' },
+                    { value: 'TSCC', label: 'TSCC - TUCKER SNO-CAT CORPORATION (AKTIV)' },
+                    { value: 'TTII', label: 'TTII - T & T INDUSTRIES- INC.' },
+                    { value: 'TUCK', label: 'TUCK - TUCKER' },
+                    { value: 'TVR', label: 'TVR - TVR' },
+                    { value: 'TYR', label: 'TYR - TAYLOR BOATS (HI-PERFORMANCE MARINE)' },
+                    { value: 'UD', label: 'UD - NISSAN DIESEL MOTOR CO.' },
+                    { value: 'UHAU', label: 'UHAU - UHAUL' },
+                    { value: 'UMC', label: 'UMC - UNIVERSAL MARINE SERVICE' },
+                    { value: 'USSM', label: 'USSM - U.S. SUZUKI MOTOR CORP. LTD.' },
+                    { value: 'UTIL', label: 'UTIL - UTILITY TRAILER MFG.' },
+                    { value: 'UTIM', label: 'UTIM - UTILIMASTER' },
+                    { value: 'VAB', label: 'VAB - VALLEY ALUMINUM BOATS (VALCO ALUMINUM BOATS)' },
+                    { value: 'VACE', label: 'VACE - VACATIONAR' },
+                    { value: 'VACR', label: 'VACR - VECTOR AUTOMOTIVE' },
+                    { value: 'VAGA', label: 'VAGA - VAGABOND' },
+                    { value: 'VAUX', label: 'VAUX - VAUXHALL' },
+                    { value: 'VBC', label: 'VBC - VIKING BOAT COMPANY' },
+                    { value: 'VCTY', label: 'VCTY - VICTORY MOTORCYCLES' },
+                    { value: 'VENU', label: 'VENU - VENUS' },
+                    { value: 'VESP', label: 'VESP - VESPA' },
+                    { value: 'VIKI', label: 'VIKI - VIKING' },
+                    { value: 'VINC', label: 'VINC - BLACK KNIGHT' },
+                    { value: 'VKB', label: 'VKB - VIKING BOATS' },
+                    { value: 'VKNG', label: 'VKNG - VIKING SNOWMOBILES INC.' },
+                    { value: 'VKP', label: 'VKP - VIKING BOATS' },
+                    { value: 'VKX', label: 'VKX - VIKING BOATS' },
+                    { value: 'VNB', label: 'VNB - VENTURA BOATS, INC.' },
+                    { value: 'VNG', label: 'VNG - VANGUARD, INC.' },
+                    { value: 'VNTO', label: 'VNTO - VENTO MOTORCYCLES' },
+                    { value: 'VOGA', label: 'VOGA - VOLGA' },
+                    { value: 'VOLK', label: 'VOLK - VOLKSWAGEN' },
+                    { value: 'VOLV', label: 'VOLV - VOLVO' },
+                    { value: 'VVN', label: 'VVN - VIVIAN INDUSTRIES PLASTICS' },
+                    { value: 'VVV', label: 'VVV - CHRYSLER BOAT CORP.' },
+                    { value: 'VXP', label: 'VXP - VIP MARINE INDUSTRIES' },
+                    { value: 'VXX', label: 'VXX - MARIAH BOATS, INC. (MAGNUM MARINE,INC.)' },
+                    { value: 'WAC', label: 'WAC - WACO MFG., INC.' },
+                    { value: 'WALA', label: 'WALA - WARD LAFRANCE INTERNATIONAL' },
+                    { value: 'WALK', label: 'WALK - WALKER' },
+                    { value: 'WARD', label: 'WARD - MONTGOMERY WARD' },
+                    { value: 'WART', label: 'WART - WARTBURG' },
+                    { value: 'WB2', label: 'WB2 - WESTWIND BOATS, INC.' },
+                    { value: 'WBB', label: 'WBB - WEBBCRAFT, INC.' },
+                    { value: 'WDC', label: 'WDC - WARRENCRAFT DISTRIBUTOR, INC' },
+                    { value: 'WDN', label: 'WDN - WOODSON' },
+                    { value: 'WDT', label: 'WDT - WREIDT CUSTOM BOATS' },
+                    { value: 'WEL', label: 'WEL - WELLCRAFT MARINE' },
+                    { value: 'WELL', label: 'WELL - WELLS CARGO' },
+                    { value: 'WEM', label: 'WEM - PERCEPTION, INC., (MARBA GLAS & WILLIAM MASTERS)' },
+                    { value: 'WFMI', label: 'WFMI - MICKEY TRUCK BODIES' },
+                    { value: 'WHB', label: 'WHB - WHITE WATER BOATS' },
+                    { value: 'WHGM', label: 'WHGM - WHITE GMC' },
+                    { value: 'WHIT', label: 'WHIT - WHITE MOTOR CORP' },
+                    { value: 'WHT', label: 'WHT - WHITE HOUSE' },
+                    { value: 'WINN', label: 'WINN - WINNEBAGO INDUSTRIES' },
+                    { value: 'WIPT', label: 'WIPT - WHIP IT SNOWMOBIL (MELVIN MANUFACTURING)' },
+                    { value: 'WKM', label: 'WKM - WALKIKI MARINE' },
+                    { value: 'WLLS', label: 'WLLS - WILLYS' },
+                    { value: 'WLR', label: 'WLR - WOLVERINE MARINE CO.' },
+                    { value: 'WNB', label: 'WNB - WINNER BOATS' },
+                    { value: 'WRKH', label: 'WRKH - WORKHORSE CUSTOM CHASIS' },
+                    { value: 'WRN', label: 'WRN - WARREN CRAFT' },
+                    { value: 'WSF', label: 'WSF - WINDSURFING INTERNATIONAL, INC.' },
+                    { value: 'WST', label: 'WST - WEST WIND BOAT CO. (PISCES BOAT CO.)' },
+                    { value: 'WSTR', label: 'WSTR - WESTERN STAR' },
+                    { value: 'WXH', label: 'WXH - FALCON BOATS, INC. (WI HUDSON CO.,INC.)' },
+                    { value: 'XBD', label: 'XBD - AMERICAN INTERNATIONAL AIRBOAT, INC.' },
+                    { value: 'XBW', label: 'XBW - OZARK BOAT WORKS' },
+                    { value: 'XDC', label: 'XDC - ZODIAC OF NORTH AMERICA' },
+                    { value: 'XDY', label: 'XDY - O DAY CORP. (BANGOR PUNTA MARINE)' },
+                    { value: 'XHC', label: 'XHC - SUNRIDER HOVERCRA (BRITISH SPORTS HOVERCRAFT, LTD)' },
+                    { value: 'XKA', label: 'XKA - OCEAN KAYAK' },
+                    { value: 'XMG', label: 'XMG - OMEGA BOATCORP. (TRICORP BOATS, INC.)' },
+                    { value: 'XMP', label: 'XMP - APECO CORP. (IMP BOATS)' },
+                    { value: 'XMR', label: 'XMR - OUCHITA MRNE & IND CORP' },
+                    { value: 'XNA', label: 'XNA - NORTH AMERICAN FIBERGLASS' },
+                    { value: 'XRR', label: 'XRR - ORRION BOATS' },
+                    { value: 'XSF', label: 'XSF - SABRE MARINE, INC.' },
+                    { value: 'XTB', label: 'XTB - SUPREME INDUSTRIES, INC.' },
+                    { value: 'XTC', label: 'XTC - OLD TOWN CANOE CO.' },
+                    { value: 'XUS', label: 'XUS - SINTERPLAST' },
+                    { value: 'XVA', label: 'XVA - INVADER CORP.' },
+                    { value: 'YACH', label: 'YACH - YACHT CLUB' },
+                    { value: 'YAMA', label: 'YAMA - YAMAHA' },
+                    { value: 'YAMA', label: 'YAMA - YAMAHA MOTOR CORP. (CHAPPY)' },
+                    { value: 'YMCL', label: 'YMCL - YAMAHA MOTOR COMPANY' },
+                    { value: 'YUGO', label: 'YUGO - YUGO' },
+                    { value: 'ZCZY', label: 'ZCZY - YUGO' },
+                    { value: 'ZFS', label: 'ZFS - LES VOILIERS PERFORMANCE, INC' },
+                    { value: 'ZIMM', label: 'ZIMM - ZIMMER' }
+                ]
             },
             vehicleYear: {
                 label: 'Vehicle Year',
@@ -861,7 +1801,7 @@
                     // Add "THEN" separator between State and License Plate Number (hide when Name has data)
                     if (fieldName === 'licensePlateNumber' && !hasName) {
                         html += `
-                            <div style="text-align: center; margin: 20px 0; position: relative;">
+                            <div id="sep-then-plate" style="text-align: center; margin: 20px 0; position: relative;">
                                 <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
                                 <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #3498db; font-size: 14px;">THEN</span>
                             </div>
@@ -871,7 +1811,7 @@
                     // Add "OR" separator before VIN field (only if neither field has data yet and Name is empty)
                     if (fieldName === 'vehicleIdentificationNumber' && !hasPlateNumber && !hasVIN && !hasName) {
                         html += `
-                            <div style="text-align: center; margin: 20px 0; position: relative;">
+                            <div id="sep-or-vin" style="text-align: center; margin: 20px 0; position: relative;">
                                 <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
                                 <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #666; font-size: 14px;">OR</span>
                             </div>
@@ -881,7 +1821,7 @@
                     // Add "OR" separator before Name field (separating VIN section from Name section, hide when Name has data or state is not CA/empty or plate/VIN has data)
                     if (fieldName === 'name' && !hasName && isCAOrEmpty && !hasPlateNumber && !hasVIN) {
                         html += `
-                            <div style="text-align: center; margin: 20px 0; position: relative;">
+                            <div id="sep-or-name" style="text-align: center; margin: 20px 0; position: relative;">
                                 <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
                                 <span style="background: #f8f9fa; padding: 0 15px; position: relative; z-index: 1; font-weight: 600; color: #666; font-size: 14px;">OR</span>
                             </div>
@@ -939,15 +1879,9 @@
                         return; // Skip rendering these fields
                     }
 
-                    // Hide plate detail fields if no plate number entered yet
-                    if (!hasPlateNumber && (fieldName === 'licensePlateTypeCode' || fieldName === 'licensePlateYear')) {
-                        return; // Skip rendering these fields
-                    }
+                    // Plate detail fields are always rendered but hidden until plate is entered (handled via onVRPlateInput)
 
-                    // Hide VIN detail fields if no VIN entered yet
-                    if (!hasVIN && (fieldName === 'vehicleMakeCode' || fieldName === 'vehicleYear')) {
-                        return; // Skip rendering these fields
-                    }
+                    // VIN detail fields are always rendered but hidden until VIN is entered (handled via onVINInput)
 
                     // Hide name detail fields if no name entered yet
                     if (!hasName && (fieldName === 'addressStreetNumber' || fieldName === 'addressCity' || fieldName === 'birthDate')) {
@@ -1016,8 +1950,14 @@
                     formData[fieldName] = value;
                 }
 
+                const _hasPlate = !!(formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '');
+                const _hasVIN = !!(formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '');
+                const _plateDetailHidden = currentQueryType === 'vehicle-registration' && !_hasPlate &&
+                    (fieldName === 'licensePlateTypeCode' || fieldName === 'licensePlateYear');
+                const _vinDetailHidden = currentQueryType === 'vehicle-registration' && !_hasVIN &&
+                    (fieldName === 'vehicleMakeCode' || fieldName === 'vehicleYear');
                 html += `
-                    <div class="form-group">
+                    <div class="form-group" id="form-group-${fieldName}"${(_plateDetailHidden || _vinDetailHidden) ? ' style="display:none"' : ''}>
                         <label>
                             ${field.label}
                             ${isRequired ? '<span class="required">*</span>' : ''}
@@ -1065,7 +2005,14 @@
                     } else if (fieldName === 'addressCity' && currentQueryType === 'vehicle-registration') {
                         blurHandler = ` onblur="handleAddressBlur(event)"`;
                     }
-                    html += `<input type="${field.type}" id="${fieldName}" placeholder="${field.placeholder}" value="${value}" ${attrs} tabindex="0" oninput="updateFormData('${fieldName}', this.value)"${blurHandler}>`;
+                    let oninputHandler = `updateFormData('${fieldName}', this.value)`;
+                    if (fieldName === 'licensePlateNumber' && currentQueryType === 'vehicle-registration') {
+                        oninputHandler += `; onVRPlateInput(this.value)`;
+                    }
+                    if (fieldName === 'vehicleIdentificationNumber' && currentQueryType === 'vehicle-registration') {
+                        oninputHandler += `; onVINInput(this.value)`;
+                    }
+                    html += `<input type="${field.type}" id="${fieldName}" placeholder="${field.placeholder}" value="${value}" ${attrs} tabindex="0" oninput="${oninputHandler}"${blurHandler}>`;
                 }
 
                 // Add hint text if available
@@ -1481,6 +2428,44 @@
             }
         }
 
+        function onVRPlateInput(value) {
+            const hasPlate = value.trim() !== '';
+            // Hide VIN and Name sections when plate has content; restore when cleared
+            ['vehicleIdentificationNumber', 'vehicleMakeCode', 'vehicleYear',
+             'name', 'addressStreetNumber', 'addressCity', 'birthDate'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = hasPlate ? 'none' : '';
+            });
+            ['sep-or-vin', 'sep-or-name'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = hasPlate ? 'none' : '';
+            });
+            // Show plate detail fields when plate has content; hide when cleared
+            ['licensePlateTypeCode', 'licensePlateYear'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = hasPlate ? '' : 'none';
+            });
+        }
+
+        function onVINInput(value) {
+            const hasVIN = value.trim() !== '';
+            // Hide License Plate and Name sections when VIN has content; restore when cleared
+            ['licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear',
+             'name', 'addressStreetNumber', 'addressCity', 'birthDate'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = hasVIN ? 'none' : '';
+            });
+            ['sep-then-plate', 'sep-or-vin', 'sep-or-name'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = hasVIN ? 'none' : '';
+            });
+            // Show VIN detail fields when VIN has content; hide when cleared
+            ['vehicleMakeCode', 'vehicleYear'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = hasVIN ? '' : 'none';
+            });
+        }
+
         function validateQuery() {
             const spec = querySpecs[currentQueryType];
             const results = {
@@ -1496,9 +2481,13 @@
                 results.errors.push('CA Purpose Code is mandatory per AB 1747 (required since July 21, 2021)');
             }
 
-            // Get filled fields (excluding purposeCode for combination matching)
+            // Get filled fields (excluding purposeCode and state=CA for combination matching)
+            // state=CA is treated as absent: it is the default in-state value and is never included in XML output
             const filledFields = Object.keys(formData).filter(key => {
-                return formData[key] && formData[key].trim() !== '' && key !== 'purposeCode';
+                if (!formData[key] || formData[key].trim() === '') return false;
+                if (key === 'purposeCode') return false;
+                if (key === 'state' && formData[key].trim().toUpperCase() === 'CA') return false;
+                return true;
             });
 
             if (filledFields.length === 0) {
@@ -1573,13 +2562,10 @@
                 results.matchedCombination = validCombinations[0];
 
                 // State field validation
-                if (currentState === 'in-state' && formData.state) {
-                    if (formData.state.toUpperCase() === 'CA') {
-                        results.warnings.push('State field "CA" should be omitted for in-state California queries');
-                    } else {
-                        results.errors.push(`State field "${formData.state}" should not be used for in-state queries. Remove the State field or switch to Out-of-State mode.`);
-                        results.valid = false;
-                    }
+                // state=CA: silently accepted, omitted from XML (in-state default)
+                if (currentState === 'in-state' && formData.state && formData.state.trim().toUpperCase() !== 'CA') {
+                    results.errors.push(`State field "${formData.state}" should not be used for in-state queries. Remove the State field or switch to Out-of-State mode.`);
+                    results.valid = false;
                 }
 
                 if (currentState === 'out-of-state' && !formData.state) {
@@ -1821,6 +2807,146 @@
             html += `</div>`;
 
             return html;
+        }
+
+        function exportLicensePlateTypeCodesCSV() {
+            const rows = [['Code', 'Description']];
+            fieldDefinitions.licensePlateTypeCode.options.forEach(opt => {
+                if (!opt.value) return;
+                rows.push([opt.value, opt.label.replace(/^[^\s]+\s-\s/, '')]);
+            });
+            const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'license-plate-type-codes.csv';
+            a.click();
+        }
+
+        function importStateCodesCSV(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split(/\r?\n/).filter(l => l.trim());
+                const options = [];
+                let skippedHeader = false;
+                lines.forEach(line => {
+                    const fields = [];
+                    let inQuote = false, field = '';
+                    for (let i = 0; i < line.length; i++) {
+                        const ch = line[i];
+                        if (ch === '"') { inQuote = !inQuote; }
+                        else if (ch === ',' && !inQuote) { fields.push(field); field = ''; }
+                        else { field += ch; }
+                    }
+                    fields.push(field);
+                    const code = fields[0] ? fields[0].trim() : '';
+                    const desc = fields[1] ? fields[1].trim() : '';
+                    if (!code) return;
+                    if (!skippedHeader && code.toUpperCase() === 'CODE') { skippedHeader = true; return; }
+                    options.push({ value: code, label: `${code} - ${desc}` });
+                });
+                fieldDefinitions.state.options = options;
+                renderForm();
+                alert(`Imported ${options.length} state codes.`);
+                input.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function importLicensePlateTypeCodesCSV(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split(/\r?\n/).filter(l => l.trim());
+                const options = [{ value: '', label: 'Select Plate Type...' }];
+                let skippedHeader = false;
+                lines.forEach(line => {
+                    const fields = [];
+                    let inQuote = false, field = '';
+                    for (let i = 0; i < line.length; i++) {
+                        const ch = line[i];
+                        if (ch === '"') { inQuote = !inQuote; }
+                        else if (ch === ',' && !inQuote) { fields.push(field); field = ''; }
+                        else { field += ch; }
+                    }
+                    fields.push(field);
+                    const code = fields[0] ? fields[0].trim() : '';
+                    const desc = fields[1] ? fields[1].trim() : '';
+                    if (!code) return;
+                    if (!skippedHeader && code.toUpperCase() === 'CODE') { skippedHeader = true; return; }
+                    options.push({ value: code, label: `${code} - ${desc}` });
+                });
+                fieldDefinitions.licensePlateTypeCode.options = options;
+                renderForm();
+                alert(`Imported ${options.length - 1} license plate type codes.`);
+                input.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function exportStateCodesCSV() {
+            const rows = [['Code', 'Description']];
+            fieldDefinitions.state.options.forEach(opt => {
+                if (!opt.value) return;
+                rows.push([opt.value, opt.label.replace(/^[^\s]+\s-\s/, '')]);
+            });
+            const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'state-codes.csv';
+            a.click();
+        }
+
+        function importVehicleMakeCodeCSV(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split(/\r?\n/).filter(l => l.trim());
+                const options = [{ value: '', label: 'Select...' }];
+                let skippedHeader = false;
+                lines.forEach(line => {
+                    // Parse quoted CSV fields
+                    const fields = [];
+                    let inQuote = false, field = '';
+                    for (let i = 0; i < line.length; i++) {
+                        const ch = line[i];
+                        if (ch === '"') { inQuote = !inQuote; }
+                        else if (ch === ',' && !inQuote) { fields.push(field); field = ''; }
+                        else { field += ch; }
+                    }
+                    fields.push(field);
+                    const code = fields[0] ? fields[0].trim() : '';
+                    const desc = fields[1] ? fields[1].trim() : '';
+                    if (!code) return;
+                    // Skip header row
+                    if (!skippedHeader && code.toUpperCase() === 'CODE') { skippedHeader = true; return; }
+                    options.push({ value: code, label: `${code} - ${desc}` });
+                });
+                fieldDefinitions.vehicleMakeCode.options = options;
+                renderForm();
+                alert(`Imported ${options.length - 1} vehicle make codes.`);
+                input.value = ''; // reset so same file can be re-imported
+            };
+            reader.readAsText(file);
+        }
+
+        function exportVehicleMakeCodeCSV() {
+            const rows = [['Code', 'Description']];
+            fieldDefinitions.vehicleMakeCode.options.forEach(opt => {
+                if (!opt.value) return; // skip blank "Select..." entry
+                rows.push([opt.value, opt.label.replace(/^[^\s]+\s-\s/, '')]);
+            });
+            const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'vehicle-make-codes.csv';
+            a.click();
         }
 
         function escapeHtml(text) {
