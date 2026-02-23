@@ -1798,10 +1798,11 @@
                         `;
                     }
 
-                    // Add "THEN" separator between State and License Plate Number (hide when Name has data)
+                    // Add "THEN" separator between State and License Plate Number (hide when Name or Plate has data)
                     if (fieldName === 'licensePlateNumber' && !hasName) {
+                        const _hideThenPlate = hasPlateNumber;
                         html += `
-                            <div id="sep-then-plate" style="text-align: center; margin: 20px 0; position: relative;">
+                            <div id="sep-then-plate" style="text-align: center; margin: 20px 0; position: relative;${_hideThenPlate ? ' display:none;' : ''}">
                                 <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
                                 <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">THEN ONE OF THE FOLLOWING</span>
                             </div>
@@ -1948,8 +1949,12 @@
                 const _hasPlate = !!(formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '');
                 const _hasVIN = !!(formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '');
                 const _hasName = !!(formData.name && formData.name.trim() !== '');
-                const _plateDetailHidden = currentQueryType === 'vehicle-registration' && !_hasPlate &&
-                    (fieldName === 'licensePlateTypeCode' || fieldName === 'licensePlateYear');
+                const _stateVal = formData.state ? formData.state.trim().toUpperCase() : '';
+                const _isCA = _stateVal === '' || _stateVal === 'CA';
+                const _plateDetailHidden = currentQueryType === 'vehicle-registration' && (
+                    (!_hasPlate && (fieldName === 'licensePlateTypeCode' || fieldName === 'licensePlateYear')) ||
+                    (_hasPlate && _isCA && fieldName === 'licensePlateYear')
+                );
                 const _vinDetailHidden = currentQueryType === 'vehicle-registration' && !_hasVIN &&
                     (fieldName === 'vehicleMakeCode' || fieldName === 'vehicleYear');
                 const _nameDetailHidden = currentQueryType === 'vehicle-registration' && !_hasName &&
@@ -2044,17 +2049,24 @@
                     if (el) el.style.display = _name ? '' : 'none';
                 });
 
-                // Plate detail fields: only visible when plate has data and no name
-                ['licensePlateTypeCode', 'licensePlateYear'].forEach(f => {
-                    const el = document.getElementById('form-group-' + f);
-                    if (el) el.style.display = (_plate && !_name) ? '' : 'none';
-                });
+                // Plate detail fields: licensePlateTypeCode visible when plate has data and no name;
+                // licensePlateYear only visible for out-of-state
+                const _stateVal = formData.state ? formData.state.trim().toUpperCase() : '';
+                const _isCA = _stateVal === '' || _stateVal === 'CA';
+                const plateTypeEl = document.getElementById('form-group-licensePlateTypeCode');
+                if (plateTypeEl) plateTypeEl.style.display = (_plate && !_name) ? '' : 'none';
+                const plateYearEl = document.getElementById('form-group-licensePlateYear');
+                if (plateYearEl) plateYearEl.style.display = (_plate && !_name && !_isCA) ? '' : 'none';
 
                 // VIN detail fields: only visible when VIN has data and no name
                 ['vehicleMakeCode', 'vehicleYear'].forEach(f => {
                     const el = document.getElementById('form-group-' + f);
                     if (el) el.style.display = (_vin && !_name) ? '' : 'none';
                 });
+
+                // sep-then-plate: hide when plate has data
+                const _sepThenPlate = document.getElementById('sep-then-plate');
+                if (_sepThenPlate) _sepThenPlate.style.display = _plate ? 'none' : '';
 
                 // sep-then-either-by: always hidden after render (only shown by onNameInput while user is typing in Name)
                 const _sepEitherBy = document.getElementById('sep-then-either-by');
@@ -2549,16 +2561,19 @@
                 const el = document.getElementById('form-group-' + f);
                 if (el) el.style.display = (hasPlate || !hasName) ? 'none' : '';
             });
-            // Separators
-            ['sep-or-vin', 'sep-or-name'].forEach(id => {
+            // Separators: hide all when plate has content
+            ['sep-then-plate', 'sep-or-vin', 'sep-or-name'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = hasPlate ? 'none' : '';
             });
-            // Plate detail fields: only visible when plate has content
-            ['licensePlateTypeCode', 'licensePlateYear'].forEach(f => {
-                const el = document.getElementById('form-group-' + f);
-                if (el) el.style.display = hasPlate ? '' : 'none';
-            });
+            // Plate detail fields: licensePlateTypeCode always shown when plate has content;
+            // licensePlateYear only shown for out-of-state (state != CA and not empty)
+            const stateVal = formData.state ? formData.state.trim().toUpperCase() : '';
+            const isCA = stateVal === '' || stateVal === 'CA';
+            const plateTypeEl = document.getElementById('form-group-licensePlateTypeCode');
+            if (plateTypeEl) plateTypeEl.style.display = hasPlate ? '' : 'none';
+            const plateYearEl = document.getElementById('form-group-licensePlateYear');
+            if (plateYearEl) plateYearEl.style.display = (hasPlate && !isCA) ? '' : 'none';
         }
 
         function onVINInput(value) {
