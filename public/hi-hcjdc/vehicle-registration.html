@@ -153,6 +153,45 @@
 
         .validate-btn:hover { background: #148f77; }
 
+        .form-group input.error {
+            border-color: #e74c3c;
+        }
+
+        .dark-section h2 {
+            color: #fff;
+            border-bottom-color: #17a589;
+        }
+
+        .dark-section .form-group label {
+            color: #e0e0e0;
+        }
+
+        .dark-section .field-hint {
+            color: #aaa;
+        }
+
+        .dark-section .field-group-label {
+            color: #e0e0e0;
+            border-bottom-color: #444;
+        }
+
+        .dark-section .form-group input,
+        .dark-section .form-group select {
+            background: #1a1a1a;
+            color: #fff;
+            border-color: #555;
+        }
+
+        .dark-section .form-group input::placeholder {
+            color: #666;
+        }
+
+        .dark-section .form-group input:focus,
+        .dark-section .form-group select:focus {
+            border-color: #17a589;
+            box-shadow: 0 0 0 3px rgba(23, 165, 137, 0.2);
+        }
+
         .combinations-list { max-height: 600px; overflow-y: auto; }
 
         .combination-item {
@@ -263,10 +302,17 @@
 
         <div class="main-content">
             <!-- Left Column: Input Form -->
-            <div class="section">
+            <div class="section dark-section" style="background: #000;">
                 <h2>Query Input</h2>
                 <form id="query-form">
-                    <div class="field-group-label">License Plate Fields (RQ combinations)</div>
+                    <div class="field-group-label">Optional — State Codes (up to 5, for RQ queries)</div>
+
+                    <div class="state-grid">
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" name="state" maxlength="2" placeholder="HI">
+                        </div>
+                    </div>
 
                     <div class="form-group">
                         <label>License Plate Number</label>
@@ -274,7 +320,7 @@
                         <div class="field-hint">License plate number (max 10 chars)</div>
                     </div>
 
-                    <div class="two-col">
+                    <div class="two-col" style="display:none">
                         <div class="form-group">
                             <label>Plate Type Code</label>
                             <input type="text" name="licensePlateTypeCode" maxlength="2" placeholder="PC">
@@ -291,11 +337,11 @@
 
                     <div class="form-group">
                         <label>VIN</label>
-                        <input type="text" name="vehicleIdentificationNumber" maxlength="20" placeholder="1HGBH41JXMN109186">
+                        <input type="text" id="vehicleIdentificationNumber" name="vehicleIdentificationNumber" maxlength="20" placeholder="1HGBH41JXMN109186" onblur="handleVINBlur()">
                         <div class="field-hint">Vehicle Identification Number (max 20 chars)</div>
                     </div>
 
-                    <div class="two-col">
+                    <div class="two-col" style="display:none">
                         <div class="form-group">
                             <label>Vehicle Make Code</label>
                             <input type="text" name="vehicleMakeCode" maxlength="20" placeholder="HOND">
@@ -305,31 +351,6 @@
                             <label>Vehicle Year</label>
                             <input type="text" name="vehicleYear" maxlength="4" placeholder="2020">
                             <div class="field-hint">Model year (CCYY)</div>
-                        </div>
-                    </div>
-
-                    <div class="field-group-label">Optional — State Codes (up to 5, for RQ queries)</div>
-
-                    <div class="state-grid">
-                        <div class="form-group">
-                            <label>State</label>
-                            <input type="text" name="state" maxlength="2" placeholder="HI">
-                        </div>
-                        <div class="form-group">
-                            <label>State 2</label>
-                            <input type="text" name="state2" maxlength="2" placeholder="">
-                        </div>
-                        <div class="form-group">
-                            <label>State 3</label>
-                            <input type="text" name="state3" maxlength="2" placeholder="">
-                        </div>
-                        <div class="form-group">
-                            <label>State 4</label>
-                            <input type="text" name="state4" maxlength="2" placeholder="">
-                        </div>
-                        <div class="form-group">
-                            <label>State 5</label>
-                            <input type="text" name="state5" maxlength="2" placeholder="">
                         </div>
                     </div>
 
@@ -390,8 +411,112 @@
         const queryType = 'vehicle-registration';
         const querySpec = connector.querySpecs[queryType];
 
+        let vinErrorAcknowledged = false;
+        let vinErrorMessage = '';
+
+        function validateVIN(vin) {
+            if (!vin || vin.trim() === '') {
+                return { valid: true, error: '' };
+            }
+            const vinUpper = vin.toUpperCase().trim();
+            if (vinUpper.length < 17) {
+                return { valid: false, error: `VIN is too short (${vinUpper.length} characters). A valid VIN must be exactly 17 characters.` };
+            }
+            if (vinUpper.length > 17) {
+                return { valid: false, error: `VIN is too long (${vinUpper.length} characters). A valid VIN must be exactly 17 characters.` };
+            }
+            const invalidChars = vinUpper.match(/[IOQ]/g);
+            if (invalidChars) {
+                const uniqueInvalid = [...new Set(invalidChars)].join(', ');
+                return { valid: false, error: `VIN contains invalid character(s): ${uniqueInvalid}. Letters I, O, and Q are not allowed in VINs (to avoid confusion with 1, 0).` };
+            }
+            const invalidPattern = vinUpper.match(/[^A-HJ-NPR-Z0-9]/g);
+            if (invalidPattern) {
+                const uniqueInvalid = [...new Set(invalidPattern)].join(', ');
+                return { valid: false, error: `VIN contains invalid character(s): ${uniqueInvalid}. Only letters A-Z (except I, O, Q) and numbers 0-9 are allowed.` };
+            }
+            return { valid: true, error: '' };
+        }
+
+        function addVINError() {
+            const vinField = document.getElementById('vehicleIdentificationNumber');
+            if (!vinField || !vinErrorMessage) return;
+            const existingError = document.getElementById('vin-error-message');
+            if (existingError) existingError.remove();
+            vinField.classList.add('error');
+            const errorContainer = document.createElement('div');
+            errorContainer.id = 'vin-error-message';
+            errorContainer.style.marginTop = '8px';
+            const errorMsg = document.createElement('div');
+            errorMsg.style.color = '#e74c3c';
+            errorMsg.style.fontSize = '12px';
+            errorMsg.style.fontWeight = '500';
+            errorMsg.style.marginBottom = '8px';
+            errorMsg.textContent = vinErrorMessage;
+            const acknowledgeBtn = document.createElement('button');
+            acknowledgeBtn.textContent = 'Proceed Anyway';
+            acknowledgeBtn.style.padding = '6px 12px';
+            acknowledgeBtn.style.backgroundColor = '#f39c12';
+            acknowledgeBtn.style.color = 'white';
+            acknowledgeBtn.style.border = 'none';
+            acknowledgeBtn.style.borderRadius = '4px';
+            acknowledgeBtn.style.fontSize = '12px';
+            acknowledgeBtn.style.fontWeight = '600';
+            acknowledgeBtn.style.cursor = 'pointer';
+            acknowledgeBtn.type = 'button';
+            acknowledgeBtn.onclick = acknowledgeVINError;
+            errorContainer.appendChild(errorMsg);
+            errorContainer.appendChild(acknowledgeBtn);
+            vinField.parentElement.appendChild(errorContainer);
+        }
+
+        function acknowledgeVINError() {
+            vinErrorAcknowledged = true;
+            vinErrorMessage = '';
+            const vinField = document.getElementById('vehicleIdentificationNumber');
+            if (vinField) vinField.classList.remove('error');
+            const existingError = document.getElementById('vin-error-message');
+            if (existingError) existingError.remove();
+        }
+
+        function handleVINBlur() {
+            const vinField = document.getElementById('vehicleIdentificationNumber');
+            const vinValue = vinField ? vinField.value : '';
+            if (vinValue && vinValue.trim() !== '') {
+                const validation = validateVIN(vinValue);
+                if (!validation.valid) {
+                    vinErrorMessage = validation.error;
+                    vinErrorAcknowledged = false;
+                    addVINError();
+                } else {
+                    vinErrorMessage = '';
+                    vinErrorAcknowledged = false;
+                    if (vinField) vinField.classList.remove('error');
+                    const existingError = document.getElementById('vin-error-message');
+                    if (existingError) existingError.remove();
+                }
+            } else {
+                vinErrorMessage = '';
+                if (vinField) vinField.classList.remove('error');
+                const existingError = document.getElementById('vin-error-message');
+                if (existingError) existingError.remove();
+            }
+        }
+
         document.getElementById('query-form').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Block submission if VIN has an unacknowledged error
+            const vinField = document.getElementById('vehicleIdentificationNumber');
+            if (vinField && vinField.value.trim() !== '') {
+                const validation = validateVIN(vinField.value);
+                if (!validation.valid && !vinErrorAcknowledged) {
+                    vinErrorMessage = validation.error;
+                    addVINError();
+                    vinField.focus();
+                    return;
+                }
+            }
 
             const formData = {};
             new FormData(this).forEach((value, key) => {
