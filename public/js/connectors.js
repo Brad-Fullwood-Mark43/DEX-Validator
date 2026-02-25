@@ -833,6 +833,390 @@ const CONNECTORS = {
             xml += `</Request>`;
             return xml;
         }
+    },
+
+    /**
+     * Hawaii HCJDC (Hawaii Criminal Justice Data Center)
+     * ConnectCIC-based system — HCJDC_OFML version 6
+     *
+     * Specification: HI_HCJDC_OFML.xml version 6
+     * Transactions: DriverLicenseQuery v2, VehicleRegistrationQuery v2,
+     *               DriverHistoryQuery v2, ArticleSingleQuery v2
+     */
+    HI_HCJDC: {
+        id: 'HI_HCJDC',
+        name: 'Hawaii HCJDC',
+        description: 'Hawaii Criminal Justice Data Center (HCJDC_OFML v6)',
+        providerType: 'CONNECTCIC',
+        region: 'HI',
+        defaultState: 'HI',
+
+        authenticationFields: ['ori', 'deviceId', 'userId'],
+        requiresPurposeCode: false,
+        omitStateForInState: false,
+
+        fieldDefinitions: {
+            // ========== PERSON FIELDS ==========
+
+            name: {
+                label: 'Name',
+                type: 'text',
+                placeholder: 'DOE, JOHN MIDDLE',
+                hint: 'Format: LAST, FIRST MIDDLE (max 30 chars)',
+                maxLength: 30,
+                xmlFieldName: 'Name'
+            },
+            birthDate: {
+                label: 'Birth Date',
+                type: 'date',
+                hint: 'Date of birth (CCYYMMDD)',
+                maxLength: 8,
+                xmlFieldName: 'BirthDate'
+            },
+            sexCode: {
+                label: 'Sex',
+                type: 'select',
+                options: [
+                    { value: 'M', label: 'M - Male' },
+                    { value: 'F', label: 'F - Female' },
+                    { value: 'U', label: 'U - Unknown' }
+                ],
+                maxLength: 1,
+                xmlFieldName: 'SexCode'
+            },
+            operatorLicenseNumber: {
+                label: 'Driver License Number',
+                type: 'text',
+                placeholder: 'H12345678',
+                hint: 'Operator license number (max 20 chars)',
+                maxLength: 20,
+                xmlFieldName: 'OperatorLicenseNumber'
+            },
+            operatorLicenseStateCode: {
+                label: 'License State',
+                type: 'text',
+                placeholder: 'HI',
+                hint: 'State that issued the license (2 chars)',
+                maxLength: 2,
+                xmlFieldName: 'OperatorLicenseStateCode'
+            },
+            attention: {
+                label: 'Attention',
+                type: 'text',
+                placeholder: 'Officer Name',
+                hint: 'Attention / requestor name (max 30 chars)',
+                maxLength: 30,
+                xmlFieldName: 'Attention'
+            },
+            purposeCode: {
+                label: 'Purpose Code',
+                type: 'text',
+                placeholder: 'C',
+                hint: 'Purpose code (1 char)',
+                maxLength: 1,
+                xmlFieldName: 'PurposeCode'
+            },
+            imageIndicator: {
+                label: 'Request Image',
+                type: 'select',
+                options: [
+                    { value: 'N', label: 'N - No Image' },
+                    { value: 'Y', label: 'Y - Include Image' }
+                ],
+                hint: 'Request image with response (default: N)',
+                maxLength: 1,
+                xmlFieldName: 'ImageIndicator',
+                default: 'N'
+            },
+
+            // ========== VEHICLE FIELDS ==========
+
+            licensePlateNumber: {
+                label: 'License Plate Number',
+                type: 'text',
+                placeholder: 'ABC123',
+                hint: 'License plate number (max 10 chars)',
+                maxLength: 10,
+                xmlFieldName: 'LicensePlateNumber'
+            },
+            licensePlateTypeCode: {
+                label: 'License Plate Type Code',
+                type: 'text',
+                placeholder: 'PC',
+                hint: 'Valid plate type code (max 2 chars)',
+                maxLength: 2,
+                xmlFieldName: 'LicensePlateTypeCode'
+            },
+            licensePlateYear: {
+                label: 'License Plate Year',
+                type: 'text',
+                placeholder: '2024',
+                hint: 'Plate expiration year (CCYY)',
+                maxLength: 4,
+                xmlFieldName: 'LicensePlateYear'
+            },
+            vehicleIdentificationNumber: {
+                label: 'VIN',
+                type: 'text',
+                placeholder: '1HGBH41JXMN109186',
+                hint: 'Vehicle Identification Number (max 20 chars)',
+                maxLength: 20,
+                xmlFieldName: 'VehicleIdentificationNumber'
+            },
+            vehicleMakeCode: {
+                label: 'Vehicle Make Code',
+                type: 'text',
+                placeholder: 'HOND',
+                hint: 'Vehicle make code (max 20 chars)',
+                maxLength: 20,
+                xmlFieldName: 'VehicleMakeCode'
+            },
+            vehicleYear: {
+                label: 'Vehicle Year',
+                type: 'text',
+                placeholder: '2020',
+                hint: 'Vehicle model year (CCYY)',
+                maxLength: 4,
+                xmlFieldName: 'VehicleYear'
+            },
+
+            // ========== STATE FIELDS ==========
+
+            state: {
+                label: 'State',
+                type: 'text',
+                placeholder: 'HI',
+                hint: 'Two-letter state code',
+                maxLength: 2,
+                xmlFieldName: 'State'
+            },
+            state2: {
+                label: 'State 2',
+                type: 'text',
+                placeholder: '',
+                hint: 'Additional state (2 chars)',
+                maxLength: 2,
+                xmlFieldName: 'State2'
+            },
+            state3: {
+                label: 'State 3',
+                type: 'text',
+                placeholder: '',
+                hint: 'Additional state (2 chars)',
+                maxLength: 2,
+                xmlFieldName: 'State3'
+            },
+            state4: {
+                label: 'State 4',
+                type: 'text',
+                placeholder: '',
+                hint: 'Additional state (2 chars)',
+                maxLength: 2,
+                xmlFieldName: 'State4'
+            },
+            state5: {
+                label: 'State 5',
+                type: 'text',
+                placeholder: '',
+                hint: 'Additional state (2 chars)',
+                maxLength: 2,
+                xmlFieldName: 'State5'
+            },
+
+            // ========== ARTICLE FIELDS ==========
+
+            articleSerialNumber: {
+                label: 'Article Serial Number',
+                type: 'text',
+                placeholder: 'SN123456789',
+                hint: 'Article serial number (max 20 chars)',
+                maxLength: 20,
+                xmlFieldName: 'ArticleSerialNumber'
+            },
+            articleTypeCode: {
+                label: 'Article Type Code',
+                type: 'text',
+                placeholder: 'TV',
+                hint: 'NCIC article type code (max 7 chars)',
+                maxLength: 7,
+                xmlFieldName: 'ArticleTypeCode'
+            }
+        },
+
+        // Query specifications — from HI_HCJDC_OFML.xml version 6
+        querySpecs: {
+            'driver-license': {
+                name: 'Driver License Query',
+                messageType: 'DriverLicenseQuery',
+                version: 2,
+                combinations: [
+                    {
+                        id: 1,
+                        description: '(DQ) OperatorLicenseNumber',
+                        fields: ['operatorLicenseNumber'],
+                        optionalFields: ['state', 'state2', 'state3', 'state4', 'state5', 'imageIndicator'],
+                        keyReference: 'DQ',
+                        primaryField: 'operatorLicenseNumber',
+                        notes: 'Driver Query — license number lookup'
+                    },
+                    {
+                        id: 2,
+                        description: '(DQ) Name + BirthDate + SexCode',
+                        fields: ['name', 'birthDate', 'sexCode'],
+                        optionalFields: ['state', 'state2', 'state3', 'state4', 'state5', 'imageIndicator'],
+                        keyReference: 'DQ',
+                        primaryField: 'name',
+                        notes: 'Driver Query — demographic search'
+                    },
+                    {
+                        id: 3,
+                        description: '(QW) Name + BirthDate',
+                        fields: ['name', 'birthDate'],
+                        optionalFields: ['sexCode'],
+                        keyReference: 'QW',
+                        primaryField: 'name',
+                        notes: 'Wanted Person Query — includes NCIC wanted person check'
+                    }
+                ]
+            },
+            'vehicle-registration': {
+                name: 'Vehicle Registration Query',
+                messageType: 'VehicleRegistrationQuery',
+                version: 2,
+                combinations: [
+                    {
+                        id: 1,
+                        description: '(RQ) LicensePlateNumber + LicensePlateTypeCode + LicensePlateYear',
+                        fields: ['licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear'],
+                        optionalFields: ['state', 'state2', 'state3', 'state4', 'state5'],
+                        keyReference: 'RQ',
+                        primaryField: 'licensePlateNumber',
+                        notes: 'Vehicle Registration Query — full plate lookup with Nlets interstate'
+                    },
+                    {
+                        id: 2,
+                        description: '(RQ) VehicleIdentificationNumber',
+                        fields: ['vehicleIdentificationNumber'],
+                        optionalFields: ['state', 'state2', 'state3', 'state4', 'state5', 'vehicleYear', 'vehicleMakeCode'],
+                        keyReference: 'RQ',
+                        primaryField: 'vehicleIdentificationNumber',
+                        notes: 'Vehicle Registration Query — VIN lookup with Nlets interstate'
+                    },
+                    {
+                        id: 3,
+                        description: '(QV) LicensePlateNumber only',
+                        fields: ['licensePlateNumber'],
+                        optionalFields: [],
+                        keyReference: 'QV',
+                        primaryField: 'licensePlateNumber',
+                        notes: 'Stolen Vehicle Query — plate only, NCIC/HCJDC felony and stolen vehicle check'
+                    },
+                    {
+                        id: 4,
+                        description: '(QV) VehicleIdentificationNumber',
+                        fields: ['vehicleIdentificationNumber'],
+                        optionalFields: ['vehicleYear', 'vehicleMakeCode'],
+                        keyReference: 'QV',
+                        primaryField: 'vehicleIdentificationNumber',
+                        notes: 'Stolen Vehicle Query — VIN, NCIC/HCJDC felony and stolen vehicle check'
+                    }
+                ]
+            },
+            'driver-history': {
+                name: 'Driver History Query',
+                messageType: 'DriverHistoryQuery',
+                version: 2,
+                combinations: [
+                    {
+                        id: 1,
+                        description: '(KQ) OperatorLicenseNumber',
+                        fields: ['operatorLicenseNumber'],
+                        optionalFields: ['attention', 'imageIndicator', 'operatorLicenseStateCode', 'purposeCode', 'state'],
+                        keyReference: 'KQ',
+                        primaryField: 'operatorLicenseNumber',
+                        notes: 'Nlets Driver History Query — license number lookup'
+                    },
+                    {
+                        id: 2,
+                        description: '(KQ) Name + BirthDate + SexCode',
+                        fields: ['name', 'birthDate', 'sexCode'],
+                        optionalFields: ['state', 'purposeCode', 'attention', 'operatorLicenseStateCode', 'imageIndicator'],
+                        keyReference: 'KQ',
+                        primaryField: 'name',
+                        notes: 'Nlets Driver History Query — demographic search'
+                    }
+                ]
+            },
+            'article-query': {
+                name: 'Article Single Query',
+                messageType: 'ArticleSingleQuery',
+                version: 2,
+                combinations: [
+                    {
+                        id: 1,
+                        description: '(QA) ArticleSerialNumber + ArticleTypeCode',
+                        fields: ['articleSerialNumber', 'articleTypeCode'],
+                        optionalFields: [],
+                        keyReference: 'QA',
+                        primaryField: 'articleSerialNumber',
+                        notes: 'Single Article Query — NCIC/HCJDC stolen article lookup'
+                    }
+                ]
+            }
+        },
+
+        // XML generation function for HI HCJDC
+        generateXML: function(queryType, data) {
+            const querySpec = this.querySpecs[queryType];
+            if (!querySpec) return null;
+
+            const queryTypeTag = querySpec.messageType;
+
+            let xml = `<Request>\n`;
+            xml += `  <MessageType>${queryTypeTag}</MessageType>\n`;
+            xml += `  <Id>MARK43GENERATEDMSGID</Id>\n`;
+
+            const fieldOrder = [
+                // Person fields
+                'attention',
+                'name', 'birthDate', 'sexCode',
+                'operatorLicenseNumber', 'operatorLicenseStateCode',
+                'purposeCode',
+                // Vehicle fields
+                'licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear',
+                'vehicleIdentificationNumber',
+                'vehicleMakeCode', 'vehicleYear',
+                // State fields
+                'state', 'state2', 'state3', 'state4', 'state5',
+                // Article fields
+                'articleSerialNumber', 'articleTypeCode',
+                // Control fields
+                'imageIndicator'
+            ];
+
+            fieldOrder.forEach(key => {
+                if (!data[key]) return;
+
+                const fieldDef = this.fieldDefinitions[key];
+                if (!fieldDef) return;
+
+                const xmlFieldName = fieldDef.xmlFieldName;
+                let value = data[key];
+
+                if (key === 'name') {
+                    value = value.toUpperCase();
+                } else if (key === 'birthDate') {
+                    value = value.replace(/-/g, '');
+                } else if (['state', 'state2', 'state3', 'state4', 'state5', 'operatorLicenseStateCode'].includes(key)) {
+                    value = value.toUpperCase();
+                }
+
+                xml += `  <${xmlFieldName}>${value}</${xmlFieldName}>\n`;
+            });
+
+            xml += `</Request>`;
+            return xml;
+        }
     }
 };
 

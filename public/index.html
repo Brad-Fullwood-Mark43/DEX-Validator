@@ -178,7 +178,7 @@
                 <h2>About This Tool</h2>
                 <ul>
                     <li><strong>Purpose:</strong> Validate query field combinations and generate spec-compliant XML for multiple connectors</li>
-                    <li><strong>Supported Connectors:</strong> CA eSUN (California), FL FCIC (Florida), and more coming soon</li>
+                    <li><strong>Supported Connectors:</strong> CA eSUN (California), FL FCIC (Florida), HI HCJDC (Hawaii)</li>
                     <li><strong>Connector-Specific:</strong> Each connector has unique field requirements, validation rules, and XML formats</li>
                     <li><strong>XML Output:</strong> Generates properly formatted XML according to connector specifications</li>
                 </ul>
@@ -205,6 +205,14 @@
                             <span style="font-size: 12px; color: #666;">Florida Crime Information Center</span>
                         </div>
                     </label>
+
+                    <label style="flex: 1; min-width: 200px; padding: 15px; background: white; border: 2px solid #3498db; border-radius: 6px; cursor: pointer; display: flex; align-items: center;">
+                        <input type="radio" name="connector" value="HI_HCJDC" style="margin-right: 10px;">
+                        <div>
+                            <strong style="display: block; color: #2c3e50;">Hawaii HCJDC</strong>
+                            <span style="font-size: 12px; color: #666;">Hawaii Criminal Justice Data Center</span>
+                        </div>
+                    </label>
                 </div>
 
                 <p style="margin-top: 15px; font-size: 14px; color: #666;">
@@ -229,6 +237,7 @@
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                     <a href="ca-esun/index.html" style="padding: 8px 15px; background: #3498db; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">CA eSUN</a>
                     <a href="fl-fcic/index.html" style="padding: 8px 15px; background: #9b59b6; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">FL FCIC</a>
+                    <a href="hi-hcjdc/index.html" style="padding: 8px 15px; background: #17a589; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">HI HCJDC</a>
                     <a href="response-viewer.html" style="padding: 8px 15px; background: #e74c3c; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">Response Viewer</a>
                 </div>
             </div>
@@ -240,7 +249,8 @@
         // Connector routing map
         const CONNECTOR_ROUTES = {
             'CA_ESUN': 'ca-esun/index.html',
-            'FL_FCIC': 'fl-fcic/index.html'
+            'FL_FCIC': 'fl-fcic/index.html',
+            'HI_HCJDC': 'hi-hcjdc/index.html'
         };
 
         const connectorRadios = document.querySelectorAll('input[name="connector"]');
