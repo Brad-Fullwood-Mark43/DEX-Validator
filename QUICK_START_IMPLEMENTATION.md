@@ -4,13 +4,15 @@ This is a streamlined guide to get started quickly with implementing the JSON ex
 
 ## TL;DR - What We're Building
 
-**Goal**: Add a button to each query page that exports the current query specifications as a JSON file that can be imported into RMS Federated Search configuration.
+**Goal**: Add a button to each query page that exports the current query specifications as a JSON file that can be uploaded to RMS tenants via the Federated Search API.
 
 **Result**: Instead of manually configuring Federated Search through the UI, you can:
 1. Use DEX Validation Tool to design and test queries
 2. Click "Export Configuration JSON"
-3. Import the JSON file into RMS
+3. Upload the JSON file to the tenant via API (PRIMARY PRODUCTION WORKFLOW)
 4. Queries work immediately in production
+
+**Important**: The API import endpoint (`POST /v2/admin/departmentConfiguration/import/{departmentId}`) is THE production method for deploying configurations. This allows tenant-specific customizations without code deployment.
 
 ---
 
@@ -248,38 +250,49 @@ function downloadJSON(data, filename) {
 
 ---
 
-## Testing the Import
+## Testing the Import (Production Workflow)
 
-### Local Testing
+### API Import - THE PRODUCTION METHOD
 
-1. **Get a JWT token** from your RMS instance:
-   ```bash
-   # Login to RMS and grab token from DevTools > Application > Cookies
-   ```
+**This is the correct way to deploy configurations to tenants.**
 
-2. **Test the import**:
-   ```bash
-   curl -X POST \
-     'http://localhost:8080/federated-search/api/v2/admin/departmentConfiguration/import/YOUR_DEPT_ID' \
-     -H 'Authorization: Bearer YOUR_JWT_TOKEN' \
-     -H 'Content-Type: application/json' \
-     -d @ca-esun-vehicle-registration-config.json
-   ```
+#### Step 1: Get a JWT token from your RMS instance
+```bash
+# Login to RMS and grab token from DevTools > Application > Cookies
+```
 
-3. **Validate the configuration**:
-   ```bash
-   curl -X GET \
-     'http://localhost:8080/federated-search/api/v2/admin/departmentConfiguration/validate/YOUR_DEPT_ID' \
-     -H 'Authorization: Bearer YOUR_JWT_TOKEN'
-   ```
+#### Step 2: Upload configuration to tenant via API
+```bash
+curl -X POST \
+  'http://localhost:8080/federated-search/api/v2/admin/departmentConfiguration/import/YOUR_DEPT_ID' \
+  -H 'Authorization: Bearer YOUR_JWT_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d @ca-esun-vehicle-registration-config.json
+```
 
-### Using RMS UI
+**Why this is production workflow:**
+- ✅ Tenant-specific configurations (different departments need different settings)
+- ✅ No code deployment required (can be updated immediately)
+- ✅ Rapid updates without release cycle
+- ✅ Admins can manage configs without developer involvement
 
+#### Step 3: Validate the configuration
+```bash
+curl -X GET \
+  'http://localhost:8080/federated-search/api/v2/admin/departmentConfiguration/validate/YOUR_DEPT_ID' \
+  -H 'Authorization: Bearer YOUR_JWT_TOKEN'
+```
+
+### Using RMS UI (Alternative)
+
+If the RMS UI provides import functionality:
 1. Login to RMS as admin
 2. Navigate to: **Admin → Application Settings → Federated Search Settings**
 3. Look for configuration import/export functionality
 4. Upload your generated JSON file
 5. Validate and save
+
+**Note**: The UI likely uses the same API endpoint under the hood.
 
 ---
 

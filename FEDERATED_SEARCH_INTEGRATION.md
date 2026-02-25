@@ -238,7 +238,13 @@ Response: 200 OK
 }
 ```
 
-#### Import Configuration
+**Use this to:**
+- Backup configurations before changes
+- Copy configuration from one tenant to another
+- Create version-controlled backups in internal repo
+- Generate reference for new configurations
+
+#### Import Configuration (PRIMARY PRODUCTION WORKFLOW)
 ```http
 POST /departmentConfiguration/import/{departmentId}
 Authorization: Bearer {JWT_TOKEN}
@@ -256,6 +262,13 @@ Response: 201 Created
   }
 }
 ```
+
+**This is THE correct way to deploy configurations:**
+- ✅ Upload tenant-specific configurations
+- ✅ Update existing configurations
+- ✅ Customize field mappings per jurisdiction
+- ✅ No code deployment required
+- ✅ Changes take effect immediately
 
 #### Validate Configuration
 ```http

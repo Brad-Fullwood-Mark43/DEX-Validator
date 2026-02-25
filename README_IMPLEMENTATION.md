@@ -91,18 +91,25 @@ The DEX Validation Tool **already implements the exact same validation and XML g
 
 **This means**: Your validation tool is already a faithful representation of production behavior - perfect for generating configurations!
 
-### 🔄 Data Flow
+### 🔄 Data Flow (Production Workflow)
 ```
 DEX Validation Tool (design/test queries)
     ↓ Export JSON
 JSON Configuration File (DepartmentBundle)
-    ↓ Import via API
-Federated Search (stores configuration)
+    ↓ Upload via API (PRIMARY PRODUCTION METHOD)
+    POST /v2/admin/departmentConfiguration/import/{departmentId}
+    ↓
+Federated Search DynamoDB (stores tenant-specific configuration)
     ↓ Runtime
 DEX Service (generates XML, sends to external systems)
     ↓
 External Message Switches (CA eSUN, AZ ACJIS, etc.)
 ```
+
+**Important**: The API import endpoint is THE production workflow for deploying configurations. This allows:
+- ✅ Tenant-specific customizations
+- ✅ Rapid updates without code deployment
+- ✅ Different configurations per department
 
 ### 🗂️ Repository Structure
 ```
@@ -129,8 +136,10 @@ DEX Validation Tool/
 2. **Choose your path** (Quick Start vs. Deep Dive)
 3. **Follow the guide** (either quick start or full documentation)
 4. **Test locally** (generate JSON, verify structure)
-5. **Test import** (import into Federated Search)
+5. **Upload via API** (POST to /v2/admin/departmentConfiguration/import/{departmentId})
 6. **Validate** (execute queries in CAD/RMS)
+
+**Remember**: The API upload is the production method, not a workaround or bypass.
 
 ---
 

@@ -663,10 +663,14 @@ function generateXML(queryType, data, state) {
 
 ## How Configurations Get to Production
 
-### **Deployment Flow:**
+### **Two Separate Purposes:**
+
+#### **1. GitHub JSONs: Seed Data & Templates**
+
+**Purpose**: Baseline configurations for new deployments and reference implementations
 
 ```
-1. Developer modifies JSON
+1. Developer creates template JSON
    ↓
    /api/src/main/resources/configurations/SD_CA_eSUN.json
 
@@ -690,43 +694,73 @@ function generateXML(queryType, data, state) {
    ↓
    Spring Boot loads resources from classpath
 
-7. ConfigService initialization
+7. ConfigService initialization (for NEW tenants only)
    ↓
    Reads JSON from classpath
    ↓
-   Uploads to DynamoDB if not exists or version changed
+   Uploads to DynamoDB if tenant has no configuration
    ↓
    DynamoDB: federated-search-tenant-bundles table
 
-8. Runtime
-   ↓
-   ConfigService reads from DynamoDB (cached)
-   ↓
-   Applies configurations to queries
+Note: This ONLY seeds new tenants. Existing tenant configs are NOT overwritten.
 ```
 
-### **Manual Import Process (Not Recommended for Production):**
+#### **2. API Import: Production Workflow for Tenant-Specific Configurations**
+
+**Purpose**: THE CORRECT WAY to deploy and manage tenant configurations
+
+**This IS the production workflow:**
 
 ```
-1. Export configuration from one tenant
+1. Generate/Export configuration
    ↓
-   GET /v2/admin/departmentConfiguration/export/{departmentId}
+   Option A: Create in validation tool
+   Option B: Export from existing tenant
+      GET /v2/admin/departmentConfiguration/export/{departmentId}
 
-2. Modify JSON locally
+2. Customize for tenant
    ↓
-   Edit field mappings, add combinations, etc.
+   Edit field mappings, combinations, validation rules
+   Adjust for jurisdiction-specific requirements
+   ↓
+   dept-123-ca-esun-config.json
 
-3. Import to another tenant
+3. Upload to tenant via API
    ↓
    POST /v2/admin/departmentConfiguration/import/{departmentId}
 
-4. Validate
+   OR via RMS UI:
+   Admin → Application Settings → Federated Search Settings → Import
+
+4. Validate configuration
    ↓
    GET /v2/admin/departmentConfiguration/validate/{departmentId}
 
-Note: This bypasses GitHub version control!
-Use only for testing or emergency fixes.
+5. Test in production
+   ↓
+   Execute queries in CAD/RMS
+   Verify XML output and results
+
+6. Backup for version control (RECOMMENDED)
+   ↓
+   GET /v2/admin/departmentConfiguration/export/{departmentId}
+   Save with date/version: dept-123-ca-esun-config-2026-02-24.json
+   Store in internal repo for audit trail
 ```
+
+**Why API Import is Production Workflow:**
+- ✅ Allows tenant-specific customizations
+- ✅ Supports different requirements per department
+- ✅ Enables rapid configuration updates
+- ✅ No code deployment required
+- ✅ Can be done by admins, not just developers
+
+**Manual Version Control Recommended:**
+Since API uploads don't automatically track in GitHub:
+- Export configurations before changes
+- Store backups in internal repository
+- Document changes in change log
+- Tag versions with dates/ticket numbers
 
 ---
 
@@ -907,22 +941,29 @@ const fieldDefinitions = {
 
 ### **✅ CONFIRMED:**
 
-1. **JSON templates ARE version controlled in GitHub**
+1. **GitHub JSONs are TEMPLATES, not tenant configurations**
    - Location: `federated-search/api/src/main/resources/configurations/`
+   - Purpose: Seed data for new tenants, reference implementations
    - Modified via PRs (e.g., #1212)
-   - Deployed to DynamoDB via CI/CD
+   - Used for local development and testing
 
-2. **JSON controls BOTH form fields AND XML output**
+2. **API Import/Export is the PRODUCTION workflow**
+   - ✅ Upload tenant-specific configurations via API
+   - ✅ Each tenant can have custom field mappings and combinations
+   - ✅ No code deployment needed for configuration changes
+   - ✅ Manual version control via export/backup recommended
+
+3. **JSON controls BOTH form fields AND XML output**
    - Via different configuration types in same bundle
    - `QUERYINPUTFORM` → Form fields (when used)
    - `QUERYINPUTDATAMAPPING` → XML output
 
-3. **Three-tier structure:**
+4. **Three-tier structure:**
    - Bundle → Groups configurations by provider
    - Configuration → Specific config type (auth, mapping, results)
    - Attributes/Combinations → Field-level details
 
-4. **Handler functions generate XML**
+5. **Handler functions generate XML**
    - Different handlers for different provider types
    - Handlers read configuration JSON at runtime
    - Apply provider-specific transformation logic
@@ -930,9 +971,12 @@ const fieldDefinitions = {
 ### **Key Relationships:**
 
 ```
-GitHub JSON File
-    ↓ (Deployed via CI/CD)
-DynamoDB Configuration
+GitHub Template JSON (Reference only)
+    ↓ (Used for new tenant seed data)
+
+Validation Tool → Generate Custom JSON
+    ↓ (Upload via API)
+DynamoDB Configuration (Per tenant)
     ↓ (Loaded at runtime)
 Handler Function (Java)
     ↓ (Generates XML)
@@ -962,18 +1006,25 @@ The validation tool's `querySpecs` and `fieldDefinitions` map directly to the `a
    - Convert validation tool format → production JSON format
    - Handle provider-specific differences
 
-3. **Test JSON generation**
+3. **Test JSON generation and upload**
    - Generate JSON from validation tool
-   - Import to test tenant
-   - Execute queries and compare results
+   - Upload via API: `POST /v2/admin/departmentConfiguration/import/{departmentId}`
+   - Validate: `GET /v2/admin/departmentConfiguration/validate/{departmentId}`
+   - Execute queries in CAD/RMS and compare results
 
-4. **Document provider differences**
+4. **Establish version control process**
+   - Export configurations before changes
+   - Store backups with dates/versions
+   - Document changes in changelog
+
+5. **Document provider differences**
    - CA eSUN state handling
    - TN TIES field requirements
    - AZ AZDPS specific fields
 
 ---
 
-**Document Version**: 1.0
+**Document Version**: 1.1
 **Last Updated**: February 24, 2026
+**Changes**: Corrected workflow - API import IS the production method, not "bypass" of version control
 **Next Review**: After XML comparison testing
