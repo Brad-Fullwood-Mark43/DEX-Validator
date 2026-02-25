@@ -305,22 +305,87 @@
             <div class="section dark-section" style="background: #000;">
                 <h2>Query Input</h2>
                 <form id="query-form">
-                    <div class="field-group-label">Optional — State Codes (up to 5, for RQ queries)</div>
-
                     <div class="state-grid">
                         <div class="form-group">
                             <label>State</label>
-                            <input type="text" name="state" maxlength="2" placeholder="HI">
+                            <input type="text" name="state" maxlength="2" placeholder="HI" value="HI" list="state-options" autocomplete="off">
+                            <datalist id="state-options">
+                                <option value="AL">AL - Alabama</option>
+                                <option value="AK">AK - Alaska</option>
+                                <option value="AZ">AZ - Arizona</option>
+                                <option value="AR">AR - Arkansas</option>
+                                <option value="CA">CA - California</option>
+                                <option value="CO">CO - Colorado</option>
+                                <option value="CT">CT - Connecticut</option>
+                                <option value="DE">DE - Delaware</option>
+                                <option value="FL">FL - Florida</option>
+                                <option value="GA">GA - Georgia</option>
+                                <option value="HI">HI - Hawaii</option>
+                                <option value="ID">ID - Idaho</option>
+                                <option value="IL">IL - Illinois</option>
+                                <option value="IN">IN - Indiana</option>
+                                <option value="IA">IA - Iowa</option>
+                                <option value="KS">KS - Kansas</option>
+                                <option value="KY">KY - Kentucky</option>
+                                <option value="LA">LA - Louisiana</option>
+                                <option value="ME">ME - Maine</option>
+                                <option value="MD">MD - Maryland</option>
+                                <option value="MA">MA - Massachusetts</option>
+                                <option value="MI">MI - Michigan</option>
+                                <option value="MN">MN - Minnesota</option>
+                                <option value="MS">MS - Mississippi</option>
+                                <option value="MO">MO - Missouri</option>
+                                <option value="MT">MT - Montana</option>
+                                <option value="NE">NE - Nebraska</option>
+                                <option value="NV">NV - Nevada</option>
+                                <option value="NH">NH - New Hampshire</option>
+                                <option value="NJ">NJ - New Jersey</option>
+                                <option value="NM">NM - New Mexico</option>
+                                <option value="NY">NY - New York</option>
+                                <option value="NC">NC - North Carolina</option>
+                                <option value="ND">ND - North Dakota</option>
+                                <option value="OH">OH - Ohio</option>
+                                <option value="OK">OK - Oklahoma</option>
+                                <option value="OR">OR - Oregon</option>
+                                <option value="PA">PA - Pennsylvania</option>
+                                <option value="RI">RI - Rhode Island</option>
+                                <option value="SC">SC - South Carolina</option>
+                                <option value="SD">SD - South Dakota</option>
+                                <option value="TN">TN - Tennessee</option>
+                                <option value="TX">TX - Texas</option>
+                                <option value="UT">UT - Utah</option>
+                                <option value="VT">VT - Vermont</option>
+                                <option value="VA">VA - Virginia</option>
+                                <option value="WA">WA - Washington</option>
+                                <option value="WV">WV - West Virginia</option>
+                                <option value="WI">WI - Wisconsin</option>
+                                <option value="WY">WY - Wyoming</option>
+                                <option value="DC">DC - District of Columbia</option>
+                                <option value="PR">PR - Puerto Rico</option>
+                                <option value="A1">A1 - NLETS Region A1</option>
+                                <option value="B1">B1 - NLETS Region B1</option>
+                                <option value="C1">C1 - NLETS Region C1</option>
+                                <option value="D1">D1 - NLETS Region D1</option>
+                                <option value="E1">E1 - NLETS Region E1</option>
+                                <option value="F1">F1 - NLETS Region F1</option>
+                                <option value="G1">G1 - NLETS Region G1</option>
+                                <option value="H1">H1 - NLETS Region H1</option>
+                            </datalist>
                         </div>
+                    </div>
+
+                    <div id="sep-choose-query-by" style="text-align: center; margin: 20px 0; position: relative;">
+                        <div style="border-top: 2px solid #444; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
+                        <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">CHOOSE QUERY BY</span>
                     </div>
 
                     <div class="form-group">
                         <label>License Plate Number</label>
-                        <input type="text" name="licensePlateNumber" maxlength="10" placeholder="ABC123">
+                        <input type="text" id="licensePlateNumber" name="licensePlateNumber" maxlength="10" placeholder="ABC123" oninput="onPlateInput(this.value)">
                         <div class="field-hint">License plate number (max 10 chars)</div>
                     </div>
 
-                    <div class="two-col" style="display:none">
+                    <div id="plate-detail-fields" class="two-col" style="display:none">
                         <div class="form-group">
                             <label>Plate Type Code</label>
                             <input type="text" name="licensePlateTypeCode" maxlength="2" placeholder="PC">
@@ -333,9 +398,12 @@
                         </div>
                     </div>
 
-                    <div class="field-group-label">Vehicle Fields (RQ/QV combinations)</div>
+                    <div id="sep-or-vin" style="text-align: center; margin: 20px 0; position: relative;">
+                        <div style="border-top: 2px solid #444; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
+                        <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">OR</span>
+                    </div>
 
-                    <div class="form-group">
+                    <div id="vin-form-group" class="form-group">
                         <label>VIN</label>
                         <input type="text" id="vehicleIdentificationNumber" name="vehicleIdentificationNumber" maxlength="20" placeholder="1HGBH41JXMN109186" onblur="handleVINBlur()">
                         <div class="field-hint">Vehicle Identification Number (max 20 chars)</div>
@@ -410,6 +478,17 @@
         const connector = getConnector('HI_HCJDC');
         const queryType = 'vehicle-registration';
         const querySpec = connector.querySpecs[queryType];
+
+        function onPlateInput(value) {
+            const hasPlate = value.trim() !== '';
+            document.getElementById('plate-detail-fields').style.display = hasPlate ? '' : 'none';
+            document.getElementById('sep-choose-query-by').style.display = hasPlate ? 'none' : '';
+            document.getElementById('sep-or-vin').style.display = hasPlate ? 'none' : '';
+            document.getElementById('vin-form-group').style.display = hasPlate ? 'none' : '';
+            if (!hasPlate) {
+                document.getElementById('vehicleIdentificationNumber').value = '';
+            }
+        }
 
         let vinErrorAcknowledged = false;
         let vinErrorMessage = '';
