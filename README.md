@@ -1,6 +1,6 @@
-# CA eSUN DEX Query Validator
+# DEX Query Validator
 
-A web-based validation tool for California eSUN DEX (Data Exchange) queries. This tool helps validate query field combinations and generates properly formatted XML output according to the CA eSUN specification.
+A web-based validation tool for DEX (Data Exchange) queries supporting multiple state systems including California eSUN, Florida FCIC, and Hawaii HCJDC. This tool helps validate query field combinations and generates properly formatted XML output according to each system's specification.
 
 ## Features
 
