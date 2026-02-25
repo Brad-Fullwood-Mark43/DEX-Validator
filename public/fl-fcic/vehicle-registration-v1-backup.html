@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Registration Query - FL FCIC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #9b59b6 0%, #6c3483 100%);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .header-left h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header-left p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .connector-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .back-link {
+            display: inline-block;
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            border-bottom: 2px solid #9b59b6;
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #9b59b6;
+            box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.1);
+        }
+
+        .field-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .validate-btn {
+            width: 100%;
+            padding: 12px;
+            background: #9b59b6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .validate-btn:hover {
+            background: #8e44ad;
+        }
+
+        .combinations-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .combination-item {
+            padding: 12px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .combination-item:hover {
+            border-color: #9b59b6;
+            transform: translateX(5px);
+        }
+
+        .combination-id {
+            display: inline-block;
+            background: #9b59b6;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .results-section {
+            grid-column: 1 / -1;
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            margin-top: 20px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .status-badge.valid {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.invalid {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .message-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .message-item.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #f5c6cb;
+        }
+
+        .message-item.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #bee5eb;
+        }
+
+        .xml-output {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .copy-btn {
+            float: right;
+            padding: 6px 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>Vehicle Registration Query</h1>
+                <p>Florida Crime Information Center</p>
+                <a href="index.html" class="back-link">← Back to FL FCIC Home</a>
+            </div>
+            <div class="connector-badge">Florida FCIC</div>
+        </div>
+
+        <div class="main-content">
+            <!-- Left Column: Input Form -->
+            <div class="section">
+                <h2>Query Input</h2>
+                <form id="query-form">
+                    <!-- Decal Number -->
+                    <div class="form-group">
+                        <label>Decal Number</label>
+                        <input type="text" name="decalNumber" maxlength="10" placeholder="D12345">
+                        <div class="field-hint">Florida vehicle decal number</div>
+                    </div>
+
+                    <!-- License Plate Number -->
+                    <div class="form-group">
+                        <label>License Plate Number</label>
+                        <input type="text" name="licensePlateNumber" maxlength="10" placeholder="ABC123">
+                        <div class="field-hint">Cannot be UNK, UNKN, or UNKNOWN</div>
+                    </div>
+
+                    <!-- License Plate Year -->
+                    <div class="form-group">
+                        <label>License Plate Year</label>
+                        <input type="text" name="licensePlateYear" maxlength="4" placeholder="2024 or NX">
+                        <div class="field-hint">CCYY or NX for non-expiring</div>
+                    </div>
+
+                    <!-- VIN -->
+                    <div class="form-group">
+                        <label>VIN</label>
+                        <input type="text" name="vehicleIdentificationNumber" maxlength="20" placeholder="1HGBH41JXMN109186">
+                        <div class="field-hint">Vehicle Identification Number (17 characters)</div>
+                    </div>
+
+                    <!-- Image Indicator -->
+                    <div class="form-group">
+                        <label>Request Image</label>
+                        <select name="imageIndicator">
+                            <option value="">-- Select --</option>
+                            <option value="N" selected>N - No Image</option>
+                            <option value="Y">Y - Include Image</option>
+                        </select>
+                        <div class="field-hint">Request image with response (default: N)</div>
+                    </div>
+
+                    <button type="submit" class="validate-btn">Validate Query</button>
+                </form>
+            </div>
+
+            <!-- Right Column: Valid Combinations -->
+            <div class="section">
+                <h2>Valid Field Combinations</h2>
+                <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                    FL FCIC supports these field combinations:
+                </p>
+                <div class="combinations-list">
+                    <div class="combination-item">
+                        <span class="combination-id">#1</span>
+                        <div style="font-size: 13px;">DecalNumber + LicensePlateYear</div>
+                    </div>
+                    <div class="combination-item">
+                        <span class="combination-id">#2</span>
+                        <div style="font-size: 13px;">LicensePlateNumber only</div>
+                    </div>
+                    <div class="combination-item">
+                        <span class="combination-id">#3</span>
+                        <div style="font-size: 13px;">VehicleIdentificationNumber only</div>
+                    </div>
+                    <div class="combination-item">
+                        <span class="combination-id">#4</span>
+                        <div style="font-size: 13px;">LicensePlateNumber + LicensePlateYear</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section hidden" id="results-section">
+                <h2>Validation Results</h2>
+                <div id="results-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load FL FCIC connector config -->
+    <script src="../js/connectors.js"></script>
+
+    <script>
+        const connector = getConnector('FL_FCIC');
+        const queryType = 'vehicle-registration';
+        const querySpec = connector.querySpecs[queryType];
+
+        // Handle form submission
+        document.getElementById('query-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = {};
+            new FormData(this).forEach((value, key) => {
+                if (value) formData[key] = value;
+            });
+
+            const results = validateQuery(formData);
+            displayResults(results);
+        });
+
+        function validateQuery(formData) {
+            const results = {
+                valid: false,
+                errors: [],
+                info: [],
+                matchedCombination: null,
+                xml: null
+            };
+
+            const filledFields = Object.keys(formData).filter(key => formData[key] && key !== 'imageIndicator');
+
+            if (filledFields.length === 0) {
+                results.errors.push('No fields filled. Please enter at least one field.');
+                return results;
+            }
+
+            // FL-specific validation: license plate cannot be UNK/UNKN/UNKNOWN
+            if (formData.licensePlateNumber) {
+                const plate = formData.licensePlateNumber.toUpperCase();
+                if (plate === 'UNK' || plate === 'UNKN' || plate === 'UNKNOWN') {
+                    results.errors.push('License plate cannot be UNK, UNKN, or UNKNOWN per FL FCIC specifications.');
+                    return results;
+                }
+            }
+
+            // Find matching combination
+            for (const combo of querySpec.combinations) {
+                const requiredFields = combo.fields || [];
+                const optionalFields = combo.optionalFields || [];
+
+                // Check if all required fields are present
+                const hasAllRequired = requiredFields.every(field => formData[field]);
+                if (!hasAllRequired) continue;
+
+                // Check if any extra fields are present
+                const allowedFields = [...requiredFields, ...optionalFields];
+                const extraFields = filledFields.filter(field => !allowedFields.includes(field));
+                if (extraFields.length > 0) continue;
+
+                // Found a match!
+                results.matchedCombination = combo;
+                results.valid = true;
+
+                results.info.push(`✓ Matched combination #${combo.id}: ${combo.description}`);
+                results.info.push(`✓ Key Reference: ${combo.keyReference}`);
+
+                // Generate XML
+                results.xml = connector.generateXML(queryType, formData, combo.state);
+
+                break;
+            }
+
+            if (!results.matchedCombination) {
+                results.errors.push('No valid field combination found. Please check the valid combinations list.');
+            }
+
+            return results;
+        }
+
+        function displayResults(results) {
+            const resultsSection = document.getElementById('results-section');
+            const resultsContent = document.getElementById('results-content');
+
+            resultsSection.classList.remove('hidden');
+
+            let html = '';
+
+            // Status badge
+            html += `<div class="status-badge ${results.valid ? 'valid' : 'invalid'}">`;
+            html += results.valid ? '✓ VALID QUERY' : '✗ INVALID QUERY';
+            html += '</div>';
+
+            // Messages
+            if (results.errors.length > 0) {
+                results.errors.forEach(msg => {
+                    html += `<div class="message-item error">❌ ${msg}</div>`;
+                });
+            }
+
+            if (results.info.length > 0) {
+                results.info.forEach(msg => {
+                    html += `<div class="message-item info">${msg}</div>`;
+                });
+            }
+
+            // XML output
+            if (results.xml) {
+                html += '<h3 style="margin-top: 20px; margin-bottom: 10px;">Generated XML</h3>';
+                html += '<button class="copy-btn" onclick="copyXML()">Copy XML</button>';
+                html += `<pre class="xml-output" id="xml-output">${escapeHtml(results.xml)}</pre>`;
+            }
+
+            resultsContent.innerHTML = html;
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function copyXML() {
+            const xmlText = document.getElementById('xml-output').textContent;
+            navigator.clipboard.writeText(xmlText).then(() => {
+                alert('XML copied to clipboard!');
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
