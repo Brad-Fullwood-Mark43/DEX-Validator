@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             background: white;
             border-radius: 8px;
@@ -30,14 +30,19 @@
             background: linear-gradient(135deg, #9b59b6 0%, #6c3483 100%);
             color: white;
             padding: 25px 30px;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            gap: 15px;
         }
 
         .header-left h1 {
-            font-size: 24px;
+            font-size: 26px;
             margin-bottom: 5px;
         }
 
@@ -46,11 +51,11 @@
             font-size: 14px;
         }
 
-        .connector-badge {
+        .spec-badge {
             background: rgba(255,255,255,0.2);
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
         }
 
@@ -70,14 +75,34 @@
             background: rgba(255,255,255,0.3);
         }
 
+        .info-banner {
+            background: #e8f4fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px 20px;
+            margin: 20px 30px;
+            border-radius: 4px;
+        }
+
+        .info-banner h3 {
+            font-size: 16px;
+            color: #1976d2;
+            margin-bottom: 8px;
+        }
+
+        .info-banner p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 25px;
             padding: 30px;
         }
 
-        @media (max-width: 1024px) {
+        @media (max-width: 1200px) {
             .main-content {
                 grid-template-columns: 1fr;
             }
@@ -85,38 +110,92 @@
 
         .section {
             background: #f8f9fa;
-            padding: 20px;
-            border-radius: 6px;
+            padding: 25px;
+            border-radius: 8px;
             border: 1px solid #e0e0e0;
         }
 
         .section h2 {
-            font-size: 18px;
-            margin-bottom: 15px;
+            font-size: 19px;
+            margin-bottom: 18px;
             color: #2c3e50;
-            border-bottom: 2px solid #9b59b6;
-            padding-bottom: 8px;
+            border-bottom: 3px solid #9b59b6;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .field-section {
+            margin-bottom: 25px;
+        }
+
+        .field-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: #6c3483;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            user-select: none;
+            margin-bottom: 12px;
+            transition: background 0.2s;
+        }
+
+        .field-section-header:hover {
+            background: #7d3c98;
+        }
+
+        .field-section-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .collapse-icon {
+            font-size: 20px;
+            transition: transform 0.3s;
+        }
+
+        .field-section-header.collapsed .collapse-icon {
+            transform: rotate(-90deg);
+        }
+
+        .field-section-content {
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .field-section-content.collapsed {
+            display: none;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
             color: #2c3e50;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 14px;
         }
 
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 11px 13px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
             font-size: 14px;
+            transition: all 0.2s;
         }
 
         .form-group input:focus,
@@ -126,39 +205,97 @@
             box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.1);
         }
 
+        .form-group input.error,
+        .form-group select.error {
+            border-color: #e74c3c;
+            background: #fff5f5;
+        }
+
+        .form-group input.valid,
+        .form-group select.valid {
+            border-color: #2ecc71;
+            background: #f0fff4;
+        }
+
         .field-hint {
             font-size: 12px;
             color: #666;
-            margin-top: 3px;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .field-error {
+            font-size: 12px;
+            color: #e74c3c;
+            margin-top: 4px;
+            display: block;
+            font-weight: 500;
+        }
+
+        .field-description {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+            font-style: italic;
         }
 
         .validate-btn {
             width: 100%;
-            padding: 12px;
-            background: #9b59b6;
+            padding: 14px;
+            background: linear-gradient(135deg, #9b59b6 0%, #6c3483 100%);
             color: white;
             border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: 8px;
+            font-size: 17px;
+            font-weight: 700;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(155, 89, 182, 0.3);
         }
 
         .validate-btn:hover {
-            background: #8e44ad;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(155, 89, 182, 0.4);
         }
 
-        .combinations-list {
-            max-height: 500px;
-            overflow-y: auto;
+        .validate-btn:active {
+            transform: translateY(0);
+        }
+
+        .validate-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .combinations-section h3 {
+            font-size: 15px;
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .combinations-group {
+            margin-bottom: 20px;
+        }
+
+        .combinations-group-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #6c3483;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: #f3e5f5;
+            border-radius: 4px;
+            border-left: 4px solid #9b59b6;
         }
 
         .combination-item {
-            padding: 12px;
+            padding: 14px;
             background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
             margin-bottom: 10px;
             cursor: pointer;
             transition: all 0.2s;
@@ -166,53 +303,122 @@
 
         .combination-item:hover {
             border-color: #9b59b6;
-            transform: translateX(5px);
+            transform: translateX(3px);
+            box-shadow: 0 2px 8px rgba(155, 89, 182, 0.15);
+        }
+
+        .combination-item.selected {
+            border-color: #9b59b6;
+            border-width: 3px;
+            background: #f8f5fa;
+            box-shadow: 0 4px 12px rgba(155, 89, 182, 0.2);
+        }
+
+        .combination-item.matched {
+            border-color: #2ecc71;
+            background: #f0fff4;
+        }
+
+        .combination-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
         }
 
         .combination-id {
             display: inline-block;
             background: #9b59b6;
             color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .combination-key {
+            display: inline-block;
+            background: #6c3483;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 14px;
             font-size: 11px;
             font-weight: 600;
-            margin-right: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .combination-desc {
+            font-size: 13px;
+            color: #2c3e50;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .combination-notes {
+            font-size: 11px;
+            color: #666;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid #e0e0e0;
         }
 
         .results-section {
             grid-column: 1 / -1;
             background: white;
-            padding: 20px;
-            border-radius: 6px;
+            padding: 25px;
+            border-radius: 8px;
             border: 1px solid #e0e0e0;
-            margin-top: 20px;
+            margin-top: 10px;
+        }
+
+        .results-section h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 3px solid #9b59b6;
+            padding-bottom: 10px;
         }
 
         .status-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 20px;
         }
 
         .status-badge.valid {
             background: #d4edda;
             color: #155724;
+            border: 2px solid #c3e6cb;
         }
 
         .status-badge.invalid {
             background: #f8d7da;
             color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .message-list {
+            margin: 20px 0;
         }
 
         .message-item {
-            padding: 10px;
-            margin-bottom: 8px;
-            border-radius: 4px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
             font-size: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .message-item .icon {
+            font-size: 18px;
+            flex-shrink: 0;
         }
 
         .message-item.error {
@@ -221,125 +427,240 @@
             border-left: 4px solid #f5c6cb;
         }
 
+        .message-item.warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffeaa7;
+        }
+
         .message-item.info {
             background: #d1ecf1;
             color: #0c5460;
             border-left: 4px solid #bee5eb;
         }
 
+        .message-item.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #c3e6cb;
+        }
+
+        .xml-section {
+            margin-top: 25px;
+        }
+
+        .xml-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .xml-header h3 {
+            font-size: 17px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .copy-btn {
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        .copy-btn.copied {
+            background: #2ecc71;
+        }
+
         .xml-output {
             background: #2c3e50;
             color: #ecf0f1;
             padding: 20px;
-            border-radius: 4px;
+            border-radius: 6px;
             overflow-x: auto;
-            font-family: 'Courier New', monospace;
+            font-family: 'Courier New', Consolas, monospace;
             font-size: 13px;
             line-height: 1.6;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .copy-btn {
-            float: right;
-            padding: 6px 12px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
+        .xml-tag {
+            color: #e74c3c;
+        }
+
+        .xml-value {
+            color: #2ecc71;
         }
 
         .hidden {
             display: none !important;
         }
+
+        .clear-btn {
+            width: 100%;
+            padding: 10px;
+            background: #e0e0e0;
+            color: #555;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+
+        .clear-btn:hover {
+            background: #ccc;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            margin-left: 5px;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 300px;
+            background-color: #555;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -150px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .badge-count {
+            background: rgba(255,255,255,0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
-            <div class="header-left">
-                <h1>Vehicle Registration Query</h1>
-                <p>Florida Crime Information Center</p>
-                <a href="index.html" class="back-link">← Back to FL FCIC Home</a>
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>🚗 Vehicle Registration Query</h1>
+                    <p>Florida Crime Information Center (FCIC)</p>
+                    <a href="index.html" class="back-link">← Back to FL FCIC Home</a>
+                </div>
+                <div class="spec-badge">
+                    Spec v93 | Transaction v15
+                </div>
             </div>
-            <div class="connector-badge">Florida FCIC</div>
+        </div>
+
+        <!-- Info Banner -->
+        <div class="info-banner">
+            <h3>📋 About This Query Type</h3>
+            <p><strong>FRQ (Florida Registration Query):</strong> Queries FL DHSMV/DMVR for vehicle registration information.</p>
+            <p><strong>QV (Query Vehicle):</strong> Includes FCIC/NCIC stolen, wanted, and felony vehicle checks.</p>
+            <p><strong>Supported:</strong> 6 field combinations with comprehensive validation per FL FCIC specification.</p>
         </div>
 
         <div class="main-content">
             <!-- Left Column: Input Form -->
             <div class="section">
-                <h2>Query Input</h2>
+                <h2>
+                    Query Input
+                    <span class="badge-count" id="field-count">0 fields</span>
+                </h2>
                 <form id="query-form">
-                    <!-- Decal Number -->
-                    <div class="form-group">
-                        <label>Decal Number</label>
-                        <input type="text" name="decalNumber" maxlength="10" placeholder="D12345">
-                        <div class="field-hint">Florida vehicle decal number</div>
+                    <!-- Primary Vehicle Fields -->
+                    <div class="field-section">
+                        <div class="field-section-header" onclick="toggleSection(this)">
+                            <h3>
+                                <span>🔑</span>
+                                <span>Primary Vehicle Identifiers</span>
+                            </h3>
+                            <span class="collapse-icon">▼</span>
+                        </div>
+                        <div class="field-section-content" id="primary-fields">
+                            <!-- Fields will be dynamically generated -->
+                        </div>
                     </div>
 
-                    <!-- License Plate Number -->
-                    <div class="form-group">
-                        <label>License Plate Number</label>
-                        <input type="text" name="licensePlateNumber" maxlength="10" placeholder="ABC123">
-                        <div class="field-hint">Cannot be UNK, UNKN, or UNKNOWN</div>
+                    <!-- Additional Vehicle Fields -->
+                    <div class="field-section">
+                        <div class="field-section-header collapsed" onclick="toggleSection(this)">
+                            <h3>
+                                <span>📝</span>
+                                <span>Additional Vehicle Information</span>
+                            </h3>
+                            <span class="collapse-icon">▼</span>
+                        </div>
+                        <div class="field-section-content collapsed" id="additional-fields">
+                            <!-- Fields will be dynamically generated -->
+                        </div>
                     </div>
 
-                    <!-- License Plate Year -->
-                    <div class="form-group">
-                        <label>License Plate Year</label>
-                        <input type="text" name="licensePlateYear" maxlength="4" placeholder="2024 or NX">
-                        <div class="field-hint">CCYY or NX for non-expiring</div>
+                    <!-- Query Options -->
+                    <div class="field-section">
+                        <div class="field-section-header collapsed" onclick="toggleSection(this)">
+                            <h3>
+                                <span>⚙️</span>
+                                <span>Query Options</span>
+                            </h3>
+                            <span class="collapse-icon">▼</span>
+                        </div>
+                        <div class="field-section-content collapsed" id="option-fields">
+                            <!-- Fields will be dynamically generated -->
+                        </div>
                     </div>
 
-                    <!-- VIN -->
-                    <div class="form-group">
-                        <label>VIN</label>
-                        <input type="text" name="vehicleIdentificationNumber" maxlength="20" placeholder="1HGBH41JXMN109186">
-                        <div class="field-hint">Vehicle Identification Number (17 characters)</div>
-                    </div>
-
-                    <!-- Image Indicator -->
-                    <div class="form-group">
-                        <label>Request Image</label>
-                        <select name="imageIndicator">
-                            <option value="">-- Select --</option>
-                            <option value="N" selected>N - No Image</option>
-                            <option value="Y">Y - Include Image</option>
-                        </select>
-                        <div class="field-hint">Request image with response (default: N)</div>
-                    </div>
-
-                    <button type="submit" class="validate-btn">Validate Query</button>
+                    <button type="submit" class="validate-btn">🔍 Validate Query & Generate XML</button>
+                    <button type="button" class="clear-btn" onclick="clearForm()">🔄 Clear All Fields</button>
                 </form>
             </div>
 
             <!-- Right Column: Valid Combinations -->
             <div class="section">
-                <h2>Valid Field Combinations</h2>
-                <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
-                    FL FCIC supports these field combinations:
+                <h2>Valid Field Combinations <span class="badge-count">6 combinations</span></h2>
+                <p style="font-size: 13px; color: #666; margin-bottom: 18px;">
+                    Click a combination to highlight required fields. Different query types (FRQ vs QV) query different systems.
                 </p>
-                <div class="combinations-list">
-                    <div class="combination-item">
-                        <span class="combination-id">#1</span>
-                        <div style="font-size: 13px;">DecalNumber + LicensePlateYear</div>
-                    </div>
-                    <div class="combination-item">
-                        <span class="combination-id">#2</span>
-                        <div style="font-size: 13px;">LicensePlateNumber only</div>
-                    </div>
-                    <div class="combination-item">
-                        <span class="combination-id">#3</span>
-                        <div style="font-size: 13px;">VehicleIdentificationNumber only</div>
-                    </div>
-                    <div class="combination-item">
-                        <span class="combination-id">#4</span>
-                        <div style="font-size: 13px;">LicensePlateNumber + LicensePlateYear</div>
-                    </div>
+
+                <div class="combinations-section" id="combinations-section">
+                    <!-- Combinations will be dynamically generated -->
                 </div>
             </div>
 
-            <!-- Results Section -->
+            <!-- Results Section (Full Width) -->
             <div class="results-section hidden" id="results-section">
                 <h2>Validation Results</h2>
                 <div id="results-content"></div>
@@ -351,47 +672,335 @@
     <script src="../js/connectors.js"></script>
 
     <script>
+        // Load connector and query spec
         const connector = getConnector('FL_FCIC');
         const queryType = 'vehicle-registration';
         const querySpec = connector.querySpecs[queryType];
 
-        // Handle form submission
-        document.getElementById('query-form').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // Field groupings for organized display
+        const fieldGroups = {
+            primary: [
+                'decalNumber',
+                'licensePlateNumber',
+                'licensePlateYear',
+                'vehicleIdentificationNumber',
+                'titleLienInformation'
+            ],
+            additional: [
+                'licensePlateTypeCode',
+                'vehicleMakeCode',
+                'vehicleYear',
+                'vinSequenceNumber',
+                'state',
+                'state2',
+                'state3',
+                'state4',
+                'state5'
+            ],
+            options: [
+                'imageIndicator',
+                'relatedHitSearchIndicator',
+                'requestor'
+            ]
+        };
 
-            const formData = {};
-            new FormData(this).forEach((value, key) => {
-                if (value) formData[key] = value;
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            generateFormFields();
+            generateCombinations();
+            setupFormValidation();
+        });
+
+        // Generate form fields dynamically
+        function generateFormFields() {
+            // Generate each group
+            generateFieldGroup('primary', 'primary-fields');
+            generateFieldGroup('additional', 'additional-fields');
+            generateFieldGroup('options', 'option-fields');
+        }
+
+        function generateFieldGroup(groupName, containerId) {
+            const container = document.getElementById(containerId);
+            const fields = fieldGroups[groupName];
+
+            fields.forEach(fieldName => {
+                const fieldDef = connector.fieldDefinitions[fieldName];
+                if (!fieldDef) return;
+
+                const formGroup = document.createElement('div');
+                formGroup.className = 'form-group';
+                formGroup.dataset.field = fieldName;
+
+                // Label
+                const label = document.createElement('label');
+                label.htmlFor = fieldName;
+                label.textContent = fieldDef.label;
+
+                // Add tooltip if description exists
+                if (fieldDef.description) {
+                    const tooltip = document.createElement('span');
+                    tooltip.className = 'tooltip';
+                    tooltip.innerHTML = `
+                        <span style="color: #9b59b6; font-size: 16px;">ℹ️</span>
+                        <span class="tooltiptext">${fieldDef.description}</span>
+                    `;
+                    label.appendChild(tooltip);
+                }
+
+                formGroup.appendChild(label);
+
+                // Input field
+                let input;
+                if (fieldDef.type === 'select') {
+                    input = document.createElement('select');
+                    input.innerHTML = '<option value="">-- Select --</option>';
+
+                    if (Array.isArray(fieldDef.options)) {
+                        fieldDef.options.forEach(opt => {
+                            const option = document.createElement('option');
+                            option.value = opt.value;
+                            option.textContent = opt.label;
+                            if (fieldDef.default && opt.value === fieldDef.default) {
+                                option.selected = true;
+                            }
+                            input.appendChild(option);
+                        });
+                    }
+                } else if (fieldDef.type === 'date') {
+                    input = document.createElement('input');
+                    input.type = 'date';
+                } else if (fieldDef.type === 'number') {
+                    input = document.createElement('input');
+                    input.type = 'number';
+                    if (fieldDef.placeholder) input.placeholder = fieldDef.placeholder;
+                } else {
+                    input = document.createElement('input');
+                    input.type = 'text';
+                    if (fieldDef.placeholder) input.placeholder = fieldDef.placeholder;
+                    if (fieldDef.maxLength) input.maxLength = fieldDef.maxLength;
+                }
+
+                input.name = fieldName;
+                input.id = fieldName;
+                input.dataset.fieldName = fieldName;
+
+                // Real-time validation
+                input.addEventListener('input', function() {
+                    validateField(fieldName, this.value);
+                    updateFieldCount();
+                });
+
+                formGroup.appendChild(input);
+
+                // Hint
+                if (fieldDef.hint) {
+                    const hint = document.createElement('span');
+                    hint.className = 'field-hint';
+                    hint.textContent = fieldDef.hint;
+                    formGroup.appendChild(hint);
+                }
+
+                // Error message placeholder
+                const error = document.createElement('span');
+                error.className = 'field-error hidden';
+                error.id = `${fieldName}-error`;
+                formGroup.appendChild(error);
+
+                container.appendChild(formGroup);
+            });
+        }
+
+        // Generate combinations list
+        function generateCombinations() {
+            const container = document.getElementById('combinations-section');
+
+            // Group by key reference
+            const frqCombinations = querySpec.combinations.filter(c => c.keyReference === 'FRQ');
+            const qvCombinations = querySpec.combinations.filter(c => c.keyReference === 'QV');
+
+            // FRQ Group
+            const frqGroup = document.createElement('div');
+            frqGroup.className = 'combinations-group';
+            frqGroup.innerHTML = '<div class="combinations-group-title">📄 FRQ - Florida Registration Query</div>';
+            frqCombinations.forEach(combo => {
+                frqGroup.appendChild(createCombinationCard(combo));
+            });
+            container.appendChild(frqGroup);
+
+            // QV Group
+            const qvGroup = document.createElement('div');
+            qvGroup.className = 'combinations-group';
+            qvGroup.innerHTML = '<div class="combinations-group-title">🚨 QV - Query Vehicle (with stolen/wanted checks)</div>';
+            qvCombinations.forEach(combo => {
+                qvGroup.appendChild(createCombinationCard(combo));
+            });
+            container.appendChild(qvGroup);
+        }
+
+        function createCombinationCard(combo) {
+            const card = document.createElement('div');
+            card.className = 'combination-item';
+            card.dataset.comboId = combo.id;
+            card.onclick = () => highlightCombination(combo);
+
+            const header = document.createElement('div');
+            header.className = 'combination-header';
+
+            const id = document.createElement('span');
+            id.className = 'combination-id';
+            id.textContent = `#${combo.id}`;
+
+            const key = document.createElement('span');
+            key.className = 'combination-key';
+            key.textContent = combo.keyReference;
+
+            header.appendChild(id);
+            header.appendChild(key);
+
+            const desc = document.createElement('div');
+            desc.className = 'combination-desc';
+            desc.textContent = combo.description;
+
+            const notes = document.createElement('div');
+            notes.className = 'combination-notes';
+            notes.textContent = combo.notes;
+
+            card.appendChild(header);
+            card.appendChild(desc);
+            card.appendChild(notes);
+
+            return card;
+        }
+
+        function highlightCombination(combo) {
+            // Remove previous selections
+            document.querySelectorAll('.combination-item').forEach(item => {
+                item.classList.remove('selected');
             });
 
-            const results = validateQuery(formData);
-            displayResults(results);
-        });
+            // Select clicked combination
+            const item = document.querySelector(`[data-combo-id="${combo.id}"]`);
+            if (item) item.classList.add('selected');
+
+            // Reset all field highlighting
+            document.querySelectorAll('.form-group').forEach(group => {
+                group.style.opacity = '0.4';
+                group.style.transition = 'opacity 0.3s';
+            });
+
+            // Highlight required fields
+            combo.fields.forEach(fieldName => {
+                const group = document.querySelector(`[data-field="${fieldName}"]`);
+                if (group) {
+                    group.style.opacity = '1';
+                    group.style.borderLeft = '4px solid #9b59b6';
+                    group.style.paddingLeft = '12px';
+                }
+            });
+
+            // Highlight optional fields (slightly faded)
+            if (combo.optionalFields) {
+                combo.optionalFields.forEach(fieldName => {
+                    const group = document.querySelector(`[data-field="${fieldName}"]`);
+                    if (group) {
+                        group.style.opacity = '0.8';
+                        group.style.borderLeft = '4px solid #f39c12';
+                        group.style.paddingLeft = '12px';
+                    }
+                });
+            }
+        }
+
+        // Field validation
+        function validateField(fieldName, value) {
+            const fieldDef = connector.fieldDefinitions[fieldName];
+            const input = document.getElementById(fieldName);
+            const errorSpan = document.getElementById(`${fieldName}-error`);
+
+            if (!fieldDef || !value) {
+                input.classList.remove('error', 'valid');
+                errorSpan.classList.add('hidden');
+                return true;
+            }
+
+            let isValid = true;
+            let errorMessage = '';
+
+            // Check prohibited values
+            if (fieldDef.validation?.prohibitedValues) {
+                if (fieldDef.validation.prohibitedValues.includes(value.toUpperCase())) {
+                    isValid = false;
+                    errorMessage = `Value "${value}" is prohibited`;
+                }
+            }
+
+            // Check prohibited patterns
+            if (fieldDef.validation?.prohibitedPatterns && isValid) {
+                for (const pattern of fieldDef.validation.prohibitedPatterns) {
+                    if (pattern.test(value)) {
+                        isValid = false;
+                        errorMessage = `Value "${value}" matches prohibited pattern`;
+                        break;
+                    }
+                }
+            }
+
+            // Update UI
+            if (isValid) {
+                input.classList.remove('error');
+                input.classList.add('valid');
+                errorSpan.classList.add('hidden');
+            } else {
+                input.classList.remove('valid');
+                input.classList.add('error');
+                errorSpan.textContent = errorMessage;
+                errorSpan.classList.remove('hidden');
+            }
+
+            return isValid;
+        }
+
+        // Form validation
+        function setupFormValidation() {
+            document.getElementById('query-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const formData = {};
+                new FormData(this).forEach((value, key) => {
+                    if (value) formData[key] = value;
+                });
+
+                const results = validateQuery(formData);
+                displayResults(results);
+            });
+        }
 
         function validateQuery(formData) {
             const results = {
                 valid: false,
-                errors: [],
+                fieldErrors: [],
+                warnings: [],
                 info: [],
                 matchedCombination: null,
                 xml: null
             };
 
-            const filledFields = Object.keys(formData).filter(key => formData[key] && key !== 'imageIndicator');
+            // Get filled fields
+            const filledFields = Object.keys(formData).filter(key => formData[key]);
 
             if (filledFields.length === 0) {
-                results.errors.push('No fields filled. Please enter at least one field.');
+                results.fieldErrors.push('No fields filled. Please enter at least one field.');
                 return results;
             }
 
-            // FL-specific validation: license plate cannot be UNK/UNKN/UNKNOWN
-            if (formData.licensePlateNumber) {
-                const plate = formData.licensePlateNumber.toUpperCase();
-                if (plate === 'UNK' || plate === 'UNKN' || plate === 'UNKNOWN') {
-                    results.errors.push('License plate cannot be UNK, UNKN, or UNKNOWN per FL FCIC specifications.');
-                    return results;
+            // Field-level validation
+            filledFields.forEach(fieldName => {
+                const value = formData[fieldName];
+                if (!validateField(fieldName, value)) {
+                    const fieldDef = connector.fieldDefinitions[fieldName];
+                    results.fieldErrors.push(`${fieldDef.label}: Invalid value "${value}"`);
                 }
-            }
+            });
 
             // Find matching combination
             for (const combo of querySpec.combinations) {
@@ -402,26 +1011,37 @@
                 const hasAllRequired = requiredFields.every(field => formData[field]);
                 if (!hasAllRequired) continue;
 
-                // Check if any extra fields are present
+                // Check if any extra fields are present that aren't in required or optional
                 const allowedFields = [...requiredFields, ...optionalFields];
                 const extraFields = filledFields.filter(field => !allowedFields.includes(field));
                 if (extraFields.length > 0) continue;
 
                 // Found a match!
                 results.matchedCombination = combo;
-                results.valid = true;
+                results.valid = results.fieldErrors.length === 0;
 
                 results.info.push(`✓ Matched combination #${combo.id}: ${combo.description}`);
                 results.info.push(`✓ Key Reference: ${combo.keyReference}`);
+                results.info.push(`✓ ${combo.notes}`);
+
+                // Highlight matched combination
+                document.querySelectorAll('.combination-item').forEach(item => {
+                    item.classList.remove('matched');
+                    if (item.dataset.comboId == combo.id) {
+                        item.classList.add('matched');
+                    }
+                });
 
                 // Generate XML
-                results.xml = connector.generateXML(queryType, formData, combo.state);
+                if (results.valid) {
+                    results.xml = connector.generateXML(queryType, formData, combo.state, combo.keyReference);
+                }
 
                 break;
             }
 
             if (!results.matchedCombination) {
-                results.errors.push('No valid field combination found. Please check the valid combinations list.');
+                results.fieldErrors.push('No valid field combination found. Please check the valid combinations list on the right.');
             }
 
             return results;
@@ -437,37 +1057,67 @@
 
             // Status badge
             html += `<div class="status-badge ${results.valid ? 'valid' : 'invalid'}">`;
-            html += results.valid ? '✓ VALID QUERY' : '✗ INVALID QUERY';
+            html += `<span>${results.valid ? '✓' : '✗'}</span>`;
+            html += `<span>${results.valid ? 'VALID QUERY' : 'INVALID QUERY'}</span>`;
             html += '</div>';
 
-            // Messages
-            if (results.errors.length > 0) {
-                results.errors.forEach(msg => {
-                    html += `<div class="message-item error">❌ ${msg}</div>`;
+            // Field errors
+            if (results.fieldErrors.length > 0) {
+                html += '<div class="message-list">';
+                results.fieldErrors.forEach(msg => {
+                    html += `<div class="message-item error"><span class="icon">❌</span><span>${msg}</span></div>`;
                 });
+                html += '</div>';
             }
 
-            if (results.info.length > 0) {
-                results.info.forEach(msg => {
-                    html += `<div class="message-item info">${msg}</div>`;
+            // Warnings
+            if (results.warnings.length > 0) {
+                html += '<div class="message-list">';
+                results.warnings.forEach(msg => {
+                    html += `<div class="message-item warning"><span class="icon">⚠️</span><span>${msg}</span></div>`;
                 });
+                html += '</div>';
+            }
+
+            // Info messages
+            if (results.info.length > 0) {
+                html += '<div class="message-list">';
+                results.info.forEach(msg => {
+                    html += `<div class="message-item success"><span class="icon">ℹ️</span><span>${msg}</span></div>`;
+                });
+                html += '</div>';
             }
 
             // XML output
             if (results.xml) {
-                html += '<h3 style="margin-top: 20px; margin-bottom: 10px;">Generated XML</h3>';
-                html += '<button class="copy-btn" onclick="copyXML()">Copy XML</button>';
+                html += '<div class="xml-section">';
+                html += '<div class="xml-header">';
+                html += '<h3>📄 Generated XML</h3>';
+                html += '<button class="copy-btn" onclick="copyXML()">📋 Copy XML</button>';
+                html += '</div>';
                 html += `<pre class="xml-output" id="xml-output">${escapeHtml(results.xml)}</pre>`;
+                html += '</div>';
             }
 
             resultsContent.innerHTML = html;
+
+            // Scroll to results
             resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         function copyXML() {
             const xmlText = document.getElementById('xml-output').textContent;
             navigator.clipboard.writeText(xmlText).then(() => {
-                alert('XML copied to clipboard!');
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✓ Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                alert('Failed to copy XML: ' + err);
             });
         }
 
@@ -475,6 +1125,38 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        function toggleSection(header) {
+            header.classList.toggle('collapsed');
+            const content = header.nextElementSibling;
+            content.classList.toggle('collapsed');
+        }
+
+        function clearForm() {
+            document.getElementById('query-form').reset();
+            document.querySelectorAll('.form-group input, .form-group select').forEach(input => {
+                input.classList.remove('error', 'valid');
+            });
+            document.querySelectorAll('.field-error').forEach(error => {
+                error.classList.add('hidden');
+            });
+            document.querySelectorAll('.combination-item').forEach(item => {
+                item.classList.remove('selected', 'matched');
+            });
+            document.querySelectorAll('.form-group').forEach(group => {
+                group.style.opacity = '1';
+                group.style.borderLeft = 'none';
+                group.style.paddingLeft = '0';
+            });
+            document.getElementById('results-section').classList.add('hidden');
+            updateFieldCount();
+        }
+
+        function updateFieldCount() {
+            const filledCount = Array.from(document.querySelectorAll('#query-form input, #query-form select'))
+                .filter(input => input.value).length;
+            document.getElementById('field-count').textContent = `${filledCount} field${filledCount !== 1 ? 's' : ''}`;
         }
     </script>
 </body>
