@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CA eSUN DEX Query Validator</title>
+    <title>Universal Search Query Validator</title>
     <style>
         * {
             margin: 0;
@@ -165,8 +165,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>CA eSUN DEX Query Validator</h1>
-            <p>Select a query type to validate and generate XML for California eSUN system</p>
+            <h1>Universal Search Query Validator</h1>
+            <p>Validate queries and generate XML for multiple law enforcement data exchange systems</p>
         </div>
 
         <div style="text-align: center; padding: 16px; background: #fff3f3; border: 3px solid #cc0000; border-radius: 6px; margin-top: 10px;">
@@ -177,49 +177,105 @@
             <div class="info-section" style="margin-top: 0; margin-bottom: 30px;">
                 <h2>About This Tool</h2>
                 <ul>
-                    <li><strong>Purpose:</strong> Validate query field combinations and generate spec-compliant XML</li>
-                    <li><strong>Required:</strong> All queries require CA Purpose Code (per AB 1747)</li>
-                    <li><strong>State Handling:</strong> In-state CA queries omit State field; out-of-state queries include it</li>
-                    <li><strong>XML Output:</strong> Generates properly formatted XML according to CA eSUN specifications</li>
+                    <li><strong>Purpose:</strong> Validate query field combinations and generate spec-compliant XML for multiple connectors</li>
+                    <li><strong>Supported Connectors:</strong> CA eSUN (California), FL FCIC (Florida), and more coming soon</li>
+                    <li><strong>Connector-Specific:</strong> Each connector has unique field requirements, validation rules, and XML formats</li>
+                    <li><strong>XML Output:</strong> Generates properly formatted XML according to connector specifications</li>
                 </ul>
             </div>
 
-            <h2 style="font-size: 20px; margin-bottom: 10px; color: #2c3e50;">Select Query Type</h2>
+            <!-- Connector Selection -->
+            <div style="margin-bottom: 40px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 2px solid #dee2e6;">
+                <h2 style="font-size: 20px; margin-bottom: 10px; color: #2c3e50;">Step 1: Select Connector</h2>
+                <p style="color: #666; margin-bottom: 15px;">Choose which data exchange system you're querying</p>
+
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <label style="flex: 1; min-width: 200px; padding: 15px; background: white; border: 2px solid #3498db; border-radius: 6px; cursor: pointer; display: flex; align-items: center;">
+                        <input type="radio" name="connector" value="CA_ESUN" checked style="margin-right: 10px;">
+                        <div>
+                            <strong style="display: block; color: #2c3e50;">California eSUN</strong>
+                            <span style="font-size: 12px; color: #666;">CA CLETS</span>
+                        </div>
+                    </label>
+
+                    <label style="flex: 1; min-width: 200px; padding: 15px; background: white; border: 2px solid #3498db; border-radius: 6px; cursor: pointer; display: flex; align-items: center;">
+                        <input type="radio" name="connector" value="FL_FCIC" style="margin-right: 10px;">
+                        <div>
+                            <strong style="display: block; color: #2c3e50;">Florida FCIC</strong>
+                            <span style="font-size: 12px; color: #666;">Florida Crime Information Center</span>
+                        </div>
+                    </label>
+                </div>
+
+                <p style="margin-top: 15px; font-size: 14px; color: #666;">
+                    <strong>Note:</strong> Each connector has different field requirements and validation rules. Select the correct connector before choosing a query type.
+                </p>
+            </div>
+
+            <h2 style="font-size: 20px; margin-bottom: 10px; color: #2c3e50;">Step 2: Select Query Type</h2>
             <p style="color: #666; margin-bottom: 20px;">Choose the type of query you want to validate</p>
 
             <div class="query-types">
-                <a href="vehicle-registration.html" class="query-card primary">
-                    <h3>Vehicle Registration</h3>
-                    <p>Query vehicle registration records by license plate, VIN, or owner information</p>
-                    <span class="badge active">ACTIVE</span>
+                <a href="#" class="query-card primary" id="go-to-connector">
+                    <h3>Launch Selected Connector</h3>
+                    <p>Click here to launch the query validator for your selected connector</p>
+                    <span class="badge active">START</span>
                 </a>
+            </div>
 
-                <a href="driver-license.html" class="query-card primary">
-                    <h3>Driver License</h3>
-                    <p>Query driver license records by name, birth date, or license number</p>
-                    <span class="badge active">ACTIVE</span>
-                </a>
-
-                <a href="driver-history.html" class="query-card primary">
-                    <h3>Driver History</h3>
-                    <p>Query driver history records and violations</p>
-                    <span class="badge active">ACTIVE</span>
-                </a>
-
-                <a href="article-query.html" class="query-card primary">
-                    <h3>Article Query</h3>
-                    <p>Query stolen articles by serial number, type, and brand</p>
-                    <span class="badge active">ACTIVE</span>
-                </a>
-
-                <a href="response-viewer.html" class="query-card danger">
-                    <h3>Response Viewer</h3>
-                    <p>Parse and display ConnectCIC request/response transaction data</p>
-                    <span class="badge active">ACTIVE</span>
-                </a>
+            <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border-radius: 6px; border-left: 4px solid #ffc107;">
+                <h3 style="font-size: 16px; margin-bottom: 10px; color: #856404;">Quick Links</h3>
+                <p style="font-size: 14px; color: #856404; margin-bottom: 10px;">Direct access to connector apps:</p>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="ca-esun/index.html" style="padding: 8px 15px; background: #3498db; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">CA eSUN</a>
+                    <a href="fl-fcic/index.html" style="padding: 8px 15px; background: #9b59b6; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">FL FCIC</a>
+                    <a href="response-viewer.html" style="padding: 8px 15px; background: #e74c3c; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">Response Viewer</a>
+                </div>
             </div>
 
         </div>
     </div>
+
+    <script>
+        // Connector routing map
+        const CONNECTOR_ROUTES = {
+            'CA_ESUN': 'ca-esun/index.html',
+            'FL_FCIC': 'fl-fcic/index.html'
+        };
+
+        const connectorRadios = document.querySelectorAll('input[name="connector"]');
+        const launchButton = document.getElementById('go-to-connector');
+
+        // Handle launch button
+        launchButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const selectedConnector = document.querySelector('input[name="connector"]:checked').value;
+            const route = CONNECTOR_ROUTES[selectedConnector];
+
+            if (route) {
+                // Save selection and navigate
+                localStorage.setItem('selectedConnector', selectedConnector);
+                window.location.href = route;
+            } else {
+                alert('Connector not yet implemented: ' + selectedConnector);
+            }
+        });
+
+        // Save selected connector to localStorage
+        connectorRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                localStorage.setItem('selectedConnector', this.value);
+            });
+        });
+
+        // Restore previous selection from localStorage
+        const savedConnector = localStorage.getItem('selectedConnector');
+        if (savedConnector) {
+            const savedRadio = document.querySelector(`input[name="connector"][value="${savedConnector}"]`);
+            if (savedRadio) {
+                savedRadio.checked = true;
+            }
+        }
+    </script>
 </body>
 </html>

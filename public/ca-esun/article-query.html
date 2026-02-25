@@ -1,0 +1,3752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article Query - CA eSUN Validator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .section {
+            background: #000000;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #ffffff;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #e0e0e0;
+        }
+
+        .form-group label .required {
+            color: #e74c3c;
+            margin-left: 3px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-group input:disabled {
+            background: #ecf0f1;
+            cursor: not-allowed;
+        }
+
+        .validate-btn {
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .validate-btn.not-ready {
+            background: #e74c3c;
+            cursor: not-allowed;
+        }
+
+        .validate-btn.not-ready:hover {
+            background: #c0392b;
+        }
+
+        .validate-btn.ready {
+            background: #2ecc71;
+        }
+
+        .validate-btn.ready:hover {
+            background: #27ae60;
+        }
+
+        .results {
+            position: sticky;
+            top: 20px;
+        }
+
+        .validation-status {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .validation-status.valid {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .validation-status.invalid {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .error-list {
+            list-style: none;
+            margin-top: 10px;
+        }
+
+        .error-list li {
+            padding: 8px 12px;
+            background: white;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            border-left: 3px solid #e74c3c;
+        }
+
+        .combination-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #90caf9;
+        }
+
+        .combination-info h3 {
+            font-size: 14px;
+            color: #1976d2;
+            margin-bottom: 8px;
+        }
+
+        .xml-output {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.5;
+        }
+
+        .field-requirements {
+            background: #fff9e6;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border: 1px solid #ffe082;
+        }
+
+        .field-requirements h3 {
+            font-size: 14px;
+            color: #f57c00;
+            margin-bottom: 10px;
+        }
+
+        .field-requirements ul {
+            margin-left: 20px;
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .results {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <a href="index.html" style="color: #3498db; text-decoration: none; font-size: 14px;">&larr; Back to Query Types</a>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="exportArticleTypesCSV()" style="background: #27ae60; color: white; border: none; border-radius: 4px; padding: 6px 14px; font-size: 13px; cursor: pointer;">&#8595; Article Types</button>
+                    <button onclick="exportArticleCategoryCSV()" style="background: #27ae60; color: white; border: none; border-radius: 4px; padding: 6px 14px; font-size: 13px; cursor: pointer;">&#8595; Categories</button>
+                    <button onclick="exportArticleBrandCSV()" style="background: #27ae60; color: white; border: none; border-radius: 4px; padding: 6px 14px; font-size: 13px; cursor: pointer;">&#8595; Brands</button>
+                </div>
+            </div>
+            <h1>Article Query Validator</h1>
+            <p>Validate stolen article queries for California eSUN system</p>
+            <p style="color: #ffffff; margin-top: 15px; font-size: 14px; line-height: 1.6;">
+                <strong style="color: #ff0000;">IMPORTANT:</strong> Inquiries using Serial (SER) or an Owner Applied Number (OAN) must be used in conjunction with TYP or BRA.
+                Inquiries using SER or OAN with TYP will be forwarded to NCIC. Using SER or OAN with BRA will only search APS.
+            </p>
+        </div>
+
+        <div class="main-content">
+            <div class="section" style="border: 9px solid red; border-radius: 6px; padding: 16px;">
+                <h2>Query Configuration</h2>
+
+                <div id="form-fields"></div>
+
+                <div id="validate-button-container"></div>
+            </div>
+
+            <div class="section results">
+                <h2>Validation Results</h2>
+                <div id="validation-results">
+                    <div class="validation-status" style="background: #e8f4f8; color: #546e7a; border-color: #b0bec5;">
+                        Enter query details and click "Validate Query" to see results
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Query specifications based on CA eSUN documentation
+        const querySpecs = {
+            'article': {
+                name: 'Article Query',
+                combinations: [
+                    {
+                        id: 1,
+                        description: 'Serial + Type + Category (forwarded to NCIC)',
+                        fields: ['articleSerialNumber', 'articleTypeCode', 'articleCategory'],
+                        keyReference: 'AQ',
+                        note: 'SER/OAN with TYP forwarded to NCIC'
+                    },
+                    {
+                        id: 2,
+                        description: 'Serial + Brand (searches APS only)',
+                        fields: ['articleSerialNumber', 'articleBrand'],
+                        keyReference: 'AQ',
+                        note: 'SER/OAN with BRA searches APS only'
+                    },
+                ]
+            }
+        };
+
+        // Field definitions
+        const fieldDefinitions = {
+            articleSerialNumber: {
+                label: 'Article Serial Number',
+                type: 'text',
+                placeholder: '',
+                hint: 'Article serial number (max 20 characters)',
+                maxLength: 20
+            },
+            articleTypeCode: {
+                label: 'Article Type Code',
+                type: 'select',
+                options: [
+                      { value: '', label: 'Select Article Type...' },
+                      { value: 'ACCORD', label: 'ACCORD - ACCORDION' },
+                      { value: 'ACCOUN', label: 'ACCOUN - ACCOUNTING MACHINE' },
+                      { value: 'ACCOIL', label: 'ACCOIL - AIR CONDITIONING COIL' },
+                      { value: 'ACTUAT', label: 'ACTUAT - ACTUATOR' },
+                      { value: 'ADAPTO', label: 'ADAPTO - ADAPTER' },
+                      { value: 'ADDING', label: 'ADDING - ADDING MACHINE' },
+                      { value: 'ADDRES', label: 'ADDRES - ADDRESS MACHINE' },
+                      { value: 'AERATO', label: 'AERATO - AERATOR' },
+                      { value: 'AIRBRU', label: 'AIRBRU - AIR BRUSH' },
+                      { value: 'AIRCON', label: 'AIRCON - AIR CONDITIONER' },
+                      { value: 'AIRHAN', label: 'AIRHAN - AIRHANDLING UNIT' },
+                      { value: 'AIRPUR', label: 'AIRPUR - AIR PURIFIER' },
+                      { value: 'AIRTIC', label: 'AIRTIC - AIRLINE TICKET' },
+                      { value: 'ALARM', label: 'ALARM - ALARM' },
+                      { value: 'ALIEN', label: 'ALIEN - GREEN CARD' },
+                      { value: 'AMMETE', label: 'AMMETE - AMMETER' },
+                      { value: 'AMPLIF', label: 'AMPLIF - AMPLIFIER' },
+                      { value: 'ANALYZ', label: 'ANALYZ - ANALYZER' },
+                      { value: 'ANGLE', label: 'ANGLE - ANGLE' },
+                      { value: 'ANKLEC', label: 'ANKLEC - ANKLE CUFFS' },
+                      { value: 'ANTENN', label: 'ANTENN - ANTENNA' },
+                      { value: 'APNMON', label: 'APNMON - APNEA MONITOR' },
+                      { value: 'AQUARI', label: 'AQUARI - AQUARIUM' },
+                      { value: 'A RIDE', label: 'A RIDE - AMUSEMENT RIDE' },
+                      { value: 'ARCADE', label: 'ARCADE - ARCADE GAME' },
+                      { value: 'ATMMAC', label: 'ATMMAC - ATM MACHINE' },
+                      { value: 'ATTENU', label: 'ATTENU - ATTENUATOR' },
+                      { value: 'AUDIOM', label: 'AUDIOM - AUDIOMETER' },
+                      { value: 'AUGER', label: 'AUGER - AUGER' },
+                      { value: 'AUTOHA', label: 'AUTOHA - AUTOHARP' },
+                      { value: 'AUTOPI', label: 'AUTOPI - AUTOMATIC PILOT' },
+                      { value: 'B 01', label: 'B01 - BOY 1 SPEED BIKE' },
+                      { value: 'B 02', label: 'B02 - BOY 2 SPEED BIKE' },
+                      { value: 'B 03', label: 'B03 - BOY 3 SPEED BIKE' },
+                      { value: 'B 04', label: 'B04 - BOY 4 SPEED BIKE' },
+                      { value: 'B 05', label: 'B05 - BOY 5 SPEED BIKE' },
+                      { value: 'B 06', label: 'B06 - BOY 6 SPEED BIKE' },
+                      { value: 'B 07', label: 'B07 - BOY 7 SPEED BIKE' },
+                      { value: 'B 08', label: 'B08 - BOY 8 SPEED BIKE' },
+                      { value: 'B 09', label: 'B09 - BOY 9 SPEED BIKE' },
+                      { value: 'B 10', label: 'B10 - BOY 10 SPEED BIKE' },
+                      { value: 'B 11', label: 'B11 - BOY 11 SPEED BIKE' },
+                      { value: 'B 12', label: 'B12 - BOY 12 SPEED BIKE' },
+                      { value: 'B 13', label: 'B13 - BOY 13 SPEED BIKE' },
+                      { value: 'B 14', label: 'B14 - BOY 14 SPEED BIKE' },
+                      { value: 'B 15', label: 'B15 - BOY 15 SPEED BIKE' },
+                      { value: 'B 16', label: 'B16 - BOY 16 SPEED BIKE' },
+                      { value: 'B 17', label: 'B17 - BOY 17 SPEED BIKE' },
+                      { value: 'B 18', label: 'B18 - BOY 18 SPEED BIKE' },
+                      { value: 'B 19', label: 'B19 - BOY 19 SPEED BIKE' },
+                      { value: 'B 20', label: 'B20 - BOY 20 SPEED BIKE' },
+                      { value: 'B 21', label: 'B21 - BOY 21 SPEED BIKE' },
+                      { value: 'B 22', label: 'B22 - BOY 22 SPEED BIKE' },
+                      { value: 'B 23', label: 'B23 - BOY 23 SPEED BIKE' },
+                      { value: 'B 24', label: 'B24 - BOY 24 SPEED BIKE' },
+                      { value: 'B 26', label: 'B26 - BOY 26 SPEED BIKE' },
+                      { value: 'B 27', label: 'B27 - BOY 27 SPEED BIKE' },
+                      { value: 'B 28', label: 'B28 - BOY 28 SPEED BIKE' },
+                      { value: 'B 30', label: 'B30 - BOY 30 SPEED BIKE' },
+                      { value: 'B 32', label: 'B32 - BOY 32 SPEED BIKE' },
+                      { value: 'B 36', label: 'B36 - BOY 36 SPEED BIKE' },
+                      { value: 'B ACCE', label: 'B ACCE - BICYCLE ACCESSORIES' },
+                      { value: 'B APPA', label: 'B APPA - BREATHING APPARATUS/OXYGEN' },
+                      { value: 'B CONT', label: 'B CONT - BEEHIVE CONTAINER' },
+                      { value: 'B HARN', label: 'B HARN - BODY HARNESS' },
+                      { value: 'B KEG', label: 'B KEG - BEER KEG' },
+                      { value: 'B PACK', label: 'B PACK - BATTERY PACK, RECHARGEABLE' },
+                      { value: 'B PLAT', label: 'B PLAT - BASE PLATE' },
+                      { value: 'B RAM', label: 'B RAM - BATTERING RAM' },
+                      { value: 'BACK', label: 'BACK - CAMERA BACK' },
+                      { value: 'BADGE', label: 'BADGE - BADGE, METAL ONLY' },
+                      { value: 'BAG', label: 'BAG - SLEEPING BAG' },
+                      { value: 'BALANC', label: 'BALANC - BALANCER' },
+                      { value: 'BALL', label: 'BALL - BALL' },
+                      { value: 'BANJO', label: 'BANJO - BANJO' },
+                      { value: 'BANKBA', label: 'BANKBA - BAG, BANK BAG/MONEY BAG' },
+                      { value: 'B BAR', label: 'B BAR - BORING BAR' },
+                      { value: 'BARCOD', label: 'BARCOD - BAR CODE READER' },
+                      { value: 'BARITO', label: 'BARITO - BARITONE' },
+                      { value: 'BASS', label: 'BASS - BASS' },
+                      { value: 'BASSOO', label: 'BASSOO - BASSOON' },
+                      { value: 'BAT', label: 'BAT - BASEBALL BAT' },
+                      { value: 'BATCHG', label: 'BATCHG - BATTERY CHARGER, AUTOMOBILE' },
+                      { value: 'BATON', label: 'BATON - BATON' },
+                      { value: 'BAYONE', label: 'BAYONE - BAYONET' },
+                      { value: 'BBGUN', label: 'BBGUN - BBGUN, PELLET GUN' },
+                      { value: 'BED', label: 'BED - BED' },
+                      { value: 'BELL', label: 'BELL - BELLS, MUSICAL INSTRUMENT' },
+                      { value: 'BELT', label: 'BELT - BELT' },
+                      { value: 'BENCH', label: 'BENCH - BENCH' },
+                      { value: 'BENDER', label: 'BENDER - BENDER, PIPE/METAL (NOT VEHICLE)' },
+                      { value: 'BEVEL', label: 'BEVEL - BEVEL' },
+                      { value: 'BICYCL', label: 'BICYCL - BICYCLE' },
+                      { value: 'BINDER', label: 'BINDER - BINDER' },
+                      { value: 'BINDIN', label: 'BINDIN - BINDING MACHINE, SKI BINDER' },
+                      { value: 'BINOCU', label: 'BINOCU - BINOCULARS' },
+                      { value: 'BIOLOG', label: 'BIOLOG - BIOLOGICAL' },
+                      { value: 'BIRD', label: 'BIRD - BIRD' },
+                      { value: 'BIRTHC', label: 'BIRTHC - BIRTH CERTIFICATE' },
+                      { value: 'BIT', label: 'BIT - BIT (NOT WELL DRILLING)' },
+                      { value: 'BLADE', label: 'BLADE - BLADE' },
+                      { value: 'BLANKG', label: 'BLANKG - BLANK GUN (Stage gun, fake)' },
+                      { value: 'BLENDE', label: 'BLENDE - BLENDER' },
+                      { value: 'BLOWER', label: 'BLOWER - BLOWER' },
+                      { value: 'BOARD', label: 'BOARD - BOARD GAME/DART BOARD' },
+                      { value: 'BODY', label: 'BODY - CAMERA BODY' },
+                      { value: 'BOLTCU', label: 'BOLTCU - BOLTCUTTER' },
+                      { value: 'BOOK', label: 'BOOK - BOOK' },
+                      { value: 'BOOKCA', label: 'BOOKCA - BOOKCASE' },
+                      { value: 'BOOKEN', label: 'BOOKEN - BOOKENDS' },
+                      { value: 'BOTTLE', label: 'BOTTLE - BOTTLE' },
+                      { value: 'BOW', label: 'BOW - BOW, CROSSBOW SPORTS' },
+                      { value: 'BOWL', label: 'BOWL - BOWL, SILVER/CHINA' },
+                      { value: 'BRACEL', label: 'BRACEL - BRACELET' },
+                      { value: 'BRAKE', label: 'BRAKE - BRAKE (NOT VEHICLE)' },
+                      { value: 'BREADM', label: 'BREADM - BREAD MACHINE' },
+                      { value: 'BREAKE', label: 'BREAKE - BREAKER' },
+                      { value: 'BRONCH', label: 'BRONCH - BRONCHOSCOPE' },
+                      { value: 'BRTANL', label: 'BRTANL - BREATH ANALYZER/TESTER' },
+                      { value: 'BRUSH', label: 'BRUSH - BRUSH' },
+                      { value: 'BUCKLE', label: 'BUCKLE - BUCKLE' },
+                      { value: 'BUFFER', label: 'BUFFER - BUFFER' },
+                      { value: 'BUGLE', label: 'BUGLE - BUGLE' },
+                      { value: 'BULLIO', label: 'BULLIO - INGOT, BULLION' },
+                      { value: 'BWATER', label: 'BWATER - BACKFLOW WATER UNIT' },
+                      { value: 'C BASE', label: 'C BASE - CAMERA BASE' },
+                      { value: 'C BELT', label: 'C BELT - CLIMBING BELT' },
+                      { value: 'C COMP', label: 'C COMP - COMPUTER COMPONENTS' },
+                      { value: 'C CONS', label: 'C CONS - CARD CONSOLE' },
+                      { value: 'C DUPL', label: 'C DUPL - CASSETTE DUPLICATOR' },
+                      { value: 'C LANY', label: 'C LANY - CONSTRUCTION LANYARD' },
+                      { value: 'C LINK', label: 'C LINK - CUFF LINKS' },
+                      { value: 'C SEAT', label: 'C SEAT - CAR SEAT (CHILDS)' },
+                      { value: 'CABINE', label: 'CABINE - CABINET' },
+                      { value: 'CABLE', label: 'CABLE - CABLE' },
+                      { value: 'CABLEC', label: 'CABLEC - CABLE TV CONVERTER' },
+                      { value: 'CABLEL', label: 'CABLEL - CABLE LOCATOR' },
+                      { value: 'CALCUL', label: 'CALCUL - CALCULATOR' },
+                      { value: 'CALIBR', label: 'CALIBR - CALIBRATOR' },
+                      { value: 'CALIPE', label: 'CALIPE - CALIPER' },
+                      { value: 'CALLER', label: 'CALLER - CALL BOX (EMERG ROAD CALL)' },
+                      { value: 'CAMCOR', label: 'CAMCOR - CAMCORDER' },
+                      { value: 'CAMERA', label: 'CAMERA - CAMERA' },
+                      { value: 'CAMPST', label: 'CAMPST - CAMPSTOVE' },
+                      { value: 'CANDEL', label: 'CANDEL - CANDELABRA' },
+                      { value: 'CANE', label: 'CANE - CANE' },
+                      { value: 'CARDIO', label: 'CARDIO - CARDIOGRAPH' },
+                      { value: 'CARRIE', label: 'CARRIE - CARRIER' },
+                      { value: 'CARPET', label: 'CARPET - ORIENTAL CARPET' },
+                      { value: 'CART', label: 'CART - CART' },
+                      { value: 'CARTRI', label: 'CARTRI - CARTRIDGE' },
+                      { value: 'CASE', label: 'CASE - CASE' },
+                      { value: 'CASHRE', label: 'CASHRE - CASH REGISTER' },
+                      { value: 'CASTIN', label: 'CASTIN - CASTING MACHINE' },
+                      { value: 'CATTLE', label: 'CATTLE - CATTLE' },
+                      { value: 'CATWOR', label: 'CATWOR - CATWORK' },
+                      { value: 'CBRADI', label: 'CBRADI - CITIZEN BAND RADIO' },
+                      { value: 'CDCHAN', label: 'CDCHAN - CD CHANGER' },
+                      { value: 'CDPLAY', label: 'CDPLAY - CD PLAYER' },
+                      { value: 'CDRECO', label: 'CDRECO - CD RECORDER/WRITER' },
+                      { value: 'CDROM', label: 'CDROM - CD ROM DRIVE' },
+                      { value: 'CELLO', label: 'CELLO - CELLO' },
+                      { value: 'CELLPH', label: 'CELLPH - CELLPHONE/SMARTPHONE' },
+                      { value: 'CERTIF', label: 'CERTIF - CERTIFICATE/GIFTS' },
+                      { value: 'CHAIR', label: 'CHAIR - CHAIR' },
+                      { value: 'CHAINS', label: 'CHAINS - CHAIN SAW' },
+                      { value: 'CHANGE', label: 'CHANGE - CHANGE MACHINE' },
+                      { value: 'CHANNE', label: 'CHANNE - CHANNEL SELECTOR' },
+                      { value: 'CHARGE', label: 'CHARGE - BATTERY CHARGER' },
+                      { value: 'CHARM', label: 'CHARM - CHARM, JEWELRY' },
+                      { value: 'CHECKS', label: 'CHECKS - CHECKS, PERSONAL/BUSINESS' },
+                      { value: 'CHECKW', label: 'CHECKW - CHECKWRITER/CHECK PROTECTOR' },
+                      { value: 'CHEST', label: 'CHEST - CHEST, DRESSER' },
+                      { value: 'CHILLE', label: 'CHILLE - CHILLER' },
+                      { value: 'CHIPPE', label: 'CHIPPE - CHIPPER' },
+                      { value: 'CHISEL', label: 'CHISEL - CHISEL' },
+                      { value: 'CHOPPE', label: 'CHOPPE - CHOPPER' },
+                      { value: 'CHRONO', label: 'CHRONO - CHRONOMETER' },
+                      { value: 'CIRCUI', label: 'CIRCUI - CIRCUIT BOARD/CARD' },
+                      { value: 'CITIZN', label: 'CITIZN - CITIZEN (NATURALIZATION)' },
+                      { value: 'CLAMPS', label: 'CLAMPS - CLAMPS' },
+                      { value: 'CLARIN', label: 'CLARIN - CLARINET' },
+                      { value: 'CLEANE', label: 'CLEANE - CLEANER' },
+                      { value: 'CLIPPE', label: 'CLIPPE - CLIPPERS' },
+                      { value: 'CLOCK', label: 'CLOCK - CLOCK' },
+                      { value: 'CLOTHI', label: 'CLOTHI - CLOTHING' },
+                      { value: 'COAT', label: 'COAT - COAT' },
+                      { value: 'COFFEE', label: 'COFFEE - COFFEE MAKER' },
+                      { value: 'COIL', label: 'COIL - COIL' },
+                      { value: 'COIN', label: 'COIN - COIN SETS' },
+                      { value: 'COINBO', label: 'COINBO - COINBOX' },
+                      { value: 'COINSO', label: 'COINSO - COIN SORTER' },
+                      { value: 'COLLAR', label: 'COLLAR - COLLAR' },
+                      { value: 'COLLEC', label: 'COLLEC - COLLECTABLE' },
+                      { value: 'COMBO', label: 'COMBO - COMPACT DISC PLAYER/RADIO COMBO' },
+                      { value: 'COMPAC', label: 'COMPAC - COMPACTOR' },
+                      { value: 'COMPAS', label: 'COMPAS - COMPASS' },
+                      { value: 'COMPON', label: 'COMPON - COMPONENT' },
+                      { value: 'COMPRE', label: 'COMPRE - COMPRESSOR' },
+                      { value: 'COMPTO', label: 'COMPTO - COMPTOGRAPH' },
+                      { value: 'COMPUT', label: 'COMPUT - COMPUTER' },
+                      { value: 'CONDEN', label: 'CONDEN - CONDENSER' },
+                      { value: 'CONSOL', label: 'CONSOL - CONSOLE' },
+                      { value: 'CONSTR', label: 'CONSTR - CONSTRUCTION EQUIPMENT' },
+                      { value: 'CONTAI', label: 'CONTAI - CONTAINER, STORAGE' },
+                      { value: 'CONTRO', label: 'CONTRO - CONTROLLER' },
+                      { value: 'CONVER', label: 'CONVER - CONVERTER' },
+                      { value: 'CONVEY', label: 'CONVEY - CONVEYOR' },
+                      { value: 'COOKER', label: 'COOKER - COOKER, RICE & ALL OTHER' },
+                      { value: 'COOLER', label: 'COOLER - COOLER, ICE CHEST' },
+                      { value: 'COPIER', label: 'COPIER - COPY MACHINE' },
+                      { value: 'CORNET', label: 'CORNET - CORNET' },
+                      { value: 'CORROS', label: 'CORROS - CORROSIVE' },
+                      { value: 'COUCH', label: 'COUCH - DAVENPORT, COUCH, LOVESEAT, SOFA' },
+                      { value: 'COUNTE', label: 'COUNTE - COUNTER' },
+                      { value: 'COUPLE', label: 'COUPLE - COUPLER' },
+                      { value: 'COVER', label: 'COVER - COVER' },
+                      { value: 'CPU', label: 'CPU - CENTRAL PROCESSING UNIT' },
+                      { value: 'CREDEN', label: 'CREDEN - CREDENTIALS' },
+                      { value: 'CREDIT', label: 'CREDIT - CREDIT CARD' },
+                      { value: 'CRIMPE', label: 'CRIMPE - CRIMPER' },
+                      { value: 'CROSSO', label: 'CROSSO - CROSSOVER (FOR STEREO SYSTEM)' },
+                      { value: 'CRT', label: 'CRT - CATHODE RAY TUBE, MONITOR' },
+                      { value: 'CRUTCH', label: 'CRUTCH - CRUTCH' },
+                      { value: 'CRYSTA', label: 'CRYSTA - CRYSTAL' },
+                      { value: 'CUTTER', label: 'CUTTER - CUTTER' },
+                      { value: 'CYLIND', label: 'CYLIND - CYLINDER' },
+                      { value: 'CYMBAL', label: 'CYMBAL - CYMBAL' },
+                      { value: 'DAGGER', label: 'DAGGER - DAGGER' },
+                      { value: 'D DELA', label: 'D DELA - DIGITAL DELAY PROCESSOR' },
+                      { value: 'D PLAT', label: 'D PLAT - DIGITAL PLATE' },
+                      { value: 'D RAMP', label: 'D RAMP - WAREHOUSE LOADING DOCK RAMP' },
+                      { value: 'D READ', label: 'D READ - DIGITAL READOUT' },
+                      { value: 'DECANT', label: 'DECANT - DECANTER' },
+                      { value: 'DECODE', label: 'DECODE - DECODER' },
+                      { value: 'DEFIBR', label: 'DEFIBR - DEFIBRILLATOR' },
+                      { value: 'DEHUMI', label: 'DEHUMI - DEHUMIDIFIER' },
+                      { value: 'DENTCL', label: 'DENTCL - DENTAL CLEANING SYSTEM' },
+                      { value: 'DEPTHF', label: 'DEPTHF - DEPTHFINDER, DEPTHSOUNDER' },
+                      { value: 'DESCRA', label: 'DESCRA - DESCRAMBLER' },
+                      { value: 'DESK', label: 'DESK - DESK' },
+                      { value: 'DETECT', label: 'DETECT - DETECTOR' },
+                      { value: 'DIAGNO', label: 'DIAGNO - DIAGNOSTIC UNIT' },
+                      { value: 'DIAGSC', label: 'DIAGSC - DIAGNOSTIC SCANNER' },
+                      { value: 'DIALER', label: 'DIALER - DIALER, AUTOMATIC TELEPHONE' },
+                      { value: 'DICTAT', label: 'DICTAT - DICTATING MACHINE' },
+                      { value: 'DICTIO', label: 'DICTIO - DICTIONARY, ELECTRONIC' },
+                      { value: 'DIESET', label: 'DIESET - DIE TOOL SET' },
+                      { value: 'DIGCAM', label: 'DIGCAM - DIGITAL CAMERA' },
+                      { value: 'DIGREC', label: 'DIGREC - RECEIVER, DIGITAL SATELLITE' },
+                      { value: 'DIGIT', label: 'DIGIT - DATA /DIGITIZER' },
+                      { value: 'DIGITI', label: 'DIGITI - DIGITIZER' },
+                      { value: 'DIGPRO', label: 'DIGPRO - DIGITAL PROJECTOR' },
+                      { value: 'DIRECT', label: 'DIRECT - DIRECTION FINDER' },
+                      { value: 'DISC', label: 'DISC - AUDIO DISC, LASER' },
+                      { value: 'DISH', label: 'DISH - DISHES (ALL TYPES)' },
+                      { value: 'DISHWA', label: 'DISHWA - DISHWASHER' },
+                      { value: 'DISK', label: 'DISK - DISK, HARD/FLOPPY/MAGNETIC/DISKETTE' },
+                      { value: 'DISPEN', label: 'DISPEN - BEVERAGE DISPENSER' },
+                      { value: 'DISPOS', label: 'DISPOS - DISPOSAL, GARBAGE' },
+                      { value: 'DISTOR', label: 'DISTOR - DISTORTION UNIT' },
+                      { value: 'DMMDEV', label: 'DMMDEV - DIGITAL MULTIMEDIA DEVICE' },
+                      { value: 'DOCSTA', label: 'DOCSTA - DOCKING STATION (COMPUTERS/TABLETS/EREADERS)' },
+                      { value: 'DOG', label: 'DOG - DOG' },
+                      { value: 'DOGTAG', label: 'DOGTAG - DOG TAG (NOT ANIMAL)' },
+                      { value: 'DOLL', label: 'DOLL - DOLL' },
+                      { value: 'DOOR', label: 'DOOR - DOOR' },
+                      { value: 'DOOROP', label: 'DOOROP - DOOR OPENER (GARAGE)' },
+                      { value: 'DOPPLE', label: 'DOPPLE - DOPPLER, MEASURE FETAL HEARTBEAT' },
+                      { value: 'DOSIME', label: 'DOSIME - DOSIMETER' },
+                      { value: 'DPLCTR', label: 'DPLCTR - DISKETTE DUPLACTOR' },
+                      { value: 'DRAFTI', label: 'DRAFTI - DRAFTING MACHINE' },
+                      { value: 'DRILL', label: 'DRILL - DRILL' },
+                      { value: 'DRILLP', label: 'DRILLP - DRILL PRESS' },
+                      { value: 'DRILLU', label: 'DRILLU - DRILL UNIT, ROTARY TABLE' },
+                      { value: 'DRIVES', label: 'DRIVES - DISK DRIVE, DRIVE SYSTEM' },
+                      { value: 'DRIVER', label: 'DRIVER - DRIVER\'S LICENSE' },
+                      { value: 'DRONE', label: 'DRONE - DRONE UNDER .55 LBS' },
+                      { value: 'DRUM', label: 'DRUM - DRUM' },
+                      { value: 'DRUMMA', label: 'DRUMMA - DRUM MACHINE/RHYTHM MACHINE' },
+                      { value: 'DRYER', label: 'DRYER - CLOTHES DRYER' },
+                      { value: 'DRYWAS', label: 'DRYWAS - DRYWASHER, HIGHBANKER' },
+                      { value: 'DSTATI', label: 'DSTATI - DOCKING STATION' },
+                      { value: 'DULCIM', label: 'DULCIM - DULCIMER' },
+                      { value: 'DUMPST', label: 'DUMPST - DUMPSTER' },
+                      { value: 'DVCOMB', label: 'DVCOMB - DVD/VCR COMBO' },
+                      { value: 'E BOX', label: 'E BOX - ELECTRICAL BOX' },
+                      { value: 'E EQUI', label: 'E EQUI - EXERCISE EQUIPMENT (NONE-DEFINED)(CA ONLY)' },
+                      { value: 'EARRIN', label: 'EARRIN - EARRING' },
+                      { value: 'EBT', label: 'EBT - ELECTRONIC BENEFITS TRANSFER (EBT)' },
+                      { value: 'EDGER', label: 'EDGER - EDGER' },
+                      { value: 'EDITOR', label: 'EDITOR - EDITOR, FILM OR VIDEO TAPE' },
+                      { value: 'EGAME', label: 'EGAME - ELECTRONIC GAME/TV GAME' },
+                      { value: 'EKGMCH', label: 'EKGMCH - EKG MACHINE' },
+                      { value: 'ELCMAP', label: 'ELCMAP - ELECTRONIC MAP' },
+                      { value: 'EMACHI', label: 'EMACHI - E MACHINE (ELECTRONIC E-MAIL)' },
+                      { value: 'EMBROI', label: 'EMBROI - EMBROIDERY MACHINE' },
+                      { value: 'ENCODE', label: 'ENCODE - ENCODER' },
+                      { value: 'ENGINE', label: 'ENGINE - ENGINE (NOT VEHICLE)' },
+                      { value: 'ENGRAV', label: 'ENGRAV - ENGRAVING MACHINE' },
+                      { value: 'ENHANC', label: 'ENHANC - ENHANCER, STABILIZER (AUDIO/VIDEO)' },
+                      { value: 'ENLARG', label: 'ENLARG - ENLARGER (CAMERA EQUIPMENT)' },
+                      { value: 'ENVELO', label: 'ENVELO - ENVELOPE MACHINE' },
+                      { value: 'EPAHAZ', label: 'EPAHAZ - ENVIRONMENTAL HAZARDOUS WASTE' },
+                      { value: 'EPROMP', label: 'EPROMP - EPROM PROGRAMMER' },
+                      { value: 'EQUALI', label: 'EQUALI - EQUALIZER (STEREO EQUIPMENT)' },
+                      { value: 'ETCHIN', label: 'ETCHIN - ETCHING' },
+                      { value: 'EVAPOR', label: 'EVAPOR - EVAPORATOR' },
+                      { value: 'EXERCY', label: 'EXERCY - EXERCYCLE/EXERCISE BIKE' },
+                      { value: 'EXPAND', label: 'EXPAND - EXPANDER, RANGE' },
+                      { value: 'EXPLOS', label: 'EXPLOS - EXPLOSIVE' },
+                      { value: 'EXTEND', label: 'EXTEND - EXTENDER LENS' },
+                      { value: 'EXTENS', label: 'EXTENS - EXTENSION' },
+                      { value: 'EXTRAC', label: 'EXTRAC - EXTRACTOR' },
+                      { value: 'EYEGLA', label: 'EYEGLA - EYEGLASSES, (OR) FRAMES' },
+                      { value: 'F COUN', label: 'F COUN - FREQUENCY COUNTER' },
+                      { value: 'F MACH', label: 'F MACH - FOG MACHINE' },
+                      { value: 'F PEDA', label: 'F PEDA - FOOT PEDAL (AUDIO EQUIPMENT)' },
+                      { value: 'F PROC', label: 'F PROC - FOOD PROCESSOR' },
+                      { value: 'F UNIT', label: 'F UNIT - FILM UNIT' },
+                      { value: 'FACSIM', label: 'FACSIM - FAX MACHINE (FACSIMILE)' },
+                      { value: 'FADER', label: 'FADER - FADER, STEREO' },
+                      { value: 'FAN', label: 'FAN - FAN' },
+                      { value: 'FASTEN', label: 'FASTEN - FASTENER' },
+                      { value: 'FAUCET', label: 'FAUCET - FAUCET' },
+                      { value: 'FAXMOD', label: 'FAXMOD - EXTERNAL FAX MODEM' },
+                      { value: 'FEEDER', label: 'FEEDER - FEEDER' },
+                      { value: 'FELINE', label: 'FELINE - FELINE, CAT' },
+                      { value: 'F GUN', label: 'F GUN - FLARE GUN' },
+                      { value: 'FIGURI', label: 'FIGURI - STATUE, FIGURINE' },
+                      { value: 'FILM', label: 'FILM - FILM' },
+                      { value: 'FILTER', label: 'FILTER - FILTER' },
+                      { value: 'FINISH', label: 'FINISH - FINISHING MACHINE' },
+                      { value: 'FIREEX', label: 'FIREEX - FIRE EXTINGUISHER' },
+                      { value: 'FIREHY', label: 'FIREHY - FIRE HYDRANT' },
+                      { value: 'FISHIN', label: 'FISHIN - FISHING POLE/ROD' },
+                      { value: 'FLALIQ', label: 'FLALIQ - FLAMMABLE LIQUIDS' },
+                      { value: 'FLAMET', label: 'FLAMET - FLAMETHROWER' },
+                      { value: 'FLASOL', label: 'FLASOL - FLAMMABLE SOLIDS' },
+                      { value: 'FLASH', label: 'FLASH - FLASH, CAMERA' },
+                      { value: 'FLASHL', label: 'FLASHL - FLASHLIGHT' },
+                      { value: 'FLUTE', label: 'FLUTE - FLUTE' },
+                      { value: 'FOB', label: 'FOB - FOB' },
+                      { value: 'FOLDER', label: 'FOLDER - FOLDING MACHINE' },
+                      { value: 'FOOTWE', label: 'FOOTWE - FOOTWEAR (SPECIALIZED)' },
+                      { value: 'FRAME', label: 'FRAME - FRAME' },
+                      { value: 'FREEZE', label: 'FREEZE - FREEZER' },
+                      { value: 'FRNREC', label: 'FRNREC - FREON RECOVERY UNIT' },
+                      { value: 'FRYER', label: 'FRYER - FRYER' },
+                      { value: 'FSBOOK', label: 'FSBOOK - FOOD STAMP BOOK' },
+                      { value: 'FSCOUP', label: 'FSCOUP - FOOD STAMP COUPON' },
+                      { value: 'FUR', label: 'FUR - FUR CLOTHING' },
+                      { value: 'FURNAC', label: 'FURNAC - FURNACE' },
+                      { value: 'FURNIT', label: 'FURNIT - FURNITURE' },
+                      { value: 'FUSE', label: 'FUSE - FUSE' },
+                      { value: 'FUSION', label: 'FUSION - FUSION MACHINE' },
+                      { value: 'FUSSPL', label: 'FUSSPL - FUSION SPLICER' },
+                      { value: 'G 01', label: 'G01 - GIRL 1 SPEED BIKE' },
+                      { value: 'G 02', label: 'G02 - GIRL 2 SPEED BIKE' },
+                      { value: 'G 03', label: 'G03 - GIRL 3 SPEED BIKE' },
+                      { value: 'G 04', label: 'G04 - GIRL 4 SPEED BIKE' },
+                      { value: 'G 05', label: 'G05 - GIRL 5 SPEED BIKE' },
+                      { value: 'G 06', label: 'G06 - GIRL 6 SPEED BIKE' },
+                      { value: 'G 07', label: 'G07 - GIRL 7 SPEED BIKE' },
+                      { value: 'G 08', label: 'G08 - GIRL 8 SPEED BIKE' },
+                      { value: 'G 10', label: 'G10 - GIRL 10 SPEED BIKE' },
+                      { value: 'G 13', label: 'G13 - GIRL 13 SPEED BIKE' },
+                      { value: 'G 15', label: 'G15 - GIRL 15 SPEED BIKE' },
+                      { value: 'G 16', label: 'G16 - GIRL 16 SPEED BIKE' },
+                      { value: 'G 18', label: 'G18 - GIRL 18 SPEED BIKE' },
+                      { value: 'G 19', label: 'G19 - GIRL 19 SPEED BIKE' },
+                      { value: 'G 20', label: 'G20 - GIRL 20 SPEED BIKE' },
+                      { value: 'G 21', label: 'G21 - GIRL 21 SPEED BIKE' },
+                      { value: 'G 22', label: 'G22 - GIRL 22 SPEED BIKE' },
+                      { value: 'G 24', label: 'G24 - GIRL 24 SPEED BIKE' },
+                      { value: 'G 26', label: 'G26 - GIRL 26 SPEED BIKE' },
+                      { value: 'G 27', label: 'G27 - GIRL 27 SPEED BIKE' },
+                      { value: 'G 28', label: 'G28 - GIRL 28 SPEED BIKE' },
+                      { value: 'G 30', label: 'G30 - GIRL 30 SPEED BIKE' },
+                      { value: 'G 32', label: 'G32 - GIRL 32 SPEED BIKE' },
+                      { value: 'G CATC', label: 'G CATC - GRASS CATCHER' },
+                      { value: 'G D OP', label: 'G D OP - OPENER, GARAGE DOOR' },
+                      { value: 'GASMAS', label: 'GASMAS - GAS MASK' },
+                      { value: 'GAUGE', label: 'GAUGE - GAUGE' },
+                      { value: 'GEAR', label: 'GEAR - GEAR' },
+                      { value: 'GEMSTO', label: 'GEMSTO - GEMSTONE' },
+                      { value: 'GENERA', label: 'GENERA - GENERATOR (NOT AUTO/BOAT/FARM EQ)' },
+                      { value: 'GGASES', label: 'GGASES - GAS' },
+                      { value: 'GLOVE', label: 'GLOVE - GLOVE' },
+                      { value: 'GOAT', label: 'GOAT - GOAT' },
+                      { value: 'GOGGLE', label: 'GOGGLE - GOGGLES' },
+                      { value: 'GOLDDR', label: 'GOLDDR - GOLD DREDGE' },
+                      { value: 'GOLFCA', label: 'GOLFCA - GOLF CART (NON- RIDING)' },
+                      { value: 'GOLFCL', label: 'GOLFCL - GOLF CLUBS' },
+                      { value: 'GPOSYS', label: 'GPOSYS - GLOBAL POSITIONING SYSTEM (GPS)' },
+                      { value: 'GPU', label: 'GPU - GLOBAL POSITIONING UNIT' },
+                      { value: 'GRAPHI', label: 'GRAPHI - GRAPHIC INPUT DRAWING BOARD' },
+                      { value: 'GREASE', label: 'GREASE - GREASE GUN' },
+                      { value: 'GREENH', label: 'GREENH - GREENHOUSE/GROWING SYSTEM' },
+                      { value: 'GRILL', label: 'GRILL - BARBECUE' },
+                      { value: 'GRINDE', label: 'GRINDE - GRINDER' },
+                      { value: 'GROOVE', label: 'GROOVE - GROOVER' },
+                      { value: 'GUITAR', label: 'GUITAR - GUITAR' },
+                      { value: 'GYROSC', label: 'GYROSC - GYROSCOPE' },
+                      { value: 'HABRAC', label: 'HABRAC - HOUSE ARREST BRACELET' },
+                      { value: 'HACKSA', label: 'HACKSA - HACKSAW' },
+                      { value: 'HAIRSE', label: 'HAIRSE - HAIRSETTER' },
+                      { value: 'HAMMER', label: 'HAMMER - HAMMER' },
+                      { value: 'HANDCO', label: 'HANDCO - HAND CONTROLS, COMPUTER' },
+                      { value: 'HANDCU', label: 'HANDCU - HANDCUFFS' },
+                      { value: 'HANDLE', label: 'HANDLE - HANDLE' },
+                      { value: 'HANDPI', label: 'HANDPI - HANDPIECE (DENTAL EQUIPMENT)' },
+                      { value: 'HANDTR', label: 'HANDTR - HAND TRUCK' },
+                      { value: 'HARMON', label: 'HARMON - HARMONICA' },
+                      { value: 'HARNES', label: 'HARNES - ANIMAL HARNESS' },
+                      { value: 'HARP', label: 'HARP - HARP' },
+                      { value: 'HAT', label: 'HAT - HAT' },
+                      { value: 'HATCHE', label: 'HATCHE - HATCHET' },
+                      { value: 'HEAD', label: 'HEAD - HEAD' },
+                      { value: 'HEADSE', label: 'HEADSE - HEADSET' },
+                      { value: 'HEARIN', label: 'HEARIN - HEARING AID' },
+                      { value: 'HEATER', label: 'HEATER - HEATER' },
+                      { value: 'HEATPU', label: 'HEATPU - HEAT PUMP' },
+                      { value: 'HEDGEC', label: 'HEDGEC - HEDGE CUTTER' },
+                      { value: 'HELMET', label: 'HELMET - HELMET' },
+                      { value: 'HOE', label: 'HOE - HOE' },
+                      { value: 'HOIST', label: 'HOIST - HOIST' },
+                      { value: 'HOLSTE', label: 'HOLSTE - HOLSTER' },
+                      { value: 'HOMGYM', label: 'HOMGYM - GYM, HOMEGYM' },
+                      { value: 'HOOD', label: 'HOOD - RANGE HOOD' },
+                      { value: 'HORN', label: 'HORN - HORN' },
+                      { value: 'HORSE', label: 'HORSE - HORSE, EQUINE' },
+                      { value: 'HORSER', label: 'HORSER - HORSE RACING EQUIPMENT' },
+                      { value: 'HOSE', label: 'HOSE - HOSE' },
+                      { value: 'HOTTUB', label: 'HOTTUB - HOT TUB' },
+                      { value: 'HRSTYL', label: 'HRSTYL - HAIRSTYLING TOOLS' },
+                      { value: 'HUMIDI', label: 'HUMIDI - HUMIDIFIER' },
+                      { value: 'ICECRE', label: 'ICECRE - ICE CREAM MAKER' },
+                      { value: 'ICEMAK', label: 'ICEMAK - ICE MAKER' },
+                      { value: 'ICESHA', label: 'ICESHA - ICE SHAVER' },
+                      { value: 'IMPRIN', label: 'IMPRIN - IMPRINT MACHINE' },
+                      { value: 'INDICA', label: 'INDICA - INDICATOR' },
+                      { value: 'INJECT', label: 'INJECT - INJECTOR' },
+                      { value: 'INSTRU', label: 'INSTRU - INSTRUMENT (NOT MUSICAL)' },
+                      { value: 'INTERC', label: 'INTERC - INTERCOM' },
+                      { value: 'INTERF', label: 'INTERF - INTERFACE MODULE, BUFFER' },
+                      { value: 'INVERT', label: 'INVERT - INVERTER' },
+                      { value: 'IRON', label: 'IRON - IRON' },
+                      { value: 'ISKATE', label: 'ISKATE - ICE SKATES' },
+                      { value: 'JACK', label: 'JACK - JACK' },
+                      { value: 'JACKET', label: 'JACKET - JACKET' },
+                      { value: 'JEWELB', label: 'JEWELB - JEWEL BOX' },
+                      { value: 'JIG', label: 'JIG - JIG' },
+                      { value: 'JOINTE', label: 'JOINTE - JOINTER' },
+                      { value: 'JOYST', label: 'JOYST - JOYSTICK, COMPUTER' },
+                      { value: 'JUICER', label: 'JUICER - JUICER' },
+                      { value: 'JUKEBO', label: 'JUKEBO - JUKEBOX' },
+                      { value: 'K KICK', label: 'K KICK - KNEE KICKER (CARPET LAYING)' },
+                      { value: 'KARAOK', label: 'KARAOK - KARAOKE' },
+                      { value: 'KELLYS', label: 'KELLYS - KELLY SPINNER' },
+                      { value: 'KETTLE', label: 'KETTLE - KETTLE (HOUSEHOLD APPLIANCE)' },
+                      { value: 'KEY', label: 'KEY - KEY (ALL KINDS)' },
+                      { value: 'KEYBOA', label: 'KEYBOA - KEYBOARD' },
+                      { value: 'KEYMAK', label: 'KEYMAK - KEY MAKING MACHINE' },
+                      { value: 'KEYPAD', label: 'KEYPAD - KEYPAD, COMPUTER' },
+                      { value: 'KEYPUN', label: 'KEYPUN - KEYPUNCH, KEY DATA ENTRY DEVICES' },
+                      { value: 'KIT', label: 'KIT - KIT' },
+                      { value: 'KITE', label: 'KITE - KITE' },
+                      { value: 'KNIFE', label: 'KNIFE - KNIFE' },
+                      { value: 'LAB EQ', label: 'LAB EQ - LAB EQUIPMENT' },
+                      { value: 'LABELE', label: 'LABELE - LABELER' },
+                      { value: 'LADDER', label: 'LADDER - LADDER' },
+                      { value: 'LAMINA', label: 'LAMINA - LAMINATING MACHINE' },
+                      { value: 'LAMP', label: 'LAMP - LAMP' },
+                      { value: 'LANGUA', label: 'LANGUA - LANGUAGE TEACHING MACHINE' },
+                      { value: 'LANTER', label: 'LANTER - LANTERN (CAMPING EQUIPMENT)' },
+                      { value: 'LAPTOP', label: 'LAPTOP - LAPTOP COMPUTER' },
+                      { value: 'LASER', label: 'LASER - LASER' },
+                      { value: 'LASGUN', label: 'LASGUN - LASER GUN' },
+                      { value: 'LATHE', label: 'LATHE - LATHE' },
+                      { value: 'L BOX', label: 'L BOX - LITTER BOX (ELECTRONIC)' },
+                      { value: 'LEAFBL', label: 'LEAFBL - LEAF BLOWER' },
+                      { value: 'LECTER', label: 'LECTER - LECTERN/PODIUM' },
+                      { value: 'LEGMAC', label: 'LEGMAC - MACHINE, LEG DEVELOPING' },
+                      { value: 'LENS', label: 'LENS - CAMERA LENS' },
+                      { value: 'LEVEL', label: 'LEVEL - LEVEL' },
+                      { value: 'LEVER', label: 'LEVER - LEVER' },
+                      { value: 'LICTAB', label: 'LICTAB - LICENSE TAB' },
+                      { value: 'LICENS', label: 'LICENS - OTHER LICENSE' },
+                      { value: 'LIFEPR', label: 'LIFEPR - LIFE PRESERVER' },
+                      { value: 'LIFT', label: 'LIFT - LIFT' },
+                      { value: 'LIGHT', label: 'LIGHT - LIGHT' },
+                      { value: 'LIGHTE', label: 'LIGHTE - LIGHTER, CIGARETTE' },
+                      { value: 'LIGHTM', label: 'LIGHTM - LIGHT MIXER (FOR AUDIO SYSTEM)' },
+                      { value: 'LIGHTP', label: 'LIGHTP - LIGHT PEN' },
+                      { value: 'LINEFI', label: 'LINEFI - LINE FILTER/PROTECTOR' },
+                      { value: 'LMDEVI', label: 'LMDEVI - LASER MEASURING DEVICE' },
+                      { value: 'LOADER', label: 'LOADER - LOADER' },
+                      { value: 'LOCATO', label: 'LOCATO - LOCATOR' },
+                      { value: 'LOCK', label: 'LOCK - LOCK (ALL TYPES)' },
+                      { value: 'LOGSPL', label: 'LOGSPL - LOG SPLITTER' },
+                      { value: 'NAVIGA', label: 'NAVIGA - NAVIGATION AIDS, LORAN (NOT GPS)' },
+                      { value: 'LOTTER', label: 'LOTTER - LOTTERY TICKET' },
+                      { value: 'LUGGAG', label: 'LUGGAG - LUGGAGE' },
+                      { value: 'M ACCE', label: 'M ACCE - MUSICAL ACCESSORY' },
+                      { value: 'M BOAR', label: 'M BOAR - MIXING BOARD (MUSICAL INSTRUMENT)' },
+                      { value: 'M CARD', label: 'M CARD - MEMORY CARD (SD,SDHC,XD,HX)' },
+                      { value: 'M CLIP', label: 'M CLIP - MONEY CLIP' },
+                      { value: 'M CONT', label: 'M CONT - MIDI CONTROLLER' },
+                      { value: 'M HOME', label: 'M HOME - MGF HOME (NOT MOBILE)' },
+                      { value: 'MACHIN', label: 'MACHIN - MACHINE' },
+                      { value: 'MAGAZI', label: 'MAGAZI - MAGAZINE, CAMERA/FILM' },
+                      { value: 'MAGNET', label: 'MAGNET - MAGNET' },
+                      { value: 'MAGNIF', label: 'MAGNIF - MAGNIFIER' },
+                      { value: 'MAILBO', label: 'MAILBO - MAILBOX' },
+                      { value: 'MAILIN', label: 'MAILIN - MAILING MACHINE' },
+                      { value: 'MANDOL', label: 'MANDOL - MANDOLIN' },
+                      { value: 'ENGRAV', label: 'ENGRAV - MARKER' },
+                      { value: 'MASSAG', label: 'MASSAG - MASSAGER' },
+                      { value: 'MEATSL', label: 'MEATSL - MEAT SLICER' },
+                      { value: 'MEASUR', label: 'MEASUR - MEASURE' },
+                      { value: 'MEDAL', label: 'MEDAL - MEDAL' },
+                      { value: 'MEDALL', label: 'MEDALL - MEDALLION' },
+                      { value: 'MED EQ', label: 'MED EQ - MEDICAL EQUIPMENT' },
+                      { value: 'MEDICA', label: 'MEDICA - MEDICAL EQUIPMENT (NOT OTHERWISE CODED)' },
+                      { value: 'MEGAPH', label: 'MEGAPH - MEGAPHONE' },
+                      { value: 'MEGOHM', label: 'MEGOHM - MEGOHMMETER' },
+                      { value: 'MELLOP', label: 'MELLOP - MELLOPHONE' },
+                      { value: 'MEMORY', label: 'MEMORY - MEMORY MODULE' },
+                      { value: 'METALD', label: 'METALD - METAL DETECTOR' },
+                      { value: 'METER', label: 'METER - METER' },
+                      { value: 'METRON', label: 'METRON - METRONOME' },
+                      { value: 'MICROM', label: 'MICROM - MICROMETER' },
+                      { value: 'MICROP', label: 'MICROP - MICROPHONE' },
+                      { value: 'MICROS', label: 'MICROS - MICROSCOPE' },
+                      { value: 'MICROR', label: 'MICROR - MICROWAVE/ REFRIGERATOR COMBO' },
+                      { value: 'MILL', label: 'MILL - MILL, ALL TYPES' },
+                      { value: 'MILLIN', label: 'MILLIN - MILLING MACHINE' },
+                      { value: 'MIRROR', label: 'MIRROR - MIRROR' },
+                      { value: 'MITERB', label: 'MITERB - MITER BOX' },
+                      { value: 'MIXER', label: 'MIXER - MIXER' },
+                      { value: 'MLTPRS', label: 'MLTPRS - MULTIMEDIA PRESENTER' },
+                      { value: 'MODEL', label: 'MODEL - MODEL CAR/PLANE/TRAIN (COLLECTIBLE)' },
+                      { value: 'MODEM', label: 'MODEM - MODEM' },
+                      { value: 'MODULE', label: 'MODULE - MODULE' },
+                      { value: 'MOMACH', label: 'MOMACH - MONEY ORDER MACHINE' },
+                      { value: 'MONEYC', label: 'MONEYC - MONEY COUNTING MACHINE' },
+                      { value: 'MONITO', label: 'MONITO - MONITOR' },
+                      { value: 'MONOCU', label: 'MONOCU - MONOCULAR' },
+                      { value: 'MORBOX', label: 'MORBOX - MORTUARY BOX' },
+                      { value: 'MOTORD', label: 'MOTORD - MOTOR DRIVE, CAMERA' },
+                      { value: 'MOTOR', label: 'MOTOR - MOTOR (NOT VEHICLE OR BOAT)' },
+                      { value: 'MOUSE', label: 'MOUSE - MOUSE' },
+                      { value: 'MOVER', label: 'MOVER - MOVER' },
+                      { value: 'MOWER', label: 'MOWER - LAWN MOWER (NON-RIDING)' },
+                      { value: 'MTPASS', label: 'MTPASS - MASS TRANSIT PASS' },
+                      { value: 'MULTIM', label: 'MULTIM - MULTIMETER' },
+                      { value: 'MULTIP', label: 'MULTIP - MULTIPLEXER' },
+                      { value: 'MUSICB', label: 'MUSICB - MUSIC BOX' },
+                      { value: 'MUSICM', label: 'MUSICM - MUSIC MAKER' },
+                      { value: 'N 01', label: 'N01 - NEUTER 1 SPEED BIKE' },
+                      { value: 'N 03', label: 'N03 - NEUTER 3 SPEED BIKE' },
+                      { value: 'N 05', label: 'N05 - NEUTER 5 SPEED BIKE' },
+                      { value: 'N 07', label: 'N07 - NEUTER 7 SPEED BIKE' },
+                      { value: 'N 10', label: 'N10 - NEUTER 10 SPEED BIKE' },
+                      { value: 'N 12', label: 'N12 - NEUTER 12 SPEED BIKE' },
+                      { value: 'N 18', label: 'N18 - NEUTER 18 SPEED BIKE' },
+                      { value: 'N 21', label: 'N21 - NEUTER 21 SPEED BIKE' },
+                      { value: 'N 24', label: 'N24 - NEUTER 24 SPEED BIKE' },
+                      { value: 'N 27', label: 'N27 - NEUTER 27 SPEED BIKE' },
+                      { value: 'N 28', label: 'N28 - NEUTER 28 SPEED BIKE' },
+                      { value: 'N F HA', label: 'N F HA - NAIL FILING HANDPIECE' },
+                      { value: 'N MATE', label: 'N MATE - NONFERROUS MATERIAL' },
+                      { value: 'NAILSP', label: 'NAILSP - NAILSPOTTER' },
+                      { value: 'NEBULI', label: 'NEBULI - NEBULIZER' },
+                      { value: 'NECKLA', label: 'NECKLA - NECKLACE' },
+                      { value: 'NEEDLE', label: 'NEEDLE - NEEDLE, STEREO (NOT CARTRIDGE)' },
+                      { value: 'NERVST', label: 'NERVST - NERVE STIMULATION UNIT' },
+                      { value: 'NEWSRA', label: 'NEWSRA - NEWSPAPER RACK/STAND' },
+                      { value: 'NIBBLE', label: 'NIBBLE - NIBBLER' },
+                      { value: 'NIGHTS', label: 'NIGHTS - NIGHSTAND' },
+                      { value: 'NIGHTV', label: 'NIGHTV - NIGHT VISION GOGGLES' },
+                      { value: 'NOISER', label: 'NOISER - NOISE REDUCTION UNIT' },
+                      { value: 'NOZZLE', label: 'NOZZLE - NOZZLE' },
+                      { value: 'OBOE', label: 'OBOE - OBOE' },
+                      { value: 'O F EQ', label: 'O F EQ - OIL FIELD EQUIPMENT' },
+                      { value: 'O REGU', label: 'O REGU - OXYGEN REGULATOR' },
+                      { value: 'OHMMET', label: 'OHMMET - OHMMETER' },
+                      { value: 'OPHTHA', label: 'OPHTHA - OPHTHALMOSCOPE' },
+                      { value: 'ORGAN', label: 'ORGAN - ORGAN' },
+                      { value: 'ORGANI', label: 'ORGANI - ORGANIZER, ELECTRONIC' },
+                      { value: 'OSCILL', label: 'OSCILL - OSCILLOSCOPE' },
+                      { value: 'OVEN', label: 'OVEN - OVEN' },
+                      { value: 'OXIMET', label: 'OXIMET - OXIMETER' },
+                      { value: 'OXYGEN', label: 'OXYGEN - OXYGENATOR' },
+                      { value: 'P B GU', label: 'P B GU - PAINT BALL GUN' },
+                      { value: 'P BOOS', label: 'P BOOS - POWER BOOSTER' },
+                      { value: 'P FEED', label: 'P FEED - PAPER FEEDER' },
+                      { value: 'P FIND', label: 'P FIND - PIPE FINDER' },
+                      { value: 'P FRAM', label: 'P FRAM - PHOTO FRAME' },
+                      { value: 'P INSE', label: 'P INSE - POWER INSERT' },
+                      { value: 'P LIMB', label: 'P LIMB - PROSTHETIC LIMBS' },
+                      { value: 'P PATC', label: 'P PATC - PHONE PATCH (USED WITH TRANSCEIVER)' },
+                      { value: 'P SHIF', label: 'P SHIF - PHASE SHIFTER' },
+                      { value: 'P SPLI', label: 'P SPLI - POWER SPLITTER' },
+                      { value: 'P SUIT', label: 'P SUIT - PROTECTIVE SUIT' },
+                      { value: 'P WEIG', label: 'P WEIG - PAPER WEIGHT' },
+                      { value: 'PACK', label: 'PACK - PACK, BACKPACK' },
+                      { value: 'PACEMA', label: 'PACEMA - PACEMAKER' },
+                      { value: 'PACKER', label: 'PACKER - PACKER' },
+                      { value: 'PACKAG', label: 'PACKAG - PACKAGING MACHINE' },
+                      { value: 'PAD', label: 'PAD - PAD' },
+                      { value: 'PAGER', label: 'PAGER - PAGER, BEEPER' },
+                      { value: 'PAINTI', label: 'PAINTI - PAINTING' },
+                      { value: 'PANEL', label: 'PANEL - PANEL CUTTER' },
+                      { value: 'PANTS', label: 'PANTS - PANTS (CLOTHING)' },
+                      { value: 'PARACH', label: 'PARACH - PARACHUTE' },
+                      { value: 'PARKME', label: 'PARKME - PARKING METER' },
+                      { value: 'PASYST', label: 'PASYST - PUBLIC ADDRESS SYSTEM' },
+                      { value: 'PASSPO', label: 'PASSPO - PASSPORT' },
+                      { value: 'PAVER', label: 'PAVER - PAVER' },
+                      { value: 'P CARDS', label: 'P CARDS - PLAYING CARDS' },
+                      { value: 'PDASSI', label: 'PDASSI - PERSONAL DIGITAL ASSISTANT' },
+                      { value: 'PEDAL', label: 'PEDAL - PEDAL, SOUND EFFECT' },
+                      { value: 'PEDOME', label: 'PEDOME - PEDOMETER' },
+                      { value: 'PEN', label: 'PEN - PEN' },
+                      { value: 'PENCIL', label: 'PENCIL - PENCIL (SMART)' },
+                      { value: 'PENDAN', label: 'PENDAN - PENDANT/LOCKET' },
+                      { value: 'PERMIT', label: 'PERMIT - PERMIT' },
+                      { value: 'P META', label: 'P META - PRECIOUS METAL' },
+                      { value: 'PHONEC', label: 'PHONEC - PHONE CARD' },
+                      { value: 'PHONOG', label: 'PHONOG - PHONOGRAPH' },
+                      { value: 'PHOTCD', label: 'PHOTCD - PHOTO CD PLAYER (PLAYS 35MM FILM)' },
+                      { value: 'PHOTOC', label: 'PHOTOC - PHOTO COPY MACHINE' },
+                      { value: 'PIANO', label: 'PIANO - PIANO' },
+                      { value: 'PICCOL', label: 'PICCOL - PICCOLO' },
+                      { value: 'PIGEON', label: 'PIGEON - PIGEON' },
+                      { value: 'PIN', label: 'PIN - BROOCH/PIN' },
+                      { value: 'PINBAL', label: 'PINBAL - PINBALL MACHINE' },
+                      { value: 'PINCAR', label: 'PINCAR - ATM CARD' },
+                      { value: 'PIPE', label: 'PIPE - PIPE' },
+                      { value: 'PIPESQ', label: 'PIPESQ - PIPE SQUEEZER' },
+                      { value: 'PIPETH', label: 'PIPETH - PIPE THREADING MACHINE' },
+                      { value: 'PITCHI', label: 'PITCHI - PITCHING MACHINE' },
+                      { value: 'PLANE', label: 'PLANE - PLANE' },
+                      { value: 'PLANER', label: 'PLANER - PLANER (POWER TOOL)' },
+                      { value: 'PLATE', label: 'PLATE - PLATE' },
+                      { value: 'PLIERS', label: 'PLIERS - PLIERS' },
+                      { value: 'PLOW', label: 'PLOW - PLOW' },
+                      { value: 'PLUG', label: 'PLUG - PLUG' },
+                      { value: 'POINTE', label: 'POINTE - POINTER, LASER POINTER' },
+                      { value: 'POISON', label: 'POISON - POISONOUS SUBSTANCES' },
+                      { value: 'POLISH', label: 'POLISH - POLISHER' },
+                      { value: 'POLYGR', label: 'POLYGR - POLYGRAPH' },
+                      { value: 'POOLCU', label: 'POOLCU - POOL, CUE' },
+                      { value: 'POOL', label: 'POOL - POOL, SWIMMING (ALL TYPES)' },
+                      { value: 'POOLTA', label: 'POOLTA - BILLIARD TABLE/POOL TABLE' },
+                      { value: 'POPCOR', label: 'POPCOR - POPCORN MAKER' },
+                      { value: 'POSTAG', label: 'POSTAG - POSTAGE METER' },
+                      { value: 'POSTHO', label: 'POSTHO - POST HOLD DIGGER' },
+                      { value: 'POSTIN', label: 'POSTIN - POSTING MACHINE' },
+                      { value: 'POT', label: 'POT - POT, EQUIPMENT (NOT TAR KETTLE)' },
+                      { value: 'POTTER', label: 'POTTER - POTTERY WHEEL' },
+                      { value: 'POUNDE', label: 'POUNDE - POUNDER' },
+                      { value: 'POWERB', label: 'POWERB - POWER BOOSTER' },
+                      { value: 'POWERP', label: 'POWERP - POWER PACK' },
+                      { value: 'POWERS', label: 'POWERS - POWER SUPPLY' },
+                      { value: 'PREAMP', label: 'PREAMP - PREAMPLIFIER' },
+                      { value: 'PRESCR', label: 'PRESCR - PRESCRIPTION PAD' },
+                      { value: 'PRESS', label: 'PRESS - PRESS' },
+                      { value: 'PRINTE', label: 'PRINTE - PRINTER' },
+                      { value: 'PRINT', label: 'PRINT - PRINT, LITHOGRAPH (ART)' },
+                      { value: 'PRISM', label: 'PRISM - PRISM' },
+                      { value: 'PROBE', label: 'PROBE - PROBE' },
+                      { value: 'PROCES', label: 'PROCES - PROCESSOR' },
+                      { value: 'PROJEC', label: 'PROJEC - PROJECTOR' },
+                      { value: 'PROMPT', label: 'PROMPT - PROMPTING MACHINE' },
+                      { value: 'PROTRA', label: 'PROTRA - PROTRACTOR' },
+                      { value: 'PRYBAR', label: 'PRYBAR - PRYBAR' },
+                      { value: 'PULLER', label: 'PULLER - PULLER' },
+                      { value: 'PUMP', label: 'PUMP - PUMP' },
+                      { value: 'PUMPUN', label: 'PUMPUN - PUMPING UNIT' },
+                      { value: 'PUNCH', label: 'PUNCH - PUNCH' },
+                      { value: 'PURSE', label: 'PURSE - PURSE' },
+                      { value: 'RABBIT', label: 'RABBIT - RABBIT' },
+                      { value: 'RACK', label: 'RACK - RACK' },
+                      { value: 'RACKET', label: 'RACKET - RACKET' },
+                      { value: 'RADAR', label: 'RADAR - RADAR' },
+                      { value: 'RADIO', label: 'RADIO - RADIO' },
+                      { value: 'RAM', label: 'RAM - RAM' },
+                      { value: 'RAMMER', label: 'RAMMER - RAMMER (ENTER INTO NCIC AS PUNCH)' },
+                      { value: 'RANGE', label: 'RANGE - RANGE, STOVE' },
+                      { value: 'RANGEF', label: 'RANGEF - RANGE FINDER' },
+                      { value: 'RATCHE', label: 'RATCHE - RATCHET/AIR RATCHET' },
+                      { value: 'READER', label: 'READER - READER' },
+                      { value: 'REAMER', label: 'REAMER - REAMER, HOLE ENLARGER' },
+                      { value: 'RECEIV', label: 'RECEIV - RECEIVER' },
+                      { value: 'REC EQ', label: 'REC EQ - RECORDING EQUIPMENT' },
+                      { value: 'RCTOY', label: 'RCTOY - REMOTE/RADIO CONTROL TOYS' },
+                      { value: 'RECORD', label: 'RECORD - RECORDER, WOODWIND INSTRUMENT' },
+                      { value: 'REEL', label: 'REEL - REEL, FISHING' },
+                      { value: 'REFRIG', label: 'REFRIG - REFRIGERATOR' },
+                      { value: 'REGULA', label: 'REGULA - REGULATOR' },
+                      { value: 'REMOTE', label: 'REMOTE - REMOTE' },
+                      { value: 'REMOTC', label: 'REMOTC - REMOTE CONTROL' },
+                      { value: 'RENOVA', label: 'RENOVA - RENOVATOR' },
+                      { value: 'REPEAT', label: 'REPEAT - REPEATER' },
+                      { value: 'RESPIR', label: 'RESPIR - RESPIRATOR' },
+                      { value: 'REVERB', label: 'REVERB - REVERBERANT UNIT' },
+                      { value: 'RING', label: 'RING - RING' },
+                      { value: 'RIVETG', label: 'RIVETG - RIVETER, RIVET GUN' },
+                      { value: 'ROBOT', label: 'ROBOT - ROBOT' },
+                      { value: 'ROLBLD', label: 'ROLBLD - ROLLER BLADES' },
+                      { value: 'ROLLER', label: 'ROLLER - ROLLER (HAND HELD/WALK BEHIND)' },
+                      { value: 'ROTARY', label: 'ROTARY - ROTARY' },
+                      { value: 'ROUTER', label: 'ROUTER - ROUTER' },
+                      { value: 'ROWING', label: 'ROWING - ROWING MACHINE' },
+                      { value: 'RSKATE', label: 'RSKATE - ROLLER SKATES' },
+                      { value: 'RUG', label: 'RUG - RUG' },
+                      { value: 'SADDLE', label: 'SADDLE - SADDLE' },
+                      { value: 'SAFE', label: 'SAFE - SAFE' },
+                      { value: 'SAMPLE', label: 'SAMPLE - SAMPLER' },
+                      { value: 'SANDBL', label: 'SANDBL - SANDBLASTER' },
+                      { value: 'SANDER', label: 'SANDER - SANDER' },
+                      { value: 'SATDSH', label: 'SATDSH - SATELITE DISH' },
+                      { value: 'SAW', label: 'SAW - SAW' },
+                      { value: 'SAXOPH', label: 'SAXOPH - SAXOPHONE' },
+                      { value: 'SCAFFO', label: 'SCAFFO - SCAFFOLDING' },
+                      { value: 'SCALES', label: 'SCALES - SCALES' },
+                      { value: 'SCANNE', label: 'SCANNE - SCANNER' },
+                      { value: 'SCARDS', label: 'SCARDS - SPORTS CARDS' },
+                      { value: 'SCOPE', label: 'SCOPE - SCOPE (GUN OR TELESCOPE)' },
+                      { value: 'SCOOTE', label: 'SCOOTE - SCOOTER (CHILDS TOY, NOT MOTOR)' },
+                      { value: 'SCRAPE', label: 'SCRAPE - SCRAPER' },
+                      { value: 'SCREEN', label: 'SCREEN - SCREEN' },
+                      { value: 'SCREW', label: 'SCREW - SCREW' },
+                      { value: 'SCREWD', label: 'SCREWD - SCREW DRIVER' },
+                      { value: 'SCREWG', label: 'SCREWG - SCREWGUN' },
+                      { value: 'SCRUBB', label: 'SCRUBB - SCRUBBER' },
+                      { value: 'SCUBA', label: 'SCUBA - SCUBA, INCLUDES ALL SCUBA GEAR' },
+                      { value: 'SEALER', label: 'SEALER - SEALER' },
+                      { value: 'SEALIN', label: 'SEALIN - SEALING MACHINE/GUN' },
+                      { value: 'SEAMER', label: 'SEAMER - CARPET SEAMER' },
+                      { value: 'SEISMO', label: 'SEISMO - SEISMOGRAPH' },
+                      { value: 'SENSOR', label: 'SENSOR - SENSOR' },
+                      { value: 'SEPARA', label: 'SEPARA - SEPARATOR' },
+                      { value: 'SEQUEN', label: 'SEQUEN - SEQUENCER' },
+                      { value: 'SERIGR', label: 'SERIGR - SERIGRAPH, SILK-SCREEN PRINT' },
+                      { value: 'SERVER', label: 'SERVER - COMPUTER SERVER' },
+                      { value: 'SEWERC', label: 'SEWERC - SEWER CLEANER' },
+                      { value: 'SEWING', label: 'SEWING - SEWING MACHINE' },
+                      { value: 'SEXTAN', label: 'SEXTAN - SEXTANT' },
+                      { value: 'S GUN', label: 'S GUN - STUN GUN' },
+                      { value: 'SHAMPO', label: 'SHAMPO - SHAMPOOER, RUG' },
+                      { value: 'SHAPER', label: 'SHAPER - SHAPER' },
+                      { value: 'SHARPE', label: 'SHARPE - SHARPENER (ALL TYPES)' },
+                      { value: 'SHAVER', label: 'SHAVER - SHAVER, RAZOR' },
+                      { value: 'SHEARS', label: 'SHEARS - SHEARS' },
+                      { value: 'SHOCKS', label: 'SHOCKS - BICYCLE SHOCKS' },
+                      { value: 'SHOVEL', label: 'SHOVEL - SHOVEL' },
+                      { value: 'SHOWER', label: 'SHOWER - SHOWER, BATHROOM' },
+                      { value: 'SHREDD', label: 'SHREDD - SHREDDER' },
+                      { value: 'SHUTTE', label: 'SHUTTE - SHUTTER, CAMERA' },
+                      { value: 'SIGN', label: 'SIGN - SIGN' },
+                      { value: 'SIGNAT', label: 'SIGNAT - SIGNATURE PAD' },
+                      { value: 'SILVER', label: 'SILVER - SILVER PIECES (TRAY, TEA SET)' },
+                      { value: 'SINK', label: 'SINK - SINK' },
+                      { value: 'SKATEB', label: 'SKATEB - SKATEBOARD' },
+                      { value: 'SKIMAC', label: 'SKIMAC - SKI MACHINE, CROSS COUNTRY' },
+                      { value: 'SLICER', label: 'SLICER - SLICER' },
+                      { value: 'SLIDER', label: 'SLIDER - SLIDE RULE' },
+                      { value: 'S LITE', label: 'S LITE - SPEED LITE, CAMERA' },
+                      { value: 'SLOTMA', label: 'SLOTMA - SLOT MACHINE' },
+                      { value: 'S MACH', label: 'S MACH - SMOG MACHINE, TESTER' },
+                      { value: 'SMARTC', label: 'SMARTC - SMART CARD' },
+                      { value: 'SNAKE', label: 'SNAKE - SNAKE, PLUMBERS' },
+                      { value: 'SNOWBL', label: 'SNOWBL - SNOWBLOWER' },
+                      { value: 'SNOWBO', label: 'SNOWBO - SNOWBOARD' },
+                      { value: 'SNOWCH', label: 'SNOWCH - SNOW CHAINS' },
+                      { value: 'SOCKET', label: 'SOCKET - SOCKET SET / WRENCH' },
+                      { value: 'SODCUT', label: 'SODCUT - SOD CUTTER' },
+                      { value: 'SOFTWA', label: 'SOFTWA - SOFTWARE, COMPUTER' },
+                      { value: 'SOLDER', label: 'SOLDER - SOLDERING GUN/IRON' },
+                      { value: 'SOLARP', label: 'SOLARP - SOLAR PANEL' },
+                      { value: 'SORTER', label: 'SORTER - SORTER, OFFICE' },
+                      { value: 'SOU EQ', label: 'SOU EQ - SOUND EQUIPMENT' },
+                      { value: 'SOUNDB', label: 'SOUNDB - SOUND BOX' },
+                      { value: 'SOUNDE', label: 'SOUNDE - SOUNDER' },
+                      { value: 'SOUNDM', label: 'SOUNDM - SOUND MIXER, SOUND BOARD' },
+                      { value: 'SOUSAP', label: 'SOUSAP - SOUSAPHONE' },
+                      { value: 'SPADE', label: 'SPADE - SPADE, AIR SPADE' },
+                      { value: 'SPEAKE', label: 'SPEAKE - SPEAKER' },
+                      { value: 'SPEDOC', label: 'SPEDOC - SPECIAL DOCUMENTS (NOT DMV) (CA ONLY)' },
+                      { value: 'SPECTR', label: 'SPECTR - SPECTROPHOTOMETER' },
+                      { value: 'SPHYGM', label: 'SPHYGM - SPHYGMOMANOMETER (BLOOD PRESSURE)' },
+                      { value: 'SPO EQ', label: 'SPO EQ - SPORTS EQUIPMENT' },
+                      { value: 'SPOOL', label: 'SPOOL - SPOOL' },
+                      { value: 'SPOTLI', label: 'SPOTLI - SPOTLIGHT' },
+                      { value: 'SPRAYE', label: 'SPRAYE - SPRAYER' },
+                      { value: 'SPRAYG', label: 'SPRAYG - SPRAY GUN' },
+                      { value: 'SPREAD', label: 'SPREAD - SPREADER' },
+                      { value: 'SPRINK', label: 'SPRINK - SPRINKLER' },
+                      { value: 'SQUARE', label: 'SQUARE - SQUARE' },
+                      { value: 'S SERV', label: 'S SERV - SILVER SERVICE' },
+                      { value: 'SSCARD', label: 'SSCARD - SOCIAL SECURITY' },
+                      { value: 'S SKIS', label: 'S SKIS - SNOW SKIS' },
+                      { value: 'S STRI', label: 'S STRI - SPIKE STRIP' },
+                      { value: 'STABIL', label: 'STABIL - STABILIZER' },
+                      { value: 'STAMPM', label: 'STAMPM - STAMP MACHINE' },
+                      { value: 'STAMP', label: 'STAMP - STAMP' },
+                      { value: 'STAND', label: 'STAND - STAND' },
+                      { value: 'STAPLE', label: 'STAPLE - STAPLER' },
+                      { value: 'STARTE', label: 'STARTE - STARTER' },
+                      { value: 'STEAMC', label: 'STEAMC - STEAM CLEANER' },
+                      { value: 'STEAME', label: 'STEAME - STEAMER' },
+                      { value: 'STENOT', label: 'STENOT - STENOGRAPH/STENOTYPE MACHINE' },
+                      { value: 'STEPMA', label: 'STEPMA - STEP-EXERCISE MACHINE' },
+                      { value: 'STEREO', label: 'STEREO - STEREO PHONOGRAPH' },
+                      { value: 'STERIL', label: 'STERIL - STERILIZER' },
+                      { value: 'STETHO', label: 'STETHO - STETHOSCOPE' },
+                      { value: 'STFPLT', label: 'STFPLT - STEREO FACE PLATE' },
+                      { value: 'STICKE', label: 'STICKE - STICKER' },
+                      { value: 'STIMUL', label: 'STIMUL - STIMULATOR/NERVE STIMULATOR' },
+                      { value: 'STOPWA', label: 'STOPWA - STOPWATCH' },
+                      { value: 'STREAM', label: 'STREAM - STREAMING DEVICE' },
+                      { value: 'STRETC', label: 'STRETC - CARPET STRETCHER' },
+                      { value: 'STRIPP', label: 'STRIPP - PAINT STRIPPER' },
+                      { value: 'STROBE', label: 'STROBE - STROBE LIGHT' },
+                      { value: 'STROLL', label: 'STROLL - STROLLER, CHILDS' },
+                      { value: 'STUDGU', label: 'STUDGU - STUDGUN' },
+                      { value: 'SUB', label: 'SUB - SUB, KICK, SHEAR, PIN, ROD, BASKET' },
+                      { value: 'S CUP', label: 'S CUP - SUCTION CUP' },
+                      { value: 'SUMMON', label: 'SUMMON - SUMMONS' },
+                      { value: 'SURFBO', label: 'SURFBO - SURFBOARD' },
+                      { value: 'SWATCH', label: 'SWATCH - SMARTWATCH' },
+                      { value: 'SWEEPE', label: 'SWEEPE - SWEEPER' },
+                      { value: 'SWITCH', label: 'SWITCH - SWITCH' },
+                      { value: 'SWIVEL', label: 'SWIVEL - SWIVEL' },
+                      { value: 'SWORD', label: 'SWORD - SWORD' },
+                      { value: 'SYNCHR', label: 'SYNCHR - SYNCHRONIZER, AUDIO COMPONENT' },
+                      { value: 'SYNTHE', label: 'SYNTHE - SYNTHESIZER' },
+                      { value: 'T BOX', label: 'T BOX - TACKLE BOX' },
+                      { value: 'T DEVI', label: 'T DEVI - TRACKING DEVICE' },
+                      { value: 'T GUN', label: 'T GUN - TATTOO GUN' },
+                      { value: 'T MACH', label: 'T MACH - TEACHING MACHINE' },
+                      { value: 'T MEAS', label: 'T MEAS - TAPE MEASURE' },
+                      { value: 'T REMO', label: 'T REMO - TAG REMOVER/ELECTRONIC,GARMENT TAG' },
+                      { value: 'TABLE', label: 'TABLE - TABLE' },
+                      { value: 'TABLET', label: 'TABLET - TABLET (IPAD, GALAXY, KINDLE FIRE, ETC.)' },
+                      { value: 'TABULA', label: 'TABULA - TABULATOR' },
+                      { value: 'TACHOM', label: 'TACHOM - TACHOMETER' },
+                      { value: 'TACKER', label: 'TACKER - TACKER' },
+                      { value: 'TAMPER', label: 'TAMPER - TAMPER' },
+                      { value: 'TANK', label: 'TANK - TANK (ACETYLENE/PROPANE/OXYGEN)' },
+                      { value: 'TAPE', label: 'TAPE - TAPE' },
+                      { value: 'TAPEDE', label: 'TAPEDE - TAPE DECK' },
+                      { value: 'TAPEDI', label: 'TAPEDI - TAPE DISPENSER, AUTOMATIC' },
+                      { value: 'TAPEPL', label: 'TAPEPL - TAPE PLAYER' },
+                      { value: 'TAPER', label: 'TAPER - TAPE APPLICATOR (DRYWALL)' },
+                      { value: 'TAPERE', label: 'TAPERE - RECORDER, DIGITAL/TAPE (RECORDS AND PLAYS)' },
+                      { value: 'TEARGA', label: 'TEARGA - TEARGAS/MACE/PEPPER SPRAY' },
+                      { value: 'TEL EQ', label: 'TEL EQ - TELEPHONE EQUIPMENT' },
+                      { value: 'TELANS', label: 'TELANS - TELEPHONE ANSWERING MACHINE' },
+                      { value: 'TELECO', label: 'TELECO - TELECOMMUNICATOR-FOR DEAF' },
+                      { value: 'TELEPH', label: 'TELEPH - LANDLINE AND ALL OTHERS' },
+                      { value: 'TELESC', label: 'TELESC - TELESCOPE' },
+                      { value: 'TELETE', label: 'TELETE - TELETEXT DECODER MODULE' },
+                      { value: 'TELETY', label: 'TELETY - TELETYPEWRITER' },
+                      { value: 'TELDVD', label: 'TELDVD - TELEVISION/DVD COMBO' },
+                      { value: 'TELEVI', label: 'TELEVI - TELEVISION (ALL TYPES, BW, COLOR)' },
+                      { value: 'TELVCR', label: 'TELVCR - TELEVISION/VCR COMBINATION' },
+                      { value: 'TEMPLA', label: 'TEMPLA - TEMPLATE' },
+                      { value: 'TENT', label: 'TENT - TENT' },
+                      { value: 'TERMIN', label: 'TERMIN - TERMINAL, COMPUTER' },
+                      { value: 'TESTER', label: 'TESTER - TESTER' },
+                      { value: 'THATCH', label: 'THATCH - POWER RAKE, THATCHER' },
+                      { value: 'THEODO', label: 'THEODO - THEODOLITE' },
+                      { value: 'THERMO', label: 'THERMO - THERMOMETER' },
+                      { value: 'THERMS', label: 'THERMS - THERMOSTAT' },
+                      { value: 'THREAD', label: 'THREAD - THREADER' },
+                      { value: 'TICKET', label: 'TICKET - TICKET (NOT OTHERWISE NOTED)' },
+                      { value: 'TILLER', label: 'TILLER - CULTIVATOR (NOT VEHICLE)' },
+                      { value: 'TIMECL', label: 'TIMECL - TIME CLOCK' },
+                      { value: 'TIMER', label: 'TIMER - TIMER' },
+                      { value: 'TIMING', label: 'TIMING - TIMING LIGHT' },
+                      { value: 'TIRECH', label: 'TIRECH - TIRE CHANGER' },
+                      { value: 'TITLE', label: 'TITLE - TITLE (PROPERTY TITLE)' },
+                      { value: 'TOASTE', label: 'TOASTE - TOASTER' },
+                      { value: 'TOASTO', label: 'TOASTO - TOASTER OVEN' },
+                      { value: 'TOILET', label: 'TOILET - TOILET, PORTABLE/STANDARD' },
+                      { value: 'TONOME', label: 'TONOME - TONOMETER' },
+                      { value: 'TOOL', label: 'TOOL - TOOL' },
+                      { value: 'TOOLBO', label: 'TOOLBO - TOOLBOX' },
+                      { value: 'TOOLJO', label: 'TOOLJO - TOOL JOINT' },
+                      { value: 'TORCH', label: 'TORCH - TORCH' },
+                      { value: 'TORM', label: 'TORM - TOXIC OTHER REGULATED MATERIALS' },
+                      { value: 'TOY', label: 'TOY - TOY (NOT TV GAMES)' },
+                      { value: 'TRACER', label: 'TRACER - TRACER' },
+                      { value: 'TRACKE', label: 'TRACKE - TRACKER' },
+                      { value: 'TRAFFI', label: 'TRAFFI - TRAFFIC COUNTER' },
+                      { value: 'TRANSC', label: 'TRANSC - TRANSCEIVER' },
+                      { value: 'TRANSD', label: 'TRANSD - TRANSDUCER' },
+                      { value: 'TRANSF', label: 'TRANSF - TRANSFORMER' },
+                      { value: 'TRANSI', label: 'TRANSI - TRANSIT, SURVEY EQUIPMENT' },
+                      { value: 'TRANSL', label: 'TRANSL - TRANSLATOR' },
+                      { value: 'TRANSM', label: 'TRANSM - TRANSMITTER' },
+                      { value: 'TRANSP', label: 'TRANSP - TRANSPONDER' },
+                      { value: 'TRAP', label: 'TRAP - TRAP' },
+                      { value: 'TRASHB', label: 'TRASHB - TRASH BARREL' },
+                      { value: 'TREADM', label: 'TREADM - TREADMILL, JOGGING MACHINE' },
+                      { value: 'TRENCH', label: 'TRENCH - TRENCHER (HAND POWERED)' },
+                      { value: 'TRIMME', label: 'TRIMME - TRIMMER' },
+                      { value: 'TRIPOD', label: 'TRIPOD - TRIPOD' },
+                      { value: 'TROMBO', label: 'TROMBO - TROMBONE' },
+                      { value: 'TROWEL', label: 'TROWEL - TROWEL, POWER' },
+                      { value: 'TRUMPE', label: 'TRUMPE - TRUMPET' },
+                      { value: 'TUB', label: 'TUB - TUB, BATHTUB' },
+                      { value: 'TUBA', label: 'TUBA - TUBA' },
+                      { value: 'TUBE', label: 'TUBE - TUBE' },
+                      { value: 'TUNER', label: 'TUNER - TUNER' },
+                      { value: 'TURNTA', label: 'TURNTA - TURNTABLE' },
+                      { value: 'TURTLE', label: 'TURTLE - TURTLE' },
+                      { value: 'TV DIS', label: 'TV DIS - TV DISC' },
+                      { value: 'TV MON', label: 'TV MON - TV MONITOR' },
+                      { value: 'TV PRO', label: 'TV PRO - TV PROJECTOR' },
+                      { value: 'TYPESE', label: 'TYPESE - TYPESETTER' },
+                      { value: 'TYPEWR', label: 'TYPEWR - TYPEWRITER' },
+                      { value: 'UKULEL', label: 'UKULEL - UKULELE' },
+                      { value: 'ULTRAS', label: 'ULTRAS - ULTRASOUND MACHINE' },
+                      { value: 'UMBREL', label: 'UMBREL - UMBRELLA' },
+                      { value: 'V ACCE', label: 'V ACCE - VIDEO ACCESSORY' },
+                      { value: 'V DISP', label: 'V DISP - VIDEO DISPLAY SCREEN' },
+                      { value: 'V EYEW', label: 'V EYEW - VIDEO EYEWEAR' },
+                      { value: 'V PLAY', label: 'V PLAY - VIDEO PLAYER' },
+                      { value: 'V PROC', label: 'V PROC - VOCAL PROCESSOR' },
+                      { value: 'VACUUM', label: 'VACUUM - VACUUM CLEANER' },
+                      { value: 'VALIDA', label: 'VALIDA - POST OFFICE VALIDATION PLATE' },
+                      { value: 'VALVE', label: 'VALVE - VALVE' },
+                      { value: 'VALVEC', label: 'VALVEC - VALVE CONTROL VALVE' },
+                      { value: 'VASE', label: 'VASE - VASE, COLLECTIBLE' },
+                      { value: 'VCONVE', label: 'VCONVE - CONVERTER, FILM/SLIDE TO VIDEO' },
+                      { value: 'VCRREW', label: 'VCRREW - VCR REWINDER' },
+                      { value: 'VDISK', label: 'VDISK - VIDEO DISK' },
+                      { value: 'VENDIN', label: 'VENDIN - VENDING MACHINE' },
+                      { value: 'VENTIL', label: 'VENTIL - VENTILATOR' },
+                      { value: 'VERIFY', label: 'VERIFY - VERIFY MACHINE/CREDIT CARD SWIPER' },
+                      { value: 'VEST', label: 'VEST - VEST, BULLETPROOF AND ALL TYPES' },
+                      { value: 'VIBRAT', label: 'VIBRAT - VIBRATOR' },
+                      { value: 'VIDEOC', label: 'VIDEOC - VIDEO CAMERA' },
+                      { value: 'VIDEOD', label: 'VIDEOD - VIDEO DISK RECORDER/PLAYER' },
+                      { value: 'VIDEOR', label: 'VIDEOR - VIDEO RECORDER (VCR)' },
+                      { value: 'VIDEOT', label: 'VIDEOT - VIDEO TUNER/TIMER' },
+                      { value: 'VIEWER', label: 'VIEWER - VIEWER' },
+                      { value: 'VIEWFI', label: 'VIEWFI - CAMERA VIEWFINDER' },
+                      { value: 'VIOLA', label: 'VIOLA - VIOLA' },
+                      { value: 'VIOLIN', label: 'VIOLIN - VIOLIN' },
+                      { value: 'VISE', label: 'VISE - VISE' },
+                      { value: 'VISUAL', label: 'VISUAL - VISUALIZER' },
+                      { value: 'VMULTI', label: 'VMULTI - VIDEO MULTIPLEXER' },
+                      { value: 'VOICEC', label: 'VOICEC - VOICE CONTROL UNIT' },
+                      { value: 'VOICER', label: 'VOICER - VOICE RECOGNITION DEVICE/SYNTHESIZER' },
+                      { value: 'VOLTME', label: 'VOLTME - VOLTMETER' },
+                      { value: 'VPRINT', label: 'VPRINT - VIDEO PRINTER' },
+                      { value: 'VTAPE', label: 'VTAPE - VIDEO TAPE' },
+                      { value: 'W COND', label: 'W COND - WATER CONDITIONER/SOFTENER' },
+                      { value: 'W INST', label: 'W INST - WEATHER INSTRUMENTS' },
+                      { value: 'W MOUN', label: 'W MOUN - WALL MOUNT' },
+                      { value: 'W W PE', label: 'W W PE - WAH WAH PEDAL' },
+                      { value: 'WAFFLE', label: 'WAFFLE - WAFFLE IRON' },
+                      { value: 'WAKEBO', label: 'WAKEBO - WAKEBOARD' },
+                      { value: 'WALKER', label: 'WALKER - WALKER' },
+                      { value: 'WALKIE', label: 'WALKIE - WALKIE TALKIE' },
+                      { value: 'WALLET', label: 'WALLET - WALLET/BILLFOLD' },
+                      { value: 'WASHER', label: 'WASHER - CLOTHES WASHER/WASHING MACHINE' },
+                      { value: 'WATCH', label: 'WATCH - WATCH' },
+                      { value: 'WATERB', label: 'WATERB - WATER BLASTER' },
+                      { value: 'WATERC', label: 'WATERC - WATER COOLER' },
+                      { value: 'WATERH', label: 'WATERH - WATER HEATER' },
+                      { value: 'WATTME', label: 'WATTME - WATT METER' },
+                      { value: 'WAXER', label: 'WAXER - WAXER' },
+                      { value: 'WEBTV', label: 'WEBTV - WEBTV' },
+                      { value: 'WEEDER', label: 'WEEDER - WEED CUTTER/WEED EATER' },
+                      { value: 'WEIGHT', label: 'WEIGHT - WEIGHTS/WEIGHT LIFTING EQUIPMENT' },
+                      { value: 'WELDER', label: 'WELDER - ARC WELDER' },
+                      { value: 'WHEELB', label: 'WHEELB - WHEEL BALANCER' },
+                      { value: 'WHEELC', label: 'WHEELC - WHEELCHAIR (NON-MOTORIZED)' },
+                      { value: 'WINCH', label: 'WINCH - WINCH' },
+                      { value: 'WINDER', label: 'WINDER - WINDER' },
+                      { value: 'WINDOW', label: 'WINDOW - WINDOW' },
+                      { value: 'WIREST', label: 'WIREST - WIRE STRIPPER' },
+                      { value: 'WOODST', label: 'WOODST - WOODBURNING STOVE' },
+                      { value: 'WOOFER', label: 'WOOFER - WOOFER' },
+                      { value: 'WORDMA', label: 'WORDMA - WORDMASTER' },
+                      { value: 'WORDPR', label: 'WORDPR - WORD PROCESSOR' },
+                      { value: 'WORKBE', label: 'WORKBE - WORKBENCH' },
+                      { value: 'WRENCH', label: 'WRENCH - WRENCH' },
+                      { value: 'WRITER', label: 'WRITER - WRITER' },
+                      { value: 'XRAY', label: 'XRAY - X-RAY EQUIPMENT' },
+                      { value: 'XYLOPH', label: 'XYLOPH - XYLOPHONE' },
+                      { value: 'ZITHER', label: 'ZITHER - ZITHER' }
+                ],
+                hint: 'Article type code (max 6 characters)'
+            },
+            articleBrand: {
+                label: 'Article Brand',
+                type: 'datalist',
+                placeholder: 'Type to search brands...',
+                hint: 'Article brand - type to search from 12,650+ options',
+                maxLength: 20
+            },
+            articleCategory: {
+                label: 'Article Category',
+                type: 'select',
+                hint: 'Populated Automatically based on TYP code selection. Only change value if you are sure it is wrong!',
+                options: [
+                    { value: "", label: "Select..." },
+                    { value: "S", label: "S - A RIDE" },
+                    { value: "E", label: "E - ACCOIL" },
+                    { value: "M", label: "M - ACCORD" },
+                    { value: "O", label: "O - ACCOUN" },
+                    { value: "E", label: "E - ACTUAT" },
+                    { value: "R", label: "R - ADAPTO" },
+                    { value: "O", label: "O - ADDING" },
+                    { value: "O", label: "O - ADDRES" },
+                    { value: "E", label: "E - AERATO" },
+                    { value: "E", label: "E - AIRBRU" },
+                    { value: "H", label: "H - AIRCON" },
+                    { value: "E", label: "E - AIRHAN" },
+                    { value: "H", label: "H - AIRPUR" },
+                    { value: "J", label: "J - AIRTIC" },
+                    { value: "G", label: "G - ALARM" },
+                    { value: "Q", label: "Q - ALIEN" },
+                    { value: "E", label: "E - AMMETE" },
+                    { value: "R", label: "R - AMPLIF" },
+                    { value: "E", label: "E - ANALYZ" },
+                    { value: "L", label: "L - ANGLE" },
+                    { value: "P", label: "P - ANKLEC" },
+                    { value: "R", label: "R - ANTENN" },
+                    { value: "E", label: "E - APNMON" },
+                    { value: "L", label: "L - AQUARI" },
+                    { value: "G", label: "G - ARCADE" },
+                    { value: "O", label: "O - ATMMAC" },
+                    { value: "E", label: "E - ATTENU" },
+                    { value: "E", label: "E - AUDIOM" },
+                    { value: "E", label: "E - AUGER" },
+                    { value: "M", label: "M - AUTOHA" },
+                    { value: "E", label: "E - AUTOPI" },
+                    { value: "B", label: "B - B 01" },
+                    { value: "B", label: "B - B 02" },
+                    { value: "B", label: "B - B 03" },
+                    { value: "B", label: "B - B 04" },
+                    { value: "B", label: "B - B 05" },
+                    { value: "B", label: "B - B 08" },
+                    { value: "B", label: "B - B 09" },
+                    { value: "B", label: "B - B 10" },
+                    { value: "B", label: "B - B 11" },
+                    { value: "B", label: "B - B 12" },
+                    { value: "B", label: "B - B 13" },
+                    { value: "B", label: "B - B 14" },
+                    { value: "B", label: "B - B 15" },
+                    { value: "B", label: "B - B 16" },
+                    { value: "B", label: "B - B 17" },
+                    { value: "B", label: "B - B 18" },
+                    { value: "B", label: "B - B 19" },
+                    { value: "B", label: "B - B 20" },
+                    { value: "B", label: "B - B 21" },
+                    { value: "B", label: "B - B 22" },
+                    { value: "B", label: "B - B 23" },
+                    { value: "B", label: "B - B 24" },
+                    { value: "B", label: "B - B 26" },
+                    { value: "B", label: "B - B 27" },
+                    { value: "B", label: "B - B 28" },
+                    { value: "B", label: "B - B 30" },
+                    { value: "B", label: "B - B 32" },
+                    { value: "B", label: "B - B 36" },
+                    { value: "P", label: "P - B ACCE" },
+                    { value: "E", label: "E - B APPA" },
+                    { value: "E", label: "E - B BAR" },
+                    { value: "R", label: "R - B CONT" },
+                    { value: "P", label: "P - B HARN" },
+                    { value: "P", label: "P - B KEG" },
+                    { value: "R", label: "R - B PACK" },
+                    { value: "O", label: "O - B PLAT" },
+                    { value: "E", label: "E - B RAM" },
+                    { value: "C", label: "C - BACK" },
+                    { value: "Q", label: "Q - BADGE" },
+                    { value: "E", label: "E - BAG" },
+                    { value: "E", label: "E - BALANC" },
+                    { value: "S", label: "S - BALL" },
+                    { value: "M", label: "M - BANJO" },
+                    { value: "O", label: "O - BANKBA" },
+                    { value: "D", label: "D - BARCOD" },
+                    { value: "M", label: "M - BARITO" },
+                    { value: "M", label: "M - BASS" },
+                    { value: "H", label: "H - BASSOO" },
+                    { value: "M", label: "M - BAT" },
+                    { value: "E", label: "E - BATCHG" },
+                    { value: "E", label: "E - BATON" },
+                    { value: "S", label: "S - BAYONE" },
+                    { value: "D", label: "D - BBGUN" },
+                    { value: "L", label: "L - BED" },
+                    { value: "S", label: "S - BELL" },
+                    { value: "F", label: "F - BELT" },
+                    { value: "F", label: "F - BENCH" },
+                    { value: "B", label: "B - BENDER" },
+                    { value: "S", label: "S - BEVEL" },
+                    { value: "S", label: "S - BICYCL" },
+                    { value: "Z", label: "Z - BINDER" },
+                    { value: "L", label: "L - BINDIN" },
+                    { value: "E", label: "E - BINOCU" },
+                    { value: "E", label: "E - BIOLOG" },
+                    { value: "S", label: "S - BIRD" },
+                    { value: "S", label: "S - BIRTHC" },
+                    { value: "E", label: "E - BIT" },
+                    { value: "H", label: "H - BLADE" },
+                    { value: "E", label: "E - BLANKG" },
+                    { value: "G", label: "G - BLENDE" },
+                    { value: "E", label: "E - BODY" },
+                    { value: "E", label: "E - BOLTCU" },
+                    { value: "F", label: "F - BOOK" },
+                    { value: "H", label: "H - BOOKCA" },
+                    { value: "E", label: "E - BOOKEN" },
+                    { value: "H", label: "H - BOTTLE" },
+                    { value: "S", label: "S - BOW" },
+                    { value: "B", label: "B - BOWL" },
+                    { value: "P", label: "P - BRACEL" },
+                    { value: "E", label: "E - BRAKE" },
+                    { value: "H", label: "H - BREADM" },
+                    { value: "E", label: "E - BREAKE" },
+                    { value: "P", label: "P - BRONCH" },
+                    { value: "E", label: "E - BRTANL" },
+                    { value: "P", label: "P - BRUSH" },
+                    { value: "E", label: "E - BUCKLE" },
+                    { value: "D", label: "D - BUFFER" },
+                    { value: "P", label: "P - BUGLE" },
+                    { value: "K", label: "K - BULLIO" },
+                    { value: "E", label: "E - BWATER" },
+                    { value: "C", label: "C - C BASE" },
+                    { value: "E", label: "E - C BELT" },
+                    { value: "D", label: "D - C COMP" },
+                    { value: "D", label: "D - C CONS" },
+                    { value: "E", label: "E - C DUPL" },
+                    { value: "E", label: "E - C LANY" },
+                    { value: "E", label: "E - C LINK" },
+                    { value: "P", label: "P - C SEAT" },
+                    { value: "F", label: "F - CABINE" },
+                    { value: "E", label: "E - CABLE" },
+                    { value: "R", label: "R - CABLEC" },
+                    { value: "E", label: "E - CABLEL" },
+                    { value: "E", label: "E - CALCUL" },
+                    { value: "E", label: "E - CALIBR" },
+                    { value: "O", label: "O - CALIPE" },
+                    { value: "R", label: "R - CALLER" },
+                    { value: "R", label: "R - CAMCOR" },
+                    { value: "C", label: "C - CAMERA" },
+                    { value: "S", label: "S - CAMPST" },
+                    { value: "H", label: "H - CANDEL" },
+                    { value: "P", label: "P - CANE" },
+                    { value: "E", label: "E - CARDIO" },
+                    { value: "K", label: "K - CARPET" },
+                    { value: "O", label: "O - CARRIE" },
+                    { value: "E", label: "E - CART" },
+                    { value: "R", label: "R - CARTRI" },
+                    { value: "R", label: "R - CASE" },
+                    { value: "E", label: "E - CASHRE" },
+                    { value: "W", label: "W - CATWOR" },
+                    { value: "E", label: "E - CBRADI" },
+                    { value: "R", label: "R - CDCHAN" },
+                    { value: "R", label: "R - CDPLAY" },
+                    { value: "R", label: "R - CDRECO" },
+                    { value: "D", label: "D - CDROM" },
+                    { value: "M", label: "M - CELLO" },
+                    { value: "D", label: "D - CELLPH" },
+                    { value: "U", label: "U - CERTIF" },
+                    { value: "E", label: "E - CHAINS" },
+                    { value: "F", label: "F - CHAIR" },
+                    { value: "O", label: "O - CHANGE" },
+                    { value: "R", label: "R - CHANNE" },
+                    { value: "E", label: "E - CHARGE" },
+                    { value: "P", label: "P - CHARM" },
+                    { value: "J", label: "J - CHECKS" },
+                    { value: "R", label: "R - CHECKW" },
+                    { value: "F", label: "F - CHEST" },
+                    { value: "E", label: "E - CHILLE" },
+                    { value: "E", label: "E - CHIPPE" },
+                    { value: "E", label: "E - CHISEL" },
+                    { value: "E", label: "E - CHOPPE" },
+                    { value: "P", label: "P - CHRONO" },
+                    { value: "D", label: "D - CIRCUI" },
+                    { value: "R", label: "R - CITIZN" },
+                    { value: "M", label: "M - CLAMPS" },
+                    { value: "E", label: "E - CLARIN" },
+                    { value: "H", label: "H - CLEANE" },
+                    { value: "E", label: "E - CLIPPE" },
+                    { value: "P", label: "P - CLOTHI" },
+                    { value: "P", label: "P - COAT" },
+                    { value: "H", label: "H - COFFEE" },
+                    { value: "E", label: "E - COIL" },
+                    { value: "K", label: "K - COIN" },
+                    { value: "O", label: "O - COINBO" },
+                    { value: "O", label: "O - COINSO" },
+                    { value: "E", label: "E - COLLAR" },
+                    { value: "K", label: "K - COLLEC" },
+                    { value: "R", label: "R - COMBO" },
+                    { value: "S", label: "S - COMPAC" },
+                    { value: "E", label: "E - COMPAS" },
+                    { value: "R", label: "R - COMPON" },
+                    { value: "R", label: "R - COMPRE" },
+                    { value: "O", label: "O - COMPTO" },
+                    { value: "D", label: "D - COMPUT" },
+                    { value: "D", label: "D - CONDEN" },
+                    { value: "O", label: "O - CONSOL" },
+                    { value: "E", label: "E - CONSTR" },
+                    { value: "S", label: "S - CONTAI" },
+                    { value: "D", label: "D - CONTRO" },
+                    { value: "R", label: "R - CONVER" },
+                    { value: "H", label: "H - CONVEY" },
+                    { value: "H", label: "H - COOKER" },
+                    { value: "O", label: "O - COOLER" },
+                    { value: "I", label: "I - COPIER" },
+                    { value: "T", label: "T - CORNET" },
+                    { value: "E", label: "E - CORROS" },
+                    { value: "D", label: "D - COUCH" },
+                    { value: "E", label: "E - COUNTE" },
+                    { value: "D", label: "D - COUPLE" },
+                    { value: "I", label: "I - COVER" },
+                    { value: "D", label: "D - CPU" },
+                    { value: "F", label: "F - CREDEN" },
+                    { value: "O", label: "O - CREDIT" },
+                    { value: "S", label: "S - CRIMPE" },
+                    { value: "D", label: "D - CROSSO" },
+                    { value: "D", label: "D - CRT" },
+                    { value: "H", label: "H - CRUTCH" },
+                    { value: "P", label: "P - CRYSTA" },
+                    { value: "W", label: "W - CUTTER" },
+                    { value: "E", label: "E - CYLIND" },
+                    { value: "M", label: "M - CYMBAL" },
+                    { value: "R", label: "R - D DELA" },
+                    { value: "R", label: "R - D PLAT" },
+                    { value: "H", label: "H - D RAMP" },
+                    { value: "P", label: "P - DAGGER" },
+                    { value: "P", label: "P - DECANT" },
+                    { value: "R", label: "R - DECODE" },
+                    { value: "E", label: "E - DEFIBR" },
+                    { value: "H", label: "H - DEHUMI" },
+                    { value: "P", label: "P - DENTCL" },
+                    { value: "H", label: "H - DEPTHF" },
+                    { value: "R", label: "R - DESCRA" },
+                    { value: "F", label: "F - DESK" },
+                    { value: "E", label: "E - DETECT" },
+                    { value: "E", label: "E - DIAGNO" },
+                    { value: "E", label: "E - DIAGSC" },
+                    { value: "O", label: "O - DIALER" },
+                    { value: "O", label: "O - DICTAT" },
+                    { value: "G", label: "G - DICTIO" },
+                    { value: "E", label: "E - DIESET" },
+                    { value: "C", label: "C - DIGCAM" },
+                    { value: "D", label: "D - DIGIT" },
+                    { value: "R", label: "R - DIGREC" },
+                    { value: "R", label: "R - DIRECT" },
+                    { value: "R", label: "R - DISC" },
+                    { value: "D", label: "D - DISK" },
+                    { value: "B", label: "B - DISPEN" },
+                    { value: "R", label: "R - DMMDEV" },
+                    { value: "E", label: "E - DRILL" },
+                    { value: "L", label: "L - DRILLU" },
+                    { value: "Z", label: "Z - DRONE" },
+                    { value: "M", label: "M - DRUM" },
+                    { value: "M", label: "M - DRUMMA" },
+                    { value: "P", label: "P - DRYER" },
+                    { value: "E", label: "E - DRYWAS" },
+                    { value: "M", label: "M - DULCIM" },
+                    { value: "E", label: "E - DUMPST" },
+                    { value: "R", label: "R - DVCOMB" },
+                    { value: "E", label: "E - E BOX" },
+                    { value: "S", label: "S - E EQUI" },
+                    { value: "P", label: "P - EARRIN" },
+                    { value: "D", label: "D - EBT" },
+                    { value: "E", label: "E - EDGER" },
+                    { value: "C", label: "C - EDITOR" },
+                    { value: "R", label: "R - EGAME" },
+                    { value: "J", label: "J - EKGMCH" },
+                    { value: "D", label: "D - ELCMAP" },
+                    { value: "D", label: "D - EMACHI" },
+                    { value: "E", label: "E - EMBROI" },
+                    { value: "E", label: "E - ENCODE" },
+                    { value: "E", label: "E - ENGINE" },
+                    { value: "E", label: "E - ENGRAV" },
+                    { value: "E", label: "E - ENGRAV" },
+                    { value: "R", label: "R - ENHANC" },
+                    { value: "O", label: "O - ENLARG" },
+                    { value: "T", label: "T - ENVELO" },
+                    { value: "Z", label: "Z - EPAHAZ" },
+                    { value: "R", label: "R - EPROMP" },
+                    { value: "R", label: "R - EQUALI" },
+                    { value: "K", label: "K - ETCHIN" },
+                    { value: "E", label: "E - EVAPOR" },
+                    { value: "R", label: "R - EXERCY" },
+                    { value: "R", label: "R - EXPAND" },
+                    { value: "C", label: "C - EXPLOS" },
+                    { value: "E", label: "E - EXTEND" },
+                    { value: "D", label: "D - EXTENS" },
+                    { value: "V", label: "V - EXTRAC" },
+                    { value: "R", label: "R - EYEGLA" },
+                    { value: "H", label: "H - F COUN" },
+                    { value: "S", label: "S - F GUN" },
+                    { value: "O", label: "O - F MACH" },
+                    { value: "H", label: "H - F PEDA" },
+                    { value: "J", label: "J - F PROC" },
+                    { value: "E", label: "E - F UNIT" },
+                    { value: "R", label: "R - FACSIM" },
+                    { value: "H", label: "H - FADER" },
+                    { value: "E", label: "E - FAN" },
+                    { value: "E", label: "E - FASTEN" },
+                    { value: "O", label: "O - FAUCET" },
+                    { value: "D", label: "D - FAXMOD" },
+                    { value: "L", label: "L - FEEDER" },
+                    { value: "M", label: "M - FELINE" },
+                    { value: "C", label: "C - FILM" },
+                    { value: "E", label: "E - FILTER" },
+                    { value: "E", label: "E - FIREEX" },
+                    { value: "E", label: "E - FIREHY" },
+                    { value: "S", label: "S - FISHIN" },
+                    { value: "Q", label: "Q - FLALIQ" },
+                    { value: "S", label: "S - FLAMET" },
+                    { value: "E", label: "E - FLASH" },
+                    { value: "H", label: "H - FLASHL" },
+                    { value: "Z", label: "Z - FLASOL" },
+                    { value: "D", label: "D - FLUTE" },
+                    { value: "E", label: "E - FOB" },
+                    { value: "J", label: "J - FOLDER" },
+                    { value: "E", label: "E - FOOTWE" },
+                    { value: "H", label: "H - FRAME" },
+                    { value: "P", label: "P - FREEZE" },
+                    { value: "H", label: "H - FRNREC" },
+                    { value: "E", label: "E - FRYER" },
+                    { value: "P", label: "P - FSBOOK" },
+                    { value: "E", label: "E - FSCOUP" },
+                    { value: "P", label: "P - FUR" },
+                    { value: "W", label: "W - FURNAC" },
+                    { value: "H", label: "H - FURNIT" },
+                    { value: "T", label: "T - FUSE" },
+                    { value: "Z", label: "Z - FUSION" },
+                    { value: "E", label: "E - FUSSPL" },
+                    { value: "B", label: "B - G 01" },
+                    { value: "B", label: "B - G 02" },
+                    { value: "B", label: "B - G 03" },
+                    { value: "B", label: "B - G 04" },
+                    { value: "B", label: "B - G 05" },
+                    { value: "B", label: "B - G 06" },
+                    { value: "B", label: "B - G 07" },
+                    { value: "B", label: "B - G 08" },
+                    { value: "B", label: "B - G 10" },
+                    { value: "B", label: "B - G 13" },
+                    { value: "B", label: "B - G 15" },
+                    { value: "B", label: "B - G 16" },
+                    { value: "B", label: "B - G 18" },
+                    { value: "B", label: "B - G 19" },
+                    { value: "B", label: "B - G 20" },
+                    { value: "B", label: "B - G 21" },
+                    { value: "B", label: "B - G 22" },
+                    { value: "B", label: "B - G 24" },
+                    { value: "B", label: "B - G 26" },
+                    { value: "B", label: "B - G 27" },
+                    { value: "B", label: "B - G 28" },
+                    { value: "B", label: "B - G 30" },
+                    { value: "B", label: "B - G 32" },
+                    { value: "E", label: "E - G CATC" },
+                    { value: "E", label: "E - GAUGE" },
+                    { value: "D", label: "D - GEAR" },
+                    { value: "P", label: "P - GEMSTO" },
+                    { value: "E", label: "E - GENERA" },
+                    { value: "P", label: "P - GLOVE" },
+                    { value: "L", label: "L - GOAT" },
+                    { value: "P", label: "P - GOGGLE" },
+                    { value: "E", label: "E - GOLDDR" },
+                    { value: "S", label: "S - GOLFCA" },
+                    { value: "S", label: "S - GOLFCL" },
+                    { value: "E", label: "E - GPOSYS" },
+                    { value: "E", label: "E - GPU" },
+                    { value: "D", label: "D - GRAPHI" },
+                    { value: "E", label: "E - GREENH" },
+                    { value: "H", label: "H - GRILL" },
+                    { value: "E", label: "E - GRINDE" },
+                    { value: "E", label: "E - GROOVE" },
+                    { value: "M", label: "M - GUITAR" },
+                    { value: "E", label: "E - GYROSC" },
+                    { value: "P", label: "P - HABRAC" },
+                    { value: "E", label: "E - HACKSA" },
+                    { value: "P", label: "P - HAIRSE" },
+                    { value: "E", label: "E - HAMMER" },
+                    { value: "R", label: "R - HANDCO" },
+                    { value: "P", label: "P - HANDCU" },
+                    { value: "E", label: "E - HANDLE" },
+                    { value: "E", label: "E - HANDPI" },
+                    { value: "E", label: "E - HANDTR" },
+                    { value: "M", label: "M - HARMON" },
+                    { value: "L", label: "L - HARNES" },
+                    { value: "M", label: "M - HARP" },
+                    { value: "P", label: "P - HAT" },
+                    { value: "E", label: "E - HATCHE" },
+                    { value: "R", label: "R - HEAD" },
+                    { value: "R", label: "R - HEADSE" },
+                    { value: "P", label: "P - HEARIN" },
+                    { value: "H", label: "H - HEATER" },
+                    { value: "H", label: "H - HEATPU" },
+                    { value: "E", label: "E - HEDGEC" },
+                    { value: "P", label: "P - HELMET" },
+                    { value: "E", label: "E - HOE" },
+                    { value: "E", label: "E - HOIST" },
+                    { value: "E", label: "E - HOLSTE" },
+                    { value: "S", label: "S - HOMGYM" },
+                    { value: "H", label: "H - HOOD" },
+                    { value: "M", label: "M - HORN" },
+                    { value: "L", label: "L - HORSE" },
+                    { value: "E", label: "E - HORSER" },
+                    { value: "E", label: "E - HOSE" },
+                    { value: "M", label: "M - HOTTUB" },
+                    { value: "P", label: "P - HRSTYL" },
+                    { value: "H", label: "H - HUMIDI" },
+                    { value: "H", label: "H - ICECRE" },
+                    { value: "H", label: "H - ICEMAK" },
+                    { value: "H", label: "H - ICESHA" },
+                    { value: "O", label: "O - IMPRIN" },
+                    { value: "E", label: "E - INDICA" },
+                    { value: "E", label: "E - INJECT" },
+                    { value: "E", label: "E - INSTRU" },
+                    { value: "R", label: "R - INTERC" },
+                    { value: "D", label: "D - INTERF" },
+                    { value: "E", label: "E - INVERT" },
+                    { value: "H", label: "H - IRON" },
+                    { value: "S", label: "S - ISKATE" },
+                    { value: "E", label: "E - JACK" },
+                    { value: "P", label: "P - JACKET" },
+                    { value: "P", label: "P - JEWELB" },
+                    { value: "E", label: "E - JIG" },
+                    { value: "E", label: "E - JOINTE" },
+                    { value: "D", label: "D - JOYST" },
+                    { value: "H", label: "H - JUICER" },
+                    { value: "R", label: "R - JUKEBO" },
+                    { value: "E", label: "E - K KICK" },
+                    { value: "R", label: "R - KARAOK" },
+                    { value: "K", label: "K - KELLYS" },
+                    { value: "H", label: "H - KETTLE" },
+                    { value: "E", label: "E - KEY" },
+                    { value: "M", label: "M - KEYBOA" },
+                    { value: "E", label: "E - KEYMAK" },
+                    { value: "D", label: "D - KEYPAD" },
+                    { value: "D", label: "D - KEYPUN" },
+                    { value: "E", label: "E - KIT" },
+                    { value: "S", label: "S - KITE" },
+                    { value: "E", label: "E - KNIFE" },
+                    { value: "H", label: "H - L BOX" },
+                    { value: "E", label: "E - LABELE" },
+                    { value: "F", label: "F - LADDER" },
+                    { value: "O", label: "O - LAMINA" },
+                    { value: "O", label: "O - LAMP" },
+                    { value: "S", label: "S - LANTER" },
+                    { value: "D", label: "D - LAPTOP" },
+                    { value: "E", label: "E - LASER" },
+                    { value: "S", label: "S - LASGUN" },
+                    { value: "E", label: "E - LATHE" },
+                    { value: "E", label: "E - LEAFBL" },
+                    { value: "Z", label: "Z - LECTER" },
+                    { value: "S", label: "S - LEGMAC" },
+                    { value: "C", label: "C - LENS" },
+                    { value: "E", label: "E - LEVEL" },
+                    { value: "E", label: "E - LEVER" },
+                    { value: "E", label: "E - LICENS" },
+                    { value: "J", label: "J - LICTAB" },
+                    { value: "E", label: "E - LIFEPR" },
+                    { value: "E", label: "E - LIFT" },
+                    { value: "E", label: "E - LIGHT" },
+                    { value: "P", label: "P - LIGHTE" },
+                    { value: "M", label: "M - LIGHTM" },
+                    { value: "D", label: "D - LIGHTP" },
+                    { value: "E", label: "E - LINEFI" },
+                    { value: "E", label: "E - LMDEVI" },
+                    { value: "E", label: "E - LOADER" },
+                    { value: "R", label: "R - LOCATO" },
+                    { value: "E", label: "E - LOCK" },
+                    { value: "E", label: "E - LOGSPL" },
+                    { value: "F", label: "F - LOTTER" },
+                    { value: "S", label: "S - LUGGAG" },
+                    { value: "M", label: "M - M ACCE" },
+                    { value: "R", label: "R - M BOAR" },
+                    { value: "D", label: "D - M CARD" },
+                    { value: "O", label: "O - M CLIP" },
+                    { value: "W", label: "W - M CONT" },
+                    { value: "Y", label: "Y - M HOME" },
+                    { value: "E", label: "E - MACHIN" },
+                    { value: "C", label: "C - MAGAZI" },
+                    { value: "E", label: "E - MAGNET" },
+                    { value: "O", label: "O - MAGNIF" },
+                    { value: "E", label: "E - MAILBO" },
+                    { value: "O", label: "O - MAILIN" },
+                    { value: "M", label: "M - MANDOL" },
+                    { value: "P", label: "P - MASSAG" },
+                    { value: "E", label: "E - MEASUR" },
+                    { value: "O", label: "O - MEATSL" },
+                    { value: "P", label: "P - MEDAL" },
+                    { value: "P", label: "P - MEDALL" },
+                    { value: "R", label: "R - MEDICA" },
+                    { value: "E", label: "E - MEGAPH" },
+                    { value: "M", label: "M - MEGOHM" },
+                    { value: "D", label: "D - MELLOP" },
+                    { value: "O", label: "O - MEMORY" },
+                    { value: "E", label: "E - METALD" },
+                    { value: "M", label: "M - METRON" },
+                    { value: "R", label: "R - MICROM" },
+                    { value: "D", label: "D - MICROP" },
+                    { value: "M", label: "M - MICROR" },
+                    { value: "H", label: "H - MICROS" },
+                    { value: "O", label: "O - MILL" },
+                    { value: "F", label: "F - MILLIN" },
+                    { value: "E", label: "E - MIRROR" },
+                    { value: "H", label: "H - MITERB" },
+                    { value: "R", label: "R - MIXER" },
+                    { value: "S", label: "S - MLTPRS" },
+                    { value: "R", label: "R - MODEL" },
+                    { value: "T", label: "T - MODEM" },
+                    { value: "D", label: "D - MODULE" },
+                    { value: "D", label: "D - MOMACH" },
+                    { value: "D", label: "D - MONEYC" },
+                    { value: "R", label: "R - MONITO" },
+                    { value: "V", label: "V - MONOCU" },
+                    { value: "P", label: "P - MORBOX" },
+                    { value: "E", label: "E - MOTOR" },
+                    { value: "C", label: "C - MOTORD" },
+                    { value: "D", label: "D - MOUSE" },
+                    { value: "E", label: "E - MOVER" },
+                    { value: "E", label: "E - MOWER" },
+                    { value: "J", label: "J - MTPASS" },
+                    { value: "E", label: "E - MULTIM" },
+                    { value: "O", label: "O - MULTIP" },
+                    { value: "P", label: "P - MUSICB" },
+                    { value: "M", label: "M - MUSICM" },
+                    { value: "B", label: "B - N 01" },
+                    { value: "B", label: "B - N 07" },
+                    { value: "B", label: "B - N 10" },
+                    { value: "B", label: "B - N 12" },
+                    { value: "B", label: "B - N 18" },
+                    { value: "B", label: "B - N 21" },
+                    { value: "B", label: "B - N 24" },
+                    { value: "B", label: "B - N 27" },
+                    { value: "E", label: "E - N MATE" },
+                    { value: "E", label: "E - NAILSP" },
+                    { value: "R", label: "R - NAVIGA" },
+                    { value: "E", label: "E - NEBULI" },
+                    { value: "E", label: "E - NECKLA" },
+                    { value: "R", label: "R - NEEDLE" },
+                    { value: "B", label: "B - NERVST" },
+                    { value: "E", label: "E - NEWSRA" },
+                    { value: "E", label: "E - NIBBLE" },
+                    { value: "F", label: "F - NIGHTS" },
+                    { value: "V", label: "V - NIGHTV" },
+                    { value: "S", label: "S - NOISER" },
+                    { value: "M", label: "M - NOZZLE" },
+                    { value: "W", label: "W - O REGU" },
+                    { value: "E", label: "E - OBOE" },
+                    { value: "H", label: "H - OHMMET" },
+                    { value: "E", label: "E - OPHTHA" },
+                    { value: "Q", label: "Q - ORGAN" },
+                    { value: "F", label: "F - ORGANI" },
+                    { value: "H", label: "H - OSCILL" },
+                    { value: "S", label: "S - OVEN" },
+                    { value: "E", label: "E - OXIMET" },
+                    { value: "D", label: "D - OXYGEN" },
+                    { value: "R", label: "R - P BOOS" },
+                    { value: "D", label: "D - P CARDS" },
+                    { value: "O", label: "O - P FEED" },
+                    { value: "L", label: "L - P FRAM" },
+                    { value: "R", label: "R - P INSE" },
+                    { value: "O", label: "O - P LIMB" },
+                    { value: "J", label: "J - P META" },
+                    { value: "C", label: "C - P PATC" },
+                    { value: "R", label: "R - P SHIF" },
+                    { value: "E", label: "E - P SPLI" },
+                    { value: "E", label: "E - P SUIT" },
+                    { value: "S", label: "S - P WEIG" },
+                    { value: "E", label: "E - PACEMA" },
+                    { value: "R", label: "R - PACK" },
+                    { value: "S", label: "S - PACKAG" },
+                    { value: "E", label: "E - PACKER" },
+                    { value: "E", label: "E - PAD" },
+                    { value: "E", label: "E - PAGER" },
+                    { value: "D", label: "D - PANEL" },
+                    { value: "P", label: "P - PANTS" },
+                    { value: "I", label: "I - PARACH" },
+                    { value: "Q", label: "Q - PARKME" },
+                    { value: "D", label: "D - PASSPO" },
+                    { value: "E", label: "E - PASYST" },
+                    { value: "M", label: "M - PAVER" },
+                    { value: "M", label: "M - PDASSI" },
+                    { value: "S", label: "S - PEDAL" },
+                    { value: "O", label: "O - PEDOME" },
+                    { value: "P", label: "P - PEN" },
+                    { value: "E", label: "E - PENCIL" },
+                    { value: "J", label: "J - PENDAN" },
+                    { value: "U", label: "U - PERMIT" },
+                    { value: "R", label: "R - PHONEC" },
+                    { value: "R", label: "R - PHONOG" },
+                    { value: "M", label: "M - PHOTCD" },
+                    { value: "M", label: "M - PHOTOC" },
+                    { value: "Q", label: "Q - PIANO" },
+                    { value: "P", label: "P - PICCOL" },
+                    { value: "G", label: "G - PIGEON" },
+                    { value: "E", label: "E - PIN" },
+                    { value: "G", label: "G - PINBAL" },
+                    { value: "E", label: "E - PINCAR" },
+                    { value: "E", label: "E - PITCHI" },
+                    { value: "E", label: "E - PLANE" },
+                    { value: "K", label: "K - PLANER" },
+                    { value: "H", label: "H - PLATE" },
+                    { value: "E", label: "E - PLIERS" },
+                    { value: "D", label: "D - PLOW" },
+                    { value: "O", label: "O - PLUG" },
+                    { value: "E", label: "E - POINTE" },
+                    { value: "G", label: "G - POISON" },
+                    { value: "E", label: "E - POLISH" },
+                    { value: "H", label: "H - POLYGR" },
+                    { value: "E", label: "E - POOL" },
+                    { value: "H", label: "H - POOLCU" },
+                    { value: "S", label: "S - POOLTA" },
+                    { value: "O", label: "O - POPCOR" },
+                    { value: "E", label: "E - POSTAG" },
+                    { value: "H", label: "H - POSTHO" },
+                    { value: "E", label: "E - POSTIN" },
+                    { value: "R", label: "R - POT" },
+                    { value: "R", label: "R - POTTER" },
+                    { value: "E", label: "E - POUNDE" },
+                    { value: "E", label: "E - POWERB" },
+                    { value: "R", label: "R - POWERP" },
+                    { value: "W", label: "W - POWERS" },
+                    { value: "P", label: "P - PREAMP" },
+                    { value: "E", label: "E - PRESCR" },
+                    { value: "K", label: "K - PRESS" },
+                    { value: "D", label: "D - PRINT" },
+                    { value: "C", label: "C - PRINTE" },
+                    { value: "E", label: "E - PRISM" },
+                    { value: "E", label: "E - PROBE" },
+                    { value: "C", label: "C - PROCES" },
+                    { value: "P", label: "P - PROJEC" },
+                    { value: "P", label: "P - PROMPT" },
+                    { value: "E", label: "E - PROTRA" },
+                    { value: "W", label: "W - PRYBAR" },
+                    { value: "E", label: "E - PULLER" },
+                    { value: "P", label: "P - PUMP" },
+                    { value: "L", label: "L - PUMPUN" },
+                    { value: "E", label: "E - PUNCH" },
+                    { value: "R", label: "R - RACK" },
+                    { value: "S", label: "S - RACKET" },
+                    { value: "E", label: "E - RADAR" },
+                    { value: "R", label: "R - RADIO" },
+                    { value: "E", label: "E - RAM" },
+                    { value: "E", label: "E - RAMMER" },
+                    { value: "H", label: "H - RANGE" },
+                    { value: "C", label: "C - RANGEF" },
+                    { value: "E", label: "E - RATCHE" },
+                    { value: "S", label: "S - RCTOY" },
+                    { value: "D", label: "D - READER" },
+                    { value: "W", label: "W - REAMER" },
+                    { value: "R", label: "R - RECEIV" },
+                    { value: "M", label: "M - RECORD" },
+                    { value: "D", label: "D - REEL" },
+                    { value: "O", label: "O - REFRIG" },
+                    { value: "E", label: "E - REGULA" },
+                    { value: "M", label: "M - REMOTC" },
+                    { value: "R", label: "R - REMOTE" },
+                    { value: "E", label: "E - RENOVA" },
+                    { value: "R", label: "R - REPEAT" },
+                    { value: "E", label: "E - RESPIR" },
+                    { value: "R", label: "R - REVERB" },
+                    { value: "P", label: "P - RING" },
+                    { value: "E", label: "E - RIVETG" },
+                    { value: "E", label: "E - ROBOT" },
+                    { value: "S", label: "S - ROLBLD" },
+                    { value: "E", label: "E - ROLLER" },
+                    { value: "E", label: "E - ROTARY" },
+                    { value: "D", label: "D - ROUTER" },
+                    { value: "S", label: "S - ROWING" },
+                    { value: "S", label: "S - RSKATE" },
+                    { value: "H", label: "H - RUG" },
+                    { value: "P", label: "P - S CUP" },
+                    { value: "E", label: "E - S GUN" },
+                    { value: "C", label: "C - S LITE" },
+                    { value: "E", label: "E - S MACH" },
+                    { value: "E", label: "E - S SERV" },
+                    { value: "S", label: "S - S SKIS" },
+                    { value: "W", label: "W - S STRI" },
+                    { value: "S", label: "S - SADDLE" },
+                    { value: "O", label: "O - SAFE" },
+                    { value: "E", label: "E - SAMPLE" },
+                    { value: "E", label: "E - SANDBL" },
+                    { value: "E", label: "E - SANDER" },
+                    { value: "R", label: "R - SATDSH" },
+                    { value: "E", label: "E - SAW" },
+                    { value: "M", label: "M - SAXOPH" },
+                    { value: "E", label: "E - SCAFFO" },
+                    { value: "E", label: "E - SCALES" },
+                    { value: "R", label: "R - SCANNE" },
+                    { value: "E", label: "E - SCARDS" },
+                    { value: "S", label: "S - SCOOTE" },
+                    { value: "V", label: "V - SCOPE" },
+                    { value: "E", label: "E - SCRAPE" },
+                    { value: "C", label: "C - SCREEN" },
+                    { value: "E", label: "E - SCREW" },
+                    { value: "E", label: "E - SCREWD" },
+                    { value: "E", label: "E - SCREWG" },
+                    { value: "E", label: "E - SCRUBB" },
+                    { value: "S", label: "S - SCUBA" },
+                    { value: "H", label: "H - SEALER" },
+                    { value: "E", label: "E - SEALIN" },
+                    { value: "D", label: "D - SEAMER" },
+                    { value: "E", label: "E - SEISMO" },
+                    { value: "E", label: "E - SENSOR" },
+                    { value: "E", label: "E - SEPARA" },
+                    { value: "M", label: "M - SEQUEN" },
+                    { value: "K", label: "K - SERIGR" },
+                    { value: "D", label: "D - SERVER" },
+                    { value: "E", label: "E - SEWERC" },
+                    { value: "H", label: "H - SEWING" },
+                    { value: "E", label: "E - SEXTAN" },
+                    { value: "H", label: "H - SHAMPO" },
+                    { value: "E", label: "E - SHAPER" },
+                    { value: "E", label: "E - SHARPE" },
+                    { value: "P", label: "P - SHAVER" },
+                    { value: "E", label: "E - SHEARS" },
+                    { value: "W", label: "W - SHOCKS" },
+                    { value: "E", label: "E - SHOVEL" },
+                    { value: "H", label: "H - SHOWER" },
+                    { value: "E", label: "E - SHREDD" },
+                    { value: "C", label: "C - SHUTTE" },
+                    { value: "E", label: "E - SIGN" },
+                    { value: "D", label: "D - SIGNAT" },
+                    { value: "H", label: "H - SILVER" },
+                    { value: "S", label: "S - SINK" },
+                    { value: "S", label: "S - SKATEB" },
+                    { value: "S", label: "S - SKIMAC" },
+                    { value: "H", label: "H - SLICER" },
+                    { value: "G", label: "G - SLIDER" },
+                    { value: "I", label: "I - SLOTMA" },
+                    { value: "D", label: "D - SMARTC" },
+                    { value: "E", label: "E - SNAKE" },
+                    { value: "Q", label: "Q - SNOWBL" },
+                    { value: "E", label: "E - SNOWBO" },
+                    { value: "E", label: "E - SNOWCH" },
+                    { value: "O", label: "O - SOCKET" },
+                    { value: "H", label: "H - SODCUT" },
+                    { value: "O", label: "O - SOFTWA" },
+                    { value: "M", label: "M - SOLARP" },
+                    { value: "D", label: "D - SOLDER" },
+                    { value: "R", label: "R - SORTER" },
+                    { value: "E", label: "E - SOUNDB" },
+                    { value: "R", label: "R - SOUNDM" },
+                    { value: "M", label: "M - SOUSAP" },
+                    { value: "E", label: "E - SPADE" },
+                    { value: "R", label: "R - SPEAKE" },
+                    { value: "E", label: "E - SPECTR" },
+                    { value: "J", label: "J - SPEDOC" },
+                    { value: "E", label: "E - SPHYGM" },
+                    { value: "S", label: "S - SPOOL" },
+                    { value: "E", label: "E - SPOTLI" },
+                    { value: "V", label: "V - SPRAYE" },
+                    { value: "E", label: "E - SPRAYG" },
+                    { value: "E", label: "E - SPREAD" },
+                    { value: "W", label: "W - SPRINK" },
+                    { value: "R", label: "R - SQUARE" },
+                    { value: "F", label: "F - SSCARD" },
+                    { value: "J", label: "J - STABIL" },
+                    { value: "D", label: "D - STAMP" },
+                    { value: "E", label: "E - STAMPM" },
+                    { value: "R", label: "R - STAND" },
+                    { value: "K", label: "K - STAPLE" },
+                    { value: "H", label: "H - STARTE" },
+                    { value: "H", label: "H - STEAMC" },
+                    { value: "O", label: "O - STENOT" },
+                    { value: "S", label: "S - STEPMA" },
+                    { value: "R", label: "R - STEREO" },
+                    { value: "E", label: "E - STERIL" },
+                    { value: "E", label: "E - STETHO" },
+                    { value: "R", label: "R - STFPLT" },
+                    { value: "J", label: "J - STICKE" },
+                    { value: "E", label: "E - STIMUL" },
+                    { value: "H", label: "H - STOPWA" },
+                    { value: "D", label: "D - STREAM" },
+                    { value: "E", label: "E - STRETC" },
+                    { value: "E", label: "E - STRIPP" },
+                    { value: "E", label: "E - STROBE" },
+                    { value: "P", label: "P - STROLL" },
+                    { value: "E", label: "E - STUDGU" },
+                    { value: "E", label: "E - SUB" },
+                    { value: "E", label: "E - SUMMON" },
+                    { value: "H", label: "H - SURFBO" },
+                    { value: "D", label: "D - SWATCH" },
+                    { value: "O", label: "O - SWEEPE" },
+                    { value: "R", label: "R - SWITCH" },
+                    { value: "W", label: "W - SWIVEL" },
+                    { value: "S", label: "S - SWORD" },
+                    { value: "R", label: "R - SYNCHR" },
+                    { value: "R", label: "R - SYNTHE" },
+                    { value: "S", label: "S - T BOX" },
+                    { value: "E", label: "E - T DEVI" },
+                    { value: "E", label: "E - T GUN" },
+                    { value: "C", label: "C - T MACH" },
+                    { value: "R", label: "R - T MEAS" },
+                    { value: "L", label: "L - T REMO" },
+                    { value: "F", label: "F - TABLE" },
+                    { value: "D", label: "D - TABLET" },
+                    { value: "O", label: "O - TABULA" },
+                    { value: "E", label: "E - TACHOM" },
+                    { value: "E", label: "E - TACKER" },
+                    { value: "E", label: "E - TAMPER" },
+                    { value: "O", label: "O - TANK" },
+                    { value: "H", label: "H - TAPE" },
+                    { value: "E", label: "E - TAPEDE" },
+                    { value: "R", label: "R - TAPEDI" },
+                    { value: "R", label: "R - TAPEPL" },
+                    { value: "E", label: "E - TAPER" },
+                    { value: "R", label: "R - TAPERE" },
+                    { value: "O", label: "O - TEARGA" },
+                    { value: "D", label: "D - TELANS" },
+                    { value: "R", label: "R - TELDVD" },
+                    { value: "D", label: "D - TELECO" },
+                    { value: "P", label: "P - TELETE" },
+                    { value: "R", label: "R - TELEVI" },
+                    { value: "R", label: "R - TELVCR" },
+                    { value: "E", label: "E - TEMPLA" },
+                    { value: "S", label: "S - TENT" },
+                    { value: "D", label: "D - TERMIN" },
+                    { value: "E", label: "E - TESTER" },
+                    { value: "E", label: "E - THATCH" },
+                    { value: "E", label: "E - THEODO" },
+                    { value: "E", label: "E - THERMO" },
+                    { value: "E", label: "E - THERMS" },
+                    { value: "E", label: "E - THREAD" },
+                    { value: "J", label: "J - TICKET" },
+                    { value: "E", label: "E - TILLER" },
+                    { value: "E", label: "E - TIMECL" },
+                    { value: "R", label: "R - TIMER" },
+                    { value: "E", label: "E - TIMING" },
+                    { value: "E", label: "E - TIRECH" },
+                    { value: "J", label: "J - TITLE" },
+                    { value: "H", label: "H - TOASTE" },
+                    { value: "H", label: "H - TOASTO" },
+                    { value: "H", label: "H - TOILET" },
+                    { value: "E", label: "E - TONOME" },
+                    { value: "E", label: "E - TOOL" },
+                    { value: "E", label: "E - TOOLBO" },
+                    { value: "W", label: "W - TOOLJO" },
+                    { value: "E", label: "E - TORCH" },
+                    { value: "Z", label: "Z - TORM" },
+                    { value: "P", label: "P - TOY" },
+                    { value: "E", label: "E - TRACER" },
+                    { value: "D", label: "D - TRACKE" },
+                    { value: "K", label: "K - TRAFFI" },
+                    { value: "E", label: "E - TRANSC" },
+                    { value: "E", label: "E - TRANSD" },
+                    { value: "E", label: "E - TRANSF" },
+                    { value: "O", label: "O - TRANSI" },
+                    { value: "R", label: "R - TRANSL" },
+                    { value: "E", label: "E - TRANSM" },
+                    { value: "O", label: "O - TRANSP" },
+                    { value: "H", label: "H - TRAP" },
+                    { value: "H", label: "H - TRASHB" },
+                    { value: "E", label: "E - TREADM" },
+                    { value: "E", label: "E - TRENCH" },
+                    { value: "C", label: "C - TRIMME" },
+                    { value: "M", label: "M - TRIPOD" },
+                    { value: "E", label: "E - TROMBO" },
+                    { value: "R", label: "R - TROWEL" },
+                    { value: "H", label: "H - TRUMPE" },
+                    { value: "H", label: "H - TUB" },
+                    { value: "E", label: "E - TUBA" },
+                    { value: "R", label: "R - TUBE" },
+                    { value: "R", label: "R - TUNER" },
+                    { value: "W", label: "W - TURNTA" },
+                    { value: "R", label: "R - TURTLE" },
+                    { value: "O", label: "O - TYPEWR" },
+                    { value: "M", label: "M - UKULEL" },
+                    { value: "E", label: "E - ULTRAS" },
+                    { value: "P", label: "P - UMBREL" },
+                    { value: "R", label: "R - V ACCE" },
+                    { value: "R", label: "R - V DISP" },
+                    { value: "R", label: "R - V EYEW" },
+                    { value: "R", label: "R - V PLAY" },
+                    { value: "M", label: "M - V PROC" },
+                    { value: "E", label: "E - VACUUM" },
+                    { value: "O", label: "O - VALIDA" },
+                    { value: "W", label: "W - VALVE" },
+                    { value: "W", label: "W - VALVEC" },
+                    { value: "K", label: "K - VASE" },
+                    { value: "R", label: "R - VCONVE" },
+                    { value: "R", label: "R - VCRREW" },
+                    { value: "R", label: "R - VDISK" },
+                    { value: "O", label: "O - VENDIN" },
+                    { value: "E", label: "E - VENTIL" },
+                    { value: "O", label: "O - VERIFY" },
+                    { value: "P", label: "P - VEST" },
+                    { value: "E", label: "E - VIBRAT" },
+                    { value: "R", label: "R - VIDEOC" },
+                    { value: "R", label: "R - VIDEOD" },
+                    { value: "R", label: "R - VIDEOR" },
+                    { value: "R", label: "R - VIDEOT" },
+                    { value: "V", label: "V - VIEWER" },
+                    { value: "C", label: "C - VIEWFI" },
+                    { value: "M", label: "M - VIOLA" },
+                    { value: "M", label: "M - VIOLIN" },
+                    { value: "E", label: "E - VISE" },
+                    { value: "C", label: "C - VISUAL" },
+                    { value: "R", label: "R - VMULTI" },
+                    { value: "D", label: "D - VOICEC" },
+                    { value: "E", label: "E - VOICER" },
+                    { value: "H", label: "H - VOLTME" },
+                    { value: "R", label: "R - VTAPE" },
+                    { value: "E", label: "E - W COND" },
+                    { value: "E", label: "E - W INST" },
+                    { value: "E", label: "E - W MOUN" },
+                    { value: "M", label: "M - WAFFLE" },
+                    { value: "E", label: "E - WAKEBO" },
+                    { value: "P", label: "P - WALKER" },
+                    { value: "E", label: "E - WALKIE" },
+                    { value: "S", label: "S - WALLET" },
+                    { value: "H", label: "H - WASHER" },
+                    { value: "H", label: "H - WATCH" },
+                    { value: "H", label: "H - WATERB" },
+                    { value: "E", label: "E - WATERC" },
+                    { value: "R", label: "R - WATERH" },
+                    { value: "P", label: "P - WATTME" },
+                    { value: "H", label: "H - WAXER" },
+                    { value: "C", label: "C - WEBTV" },
+                    { value: "E", label: "E - WELDER" },
+                    { value: "R", label: "R - WINDER" },
+                    { value: "E", label: "E - WIREST" },
+                    { value: "H", label: "H - WOODST" },
+                    { value: "E", label: "E - WRENCH" }
+                ]
+            },
+            purposeCode: {
+                label: 'CA Purpose Code',
+                type: 'select',
+                options: [
+                    { value: '', label: 'Select...' },
+                    { value: 'C', label: 'C - Criminal' },
+                    { value: 'I', label: 'I - Intelligence' },
+                    { value: 'U', label: 'U - Immigration Violations (Section 1325)' }
+                ],
+                hint: 'Required per AB 1747 (mandatory since July 21, 2021)',
+                required: true
+            }
+        };
+
+
+const articleCodeToCategory = {
+  "A RIDE": "S",
+  "ACCOIL": "E",
+  "ACCORD": "M",
+  "ACCOUN": "O",
+  "ACTUAT": "R",
+  "ADAPTO": "E",
+  "ADDING": "O",
+  "ADDRES": "O",
+  "AERATO": "E",
+  "AIRBRU": "E",
+  "AIRCON": "H",
+  "AIRHAN": "E",
+  "AIRPUR": "H",
+  "AIRTIC": "J",
+  "ALARM": "E",
+  "ALIEN": "I",
+  "AMMETE": "E",
+  "AMPLIF": "R",
+  "ANALYZ": "E",
+  "ANGLE": "E",
+  "ANKLEC": "P",
+  "ANTENN": "R",
+  "APNMON": "E",
+  "AQUARI": "L",
+  "ARCADE": "G",
+  "ATMMAC": "O",
+  "ATTENU": "E",
+  "AUDIOM": "E",
+  "AUGER": "E",
+  "AUTOHA": "M",
+  "AUTOPI": "E",
+  "B ACCE": "S",
+  "B APPA": "E",
+  "B BAR": "E",
+  "B BELT": "E",
+  "B CONT": "L",
+  "B HARN": "P",
+  "B KEG": "H",
+  "B PACK": "R",
+  "B PLAT": "O",
+  "B RAM": "E",
+  "B01": "B",
+  "B02": "B",
+  "B03": "B",
+  "B04": "B",
+  "B05": "B",
+  "B06": "B",
+  "B07": "B",
+  "B08": "B",
+  "B09": "B",
+  "B10": "B",
+  "B11": "B",
+  "B12": "B",
+  "B13": "B",
+  "B14": "B",
+  "B15": "B",
+  "B16": "B",
+  "B17": "B",
+  "B18": "B",
+  "B19": "B",
+  "B20": "B",
+  "B21": "B",
+  "B22": "B",
+  "B23": "B",
+  "B24": "B",
+  "B26": "B",
+  "B27": "B",
+  "B28": "B",
+  "B30": "B",
+  "B32": "B",
+  "B36": "B",
+  "BACK": "C",
+  "BADGE": "I",
+  "BAG": "S",
+  "BALANC": "E",
+  "BALL": "S",
+  "BANKBA": "O",
+  "BANJO": "M",
+  "BARCOD": "D",
+  "BARITO": "M",
+  "BAT": "S",
+  "BASS": "M",
+  "BASSOO": "M",
+  "BATCHG": "E",
+  "BATON": "P",
+  "BAYONE": "S",
+  "BBGUN": "S",
+  "BED": "F",
+  "BELL": "M",
+  "BELT": "P",
+  "BENCH": "F",
+  "BENDER": "E",
+  "BEVEL": "E",
+  "BICYCL": "B",
+  "BINDER": "E",
+  "BINDIN": "S",
+  "BINOCU": "V",
+  "BIOLOG": "T",
+  "BIRD": "L",
+  "BIRTHC": "J",
+  "BIT": "E",
+  "BLADE": "E",
+  "BLANKG": "S",
+  "BLENDE": "H",
+  "BLOWER": "E",
+  "BOARD": "G",
+  "BODY": "C",
+  "BOLTCU": "E",
+  "BOOK": "K",
+  "BOOKCA": "F",
+  "BOOKEN": "H",
+  "BOTTLE": "E",
+  "BOW": "S",
+  "BOWL": "H",
+  "BRACEL": "P",
+  "BRAKE": "E",
+  "BREADM": "H",
+  "BREAKE": "E",
+  "BRONCH": "E",
+  "BRTANL": "E",
+  "BRUSH": "E",
+  "BUCKLE": "P",
+  "BUFFER": "E",
+  "BUGLE": "M",
+  "BULLIO": "K",
+  "BWATER": "E",
+  "CABLEC": "R",
+  "CABLE": "E",
+  "CABLEL": "E",
+  "CABINE": "E",
+  "CALIBR": "E",
+  "CALIPE": "E",
+  "CALLER": "O",
+  "CALCUL": "O",
+  "C ACCE": "C",
+  "C BASE": "C",
+  "C BELT": "E",
+  "C COMP": "D",
+  "C CONS": "O",
+  "C DUPL": "R",
+  "C LANY": "E",
+  "C LINK": "P",
+  "C SEAT": "P",
+  "CABLEC": "R",
+  "CAMCOR": "R",
+  "CAMERA": "C",
+  "CAMPST": "S",
+  "CANDEL": "H",
+  "CANE": "P",
+  "CARDIO": "E",
+  "CARPET": "K",
+  "CARRIE": "P",
+  "CART": "E",
+  "CARTRI": "S",
+  "CASE": "E",
+  "CASHRE": "O",
+  "CASTIN": "E",
+  "CATTLE": "L",
+  "CATWOR": "W",
+  "CBRADI": "R",
+  "CDCHAN": "R",
+  "CDPLAY": "R",
+  "CDRECO": "R",
+  "CDROM": "D",
+  "CELLPH": "D",
+  "CELLO": "M",
+  "CERTIF": "U",
+  "CHAINS": "E",
+  "CHAIR": "F",
+  "CHANGE": "O",
+  "CHANNE": "R",
+  "CHARGE": "E",
+  "CHARM": "P",
+  "CHECKW": "O",
+  "CHECKS": "U",
+  "CHEST": "F",
+  "CHILLE": "E",
+  "CHIPPE": "E",
+  "CHISEL": "E",
+  "CHOPPE": "E",
+  "CHRONO": "E",
+  "CIRCUI": "D",
+  "CITIZN": "I",
+  "CLAMPS": "E",
+  "CLARIN": "M",
+  "CLEANE": "E",
+  "CLIPPE": "E",
+  "CLOCK": "F",
+  "CLOTHI": "P",
+  "COAT": "P",
+  "COIL": "E",
+  "COIN": "K",
+  "COINBO": "O",
+  "COINSO": "O",
+  "COLLAR": "L",
+  "COLLEC": "K",
+  "COMBO": "R",
+  "COMPAC": "E",
+  "COMPAS": "E",
+  "COMPRE": "E",
+  "COMPTO": "O",
+  "COMPUT": "D",
+  "CONDEN": "E",
+  "CONSOL": "D",
+  "CONSTR": "E",
+  "CONTAI": "O",
+  "CONTRO": "E",
+  "CONVER": "R",
+  "CONVEY": "E",
+  "COOKER": "H",
+  "COOLER": "H",
+  "COPIER": "O",
+  "CORNET": "M",
+  "CORROS": "T",
+  "COUCH": "F",
+  "COUNTE": "E",
+  "COUPLE": "E",
+  "COVER": "E",
+  "CPU": "D",
+  "CREDEN": "I",
+  "CREDIT": "U",
+  "CRIMPE": "E",
+  "CROSSO": "R",
+  "CRT": "D",
+  "CRUTCH": "P",
+  "CRYSTA": "H",
+  "CUTTER": "E",
+  "CYLIND": "E",
+  "CYMBAL": "M",
+  "D DELA": "R",
+  "D PLAT": "R",
+  "D READ": "E",
+  "D RAMP": "E",
+  "DAGGER": "P",
+  "DECODE": "D",
+  "DECANT": "P",
+  "DEFIBR": "E",
+  "DEHUMI": "H",
+  "DENTCL": "P",
+  "DEPTHF": "E",
+  "DESCRA": "R",
+  "DESK": "F",
+  "DETECT": "E",
+  "DIAGNO": "E",
+  "DIAGSC": "E",
+  "DIALER": "O",
+  "DICTAT": "O",
+  "DICTIO": "D",
+  "DIESET": "E",
+  "DIGIT": "D",
+  "DIGCAM": "C",
+  "DIGITI": "E",
+  "DIGPRO": "D",
+  "DIRECT": "R",
+  "DISC": "R",
+  "DISH": "H",
+  "DISHWA": "H",
+  "DISK": "D",
+  "DISPEN": "E",
+  "DISPOS": "H",
+  "DISTOR": "R",
+  "DMMDEV": "R",
+  "DOCSTA": "D",
+  "DOG": "L",
+  "DOGTAG": "I",
+  "DOLL": "K",
+  "DOOR": "E",
+  "DOOROP": "E",
+  "DOPPLE": "E",
+  "DOSIME": "E",
+  "DPLCTR": "D",
+  "DRAFTI": "O",
+  "DRILL": "E",
+  "DRILLP": "E",
+  "DRILLU": "W",
+  "DRIVER": "I",
+  "DRIVES": "D",
+  "DRONE": "E",
+  "DRUM": "M",
+  "DRUMMA": "M",
+  "DRYER": "H",
+  "DRYWAS": "E",
+  "DSTATI": "R",
+  "DULCIM": "M",
+  "DUMPST": "E",
+  "DVCOMB": "R",
+  "E BOX": "E",
+  "E EQUI": "S",
+  "EBT": "J",
+  "EARRIN": "P",
+  "EDGER": "E",
+  "EDITOR": "C",
+  "EGAME": "G",
+  "EKGMCH": "E",
+  "ELCMAP": "D",
+  "EMACHI": "D",
+  "EMBROI": "E",
+  "ENCODE": "E",
+  "ENHANC": "R",
+  "ENGINE": "E",
+  "ENGRAV": "E",
+  "ENLARG": "C",
+  "ENVELO": "O",
+  "EPAHAZ": "T",
+  "EPROMP": "D",
+  "EQUALI": "R",
+  "ETCHIN": "K",
+  "EVAPOR": "E",
+  "EXERCY": "S",
+  "EXPAND": "R",
+  "EXPLOS": "T",
+  "EXTEND": "C",
+  "EXTENS": "E",
+  "EXTRAC": "E",
+  "EYEGLA": "V",
+  "F COUN": "E",
+  "F GUN": "S",
+  "F MACH": "E",
+  "F PEDA": "R",
+  "F PROC": "H",
+  "F UNIT": "C",
+  "FACSIM": "O",
+  "FADER": "R",
+  "FAN": "H",
+  "FASTEN": "E",
+  "FAUCET": "H",
+  "FAXMOD": "D",
+  "FEEDER": "E",
+  "FELINE": "L",
+  "FIGURI": "K",
+  "FILM": "C",
+  "FILTER": "E",
+  "FINISH": "E",
+  "FIREEX": "E",
+  "FIREHY": "E",
+  "FISHIN": "S",
+  "FLALIQ": "T",
+  "FLAMET": "S",
+  "FLASOL": "T",
+  "FLASH": "C",
+  "FLASHL": "E",
+  "FLUTE": "M",
+  "FOB": "D",
+  "FOLDER": "O",
+  "FOOTWE": "P",
+  "FRAME": "E",
+  "FREEZE": "H",
+  "FRNREC": "E",
+  "FRYER": "H",
+  "FSBOOK": "J",
+  "FSCOUP": "J",
+  "FUR": "P",
+  "FURNAC": "H",
+  "FURNIT": "H",
+  "FUSE": "E",
+  "FUSION": "E",
+  "FUSSPL": "E",
+  "G CATC": "E",
+  "G D OP": "E",
+  "G01": "B",
+  "G02": "B",
+  "G03": "B",
+  "G04": "B",
+  "G05": "B",
+  "G06": "B",
+  "G07": "B",
+  "G08": "B",
+  "G10": "B",
+  "G13": "B",
+  "G15": "B",
+  "G16": "B",
+  "G18": "B",
+  "G19": "B",
+  "G20": "B",
+  "G21": "B",
+  "G22": "B",
+  "G24": "B",
+  "G26": "B",
+  "G27": "B",
+  "G28": "B",
+  "G30": "B",
+  "G32": "B",
+  "GASMAS": "E",
+  "GAUGE": "E",
+  "GEAR": "D",
+  "GEMSTO": "P",
+  "GENERA": "E",
+  "GGASES": "T",
+  "GOAT": "L",
+  "GOGGLE": "P",
+  "GOLDDR": "E",
+  "GOLFCA": "S",
+  "GOLFCL": "S",
+  "GPOSYS": "E",
+  "GPU": "E",
+  "GRAPHI": "D",
+  "GREASE": "E",
+  "GREENH": "E",
+  "GRILL": "H",
+  "GRINDE": "E",
+  "GROOVE": "E",
+  "GUITAR": "M",
+  "GYROSC": "E",
+  "HABRAC": "P",
+  "HACKSA": "E",
+  "HAMMER": "E",
+  "HANDCO": "D",
+  "HANDCU": "P",
+  "HANDLE": "E",
+  "HANDPI": "E",
+  "HANDTR": "E",
+  "HARNES": "L",
+  "HARP": "M",
+  "HARMON": "M",
+  "HAT": "P",
+  "HATCHE": "E",
+  "HEAD": "R",
+  "HEADSE": "R",
+  "HEARIN": "P",
+  "HEATPU": "H",
+  "HEATER": "E",
+  "HEDGEC": "E",
+  "HELMET": "P",
+  "HOE": "E",
+  "HOIST": "E",
+  "HOLSTE": "E",
+  "HOMGYM": "S",
+  "HOOD": "H",
+  "HORN": "M",
+  "HORSE": "L",
+  "HORSER": "E",
+  "HOSE": "E",
+  "HOTTUB": "H",
+  "HRSTYL": "P",
+  "HUMIDI": "H",
+  "ICECRE": "H",
+  "ICEMAK": "H",
+  "ICESHA": "H",
+  "IMPRIN": "O",
+  "INDICA": "E",
+  "INJECT": "E",
+  "INGOT": "K",
+  "INSTRU": "E",
+  "INTERC": "R",
+  "INTERF": "D",
+  "INVERT": "E",
+  "IRON": "H",
+  "ISKATE": "S",
+  "JACK": "E",
+  "JACKET": "P",
+  "JEWELB": "P",
+  "JIG": "E",
+  "JOINTE": "E",
+  "JOYST": "D",
+  "JUICER": "H",
+  "JUKEBO": "R",
+  "K KICK": "E",
+  "KARAOK": "R",
+  "KELLYS": "W",
+  "KETTLE": "H",
+  "KEY": "E",
+  "KEYBOA": "D",
+  "KEYMAK": "E",
+  "KEYPAD": "D",
+  "KEYPUN": "D",
+  "KIT": "E",
+  "KITE": "S",
+  "KNIFE": "E",
+  "L BOX": "H",
+  "LAB EQ": "E",
+  "LABELE": "O",
+  "LADDER": "E",
+  "LAMP": "F",
+  "LANGUA": "O",
+  "LANTER": "S",
+  "LAPTOP": "D",
+  "LASER": "E",
+  "LASGUN": "S",
+  "LATHE": "E",
+  "LEAFBL": "E",
+  "LECTER": "O",
+  "LEGMAC": "S",
+  "LENS": "C",
+  "LEVEL": "E",
+  "LEVER": "E",
+  "LICTAB": "J",
+  "LIFEPR": "E",
+  "LIFT": "E",
+  "LIGHT": "E",
+  "LIGHTE": "P",
+  "LIGHTM": "C",
+  "LINEFI": "D",
+  "LMDEVI": "E",
+  "LOADER": "S",
+  "LOCATO": "E",
+  "LOCK": "E",
+  "LOGSPL": "E",
+  "LOTTER": "J",
+  "LUGGAG": "P",
+  "M ACCE": "M",
+  "M BOAR": "M",
+  "M CARD": "C",
+  "M CLIP": "P",
+  "M CONT": "M",
+  "M HOME": "Y",
+  "MACHIN": "E",
+  "MAGAZI": "C",
+  "MAGNET": "E",
+  "MAGNIF": "O",
+  "MAILBO": "E",
+  "MAILIN": "O",
+  "MANDOL": "M",
+  "MASSAG": "P",
+  "MEASUR": "E",
+  "MED EQ": "E",
+  "MEDAL": "P",
+  "MEDALL": "P",
+  "MEDICA": "E",
+  "MEGAPH": "R",
+  "MEGOHM": "E",
+  "MELLOP": "M",
+  "MEMORY": "D",
+  "METALD": "E",
+  "METER": "E",
+  "METRON": "M",
+  "MICROM": "E",
+  "MICROP": "R",
+  "MICROS": "V",
+  "MILL": "W",
+  "MILLIN": "E",
+  "MIRROR": "F",
+  "MITERB": "E",
+  "MIXER": "E",
+  "MICROR": "H",
+  "MLTPRS": "D",
+  "MODEL": "K",
+  "MODEM": "D",
+  "MODULE": "R",
+  "MOMACH": "O",
+  "MONEYC": "O",
+  "MONITO": "R",
+  "MONOCU": "V",
+  "MORBOX": "P",
+  "MOTORD": "C",
+  "MOTOR": "E",
+  "MOUSE": "D",
+  "MOVER": "E",
+  "MOWER": "E",
+  "MTPASS": "J",
+  "MULTIM": "E",
+  "MULTIP": "D",
+  "MUSICB": "P",
+  "MUSICM": "M",
+  "N F HA": "E",
+  "N MATE": "E",
+  "N01": "B",
+  "N03": "B",
+  "N05": "B",
+  "N07": "B",
+  "N10": "B",
+  "N12": "B",
+  "N18": "B",
+  "N21": "B",
+  "N24": "B",
+  "N27": "B",
+  "N28": "B",
+  "NAILSP": "E",
+  "NAVIGA": "E",
+  "NEBULI": "E",
+  "NECKLA": "P",
+  "NEEDLE": "R",
+  "NERVST": "E",
+  "NEWSRA": "E",
+  "NIBBLE": "E",
+  "NIGHTS": "F",
+  "NIGHTV": "V",
+  "NOISER": "R",
+  "NOZZLE": "E",
+  "O F EQ": "W",
+  "O REGU": "E",
+  "OBOE": "M",
+  "OHMMET": "E",
+  "OPHTHA": "E",
+  "ORGAN": "M",
+  "ORGANI": "D",
+  "OSCILL": "E",
+  "OVEN": "H",
+  "OXIMET": "E",
+  "OXYGEN": "E",
+  "P B GU": "S",
+  "P BOOS": "R",
+  "P CARDS": "G",
+  "P FEED": "O",
+  "P FIND": "E",
+  "P FRAM": "H",
+  "P INSE": "R",
+  "P LIMB": "P",
+  "P META": "P",
+  "P PATC": "R",
+  "P SHIF": "M",
+  "P SPLI": "E",
+  "P SUIT": "P",
+  "P WEIG": "P",
+  "PACK": "S",
+  "PACKAG": "E",
+  "PACEMA": "E",
+  "PACKER": "W",
+  "PAD": "S",
+  "PAGER": "R",
+  "PAINTI": "K",
+  "PANEL": "E",
+  "PANTS": "P",
+  "PARACH": "S",
+  "PARKME": "E",
+  "PASYST": "R",
+  "PASSPO": "I",
+  "PAVER": "E",
+  "PDASSI": "D",
+  "PEDAL": "M",
+  "PEDOME": "S",
+  "PEN": "O",
+  "PENCIL": "D",
+  "PENDAN": "P",
+  "PERMIT": "J",
+  "PHONEC": "J",
+  "PHONOG": "R",
+  "PHOTCD": "C",
+  "PHOTOC": "O",
+  "PIANO": "M",
+  "PICCOL": "M",
+  "PIGEON": "L",
+  "PIN": "P",
+  "PINBAL": "G",
+  "PINCAR": "I",
+  "PIPE": "E",
+  "PIPESQ": "E",
+  "PIPETH": "E",
+  "PITCHI": "S",
+  "PLANE": "E",
+  "PLANER": "E",
+  "PLATE": "E",
+  "PLIERS": "E",
+  "PLOW": "E",
+  "PLUG": "E",
+  "POINTE": "O",
+  "POISON": "T",
+  "POLISH": "E",
+  "POLYGR": "E",
+  "POOL": "E",
+  "POOLCU": "G",
+  "POOLTA": "G",
+  "POPCOR": "H",
+  "POSTAG": "O",
+  "POSTHO": "E",
+  "POSTIN": "O",
+  "POT": "E",
+  "POTTER": "H",
+  "POUNDE": "E",
+  "POWERB": "R",
+  "POWERP": "E",
+  "POWERS": "E",
+  "PREAMP": "R",
+  "PRESCR": "J",
+  "PRESS": "E",
+  "PRINTE": "D",
+  "PRINT": "K",
+  "PRISM": "E",
+  "PROBE": "E",
+  "PROCES": "E",
+  "PROJEC": "C",
+  "PROMPT": "R",
+  "PROTRA": "E",
+  "PRYBAR": "E",
+  "PULLER": "E",
+  "PUMP": "E",
+  "PUMPUN": "W",
+  "PUNCH": "E",
+  "PURSE": "P",
+  "RABBIT": "L",
+  "RACK": "E",
+  "RACKET": "S",
+  "RADAR": "E",
+  "RADIO": "R",
+  "RAM": "E",
+  "RAMMER": "E",
+  "RANGE": "H",
+  "RANGEF": "C",
+  "RATCHE": "E",
+  "READER": "D",
+  "REAMER": "W",
+  "RECEIV": "D",
+  "REC EQ": "R",
+  "RECORD": "M",
+  "REEL": "S",
+  "REFRIG": "H",
+  "REGULA": "E",
+  "REMOTE": "E",
+  "REMOTC": "R",
+  "RENOVA": "E",
+  "REPEAT": "R",
+  "RESPIR": "E",
+  "REVERB": "R",
+  "RING": "P",
+  "RIVETG": "E",
+  "ROBOT": "E",
+  "ROLBLD": "S",
+  "ROLLER": "E",
+  "ROTARY": "E",
+  "ROUTER": "E",
+  "ROWING": "S",
+  "RSKATE": "S",
+  "RUG": "H",
+  "S BELT": "E",
+  "S CUP": "E",
+  "S GUN": "E",
+  "S LITE": "C",
+  "S MACH": "E",
+  "S SERV": "H",
+  "S SKIS": "S",
+  "S STRI": "E",
+  "SADDLE": "S",
+  "SAFE": "O",
+  "SAMPLE": "E",
+  "SANDBL": "E",
+  "SANDER": "E",
+  "SATDSH": "R",
+  "SAW": "E",
+  "SAXOPH": "M",
+  "SCAFFO": "E",
+  "SCALES": "E",
+  "SCANNE": "D",
+  "SCARDS": "K",
+  "SCISSO": "H",
+  "SCOOTE": "S",
+  "SCOPE": "V",
+  "SCRAPE": "E",
+  "SCREEN": "C",
+  "SCREW": "E",
+  "SCREWD": "E",
+  "SCREWG": "E",
+  "SCRUBB": "E",
+  "SCUBA": "S",
+  "SEALER": "H",
+  "SEALIN": "E",
+  "SEAMER": "E",
+  "SEISMO": "E",
+  "SENSOR": "E",
+  "SEPARA": "E",
+  "SEQUEN": "M",
+  "SERIGR": "K",
+  "SERVER": "D",
+  "SEWERC": "E",
+  "SEWING": "H",
+  "SEXTAN": "E",
+  "SHAMPO": "H",
+  "SHAPER": "E",
+  "SHARPE": "E",
+  "SHAVER": "P",
+  "SHEARS": "E",
+  "SHOCKS": "B",
+  "SHOVEL": "E",
+  "SHOWER": "H",
+  "SHREDD": "E",
+  "SHUTTE": "C",
+  "SIGN": "E",
+  "SIGNAT": "D",
+  "SILVER": "H",
+  "SINK": "H",
+  "SKATEB": "S",
+  "SKIMAC": "S",
+  "SLICER": "E",
+  "SLIDER": "O",
+  "SLOTMA": "G",
+  "SMARTC": "I",
+  "SNAKE": "E",
+  "SNOWBL": "E",
+  "SNOWBO": "S",
+  "SNOWCH": "E",
+  "SODCUT": "E",
+  "SOFTWA": "D",
+  "SOLARP": "E",
+  "SOLDER": "E",
+  "SORTER": "O",
+  "SOU EQ": "R",
+  "SOUNDB": "M",
+  "SOUNDM": "R",
+  "SOUNDE": "E",
+  "SOUSAP": "M",
+  "SPADE": "E",
+  "SPEAKE": "D",
+  "SPEDOC": "J",
+  "SPECTR": "E",
+  "SPHYGM": "E",
+  "SPOOL": "E",
+  "SPO EQ": "S",
+  "SPOTLI": "E",
+  "SPRAYE": "E",
+  "SPRAYG": "E",
+  "SPREAD": "E",
+  "SPRINK": "E",
+  "SQUARE": "E",
+  "SSCARD": "I",
+  "STABIL": "E",
+  "STAMP": "J",
+  "STAMPM": "O",
+  "STAND": "E",
+  "STAPLE": "E",
+  "STARTE": "E",
+  "STEAMC": "H",
+  "STEAME": "E",
+  "STENOT": "O",
+  "STEPMA": "S",
+  "STEREO": "R",
+  "STERIL": "E",
+  "STETHO": "E",
+  "STFPLT": "R",
+  "STICKE": "J",
+  "STIMUL": "E",
+  "STOPWA": "S",
+  "STREAM": "D",
+  "STRETC": "E",
+  "STRIPP": "E",
+  "STROBE": "E",
+  "STROLL": "P",
+  "STUDGU": "E",
+  "SUB": "W",
+  "SUMMON": "J",
+  "SURFBO": "S",
+  "SWATCH": "D",
+  "SWEEPE": "E",
+  "SWIVEL": "W",
+  "SWITCH": "E",
+  "SWORD": "S",
+  "SYNCHR": "R",
+  "SYNTHE": "M",
+  "T BOX": "S",
+  "T DEVI": "E",
+  "T GUN": "E",
+  "T MACH": "E",
+  "T MEAS": "E",
+  "T REMO": "E",
+  "TABLE": "F",
+  "TABLET": "D",
+  "TABULA": "O",
+  "TACHOM": "E",
+  "TACKER": "E",
+  "TAMPER": "E",
+  "TANK": "E",
+  "TAPE": "R",
+  "TAPEDE": "R",
+  "TAPEDI": "O",
+  "TAPEPL": "R",
+  "TAPER": "E",
+  "TAPERE": "R",
+  "TEARGA": "E",
+  "TEL EQ": "O",
+  "TELANS": "O",
+  "TELECO": "O",
+  "TELDVD": "R",
+  "TELETE": "D",
+  "TELEPH": "O",
+  "TELESC": "V",
+  "TELETY": "D",
+  "TELEVI": "R",
+  "TELVCR": "R",
+  "TEMPLA": "E",
+  "TENT": "S",
+  "TERMIN": "D",
+  "TESTER": "E",
+  "THATCH": "E",
+  "THEODO": "E",
+  "THERMO": "E",
+  "THERMS": "E",
+  "THREAD": "E",
+  "TICKET": "J",
+  "TILLER": "E",
+  "TIMECL": "E",
+  "TIMER": "E",
+  "TIMING": "E",
+  "TIRECH": "E",
+  "TITLE": "J",
+  "TOASTE": "H",
+  "TOASTO": "H",
+  "TOILET": "H",
+  "TONOME": "E",
+  "TOOL": "E",
+  "TOOLBO": "E",
+  "TOOLJO": "W",
+  "TORCH": "E",
+  "TORM": "T",
+  "TOY": "P",
+  "TRACER": "E",
+  "TRACKE": "D",
+  "TRAFFI": "E",
+  "TRANSC": "O",
+  "TRANSD": "E",
+  "TRANSF": "E",
+  "TRANSI": "E",
+  "TRANSL": "O",
+  "TRANSM": "R",
+  "TRANSP": "E",
+  "TRAP": "S",
+  "TRASHB": "H",
+  "TREADM": "S",
+  "TRENCH": "E",
+  "TRIMME": "E",
+  "TRIPOD": "C",
+  "TROMBO": "M",
+  "TROWEL": "E",
+  "TRUMPE": "M",
+  "TUB": "H",
+  "TUBA": "M",
+  "TUBE": "E",
+  "TUNER": "M",
+  "TURNTA": "R",
+  "TURTLE": "L",
+  "TV DIS": "R",
+  "TV MON": "R",
+  "TV PRO": "R",
+  "TYPESE": "O",
+  "TYPEWR": "O",
+  "UKULEL": "M",
+  "ULTRAS": "E",
+  "UMBREL": "P",
+  "V ACCE": "R",
+  "V DISP": "R",
+  "V EYEW": "R",
+  "V PLAY": "R",
+  "V PROC": "M",
+  "VACUUM": "H",
+  "VALIDA": "O",
+  "VALVE": "E",
+  "VALVEC": "W",
+  "VASE": "K",
+  "VCONVE": "R",
+  "VENDIN": "O",
+  "VENTIL": "E",
+  "VERIFY": "O",
+  "VEST": "P",
+  "VIBRAT": "E",
+  "VIDEOC": "R",
+  "VIDEOD": "R",
+  "VIDEOR": "R",
+  "VIDEOT": "R",
+  "VIEWER": "V",
+  "VIEWFI": "C",
+  "VIOLA": "M",
+  "VIOLIN": "M",
+  "VISE": "E",
+  "VISUAL": "C",
+  "VMULTI": "R",
+  "VOICEC": "R",
+  "VOICER": "D",
+  "VOLTME": "E",
+  "VPRINT": "R",
+  "VTAPE": "R",
+  "W COND": "H",
+  "W INST": "E",
+  "W MOUN": "E",
+  "W W PE": "M",
+  "WAFFLE": "H",
+  "WAKEBO": "S",
+  "WALKER": "P",
+  "WALKIE": "R",
+  "WALLET": "P",
+  "WASHER": "H",
+  "WATCH": "P",
+  "WATERB": "E",
+  "WATERC": "O",
+  "WATERH": "H",
+  "WATTME": "E",
+  "WAXER": "H",
+  "WEBTV": "R",
+  "WEEDER": "E",
+  "WEIGHT": "S",
+  "WELDER": "E",
+  "WHEELB": "E",
+  "WHEELC": "P",
+  "WINCH": "E",
+  "WINDER": "E",
+  "WINDOW": "O",
+  "WIREST": "E",
+  "WOODST": "H",
+  "WOOFER": "R",
+  "WORDMA": "O",
+  "WORDPR": "D",
+  "WORKBE": "E",
+  "WRENCH": "E",
+  "WRITER": "O",
+  "XRAY": "E",
+  "XYLOPH": "M",
+  "ZITHER": "M"
+};
+
+        let currentQueryType = 'article';
+        let formData = {};
+
+        // Global variable for article brand options
+        let articleBrandOptions = [];
+
+        // Load article brand dropdown options
+        async function loadArticleBrandOptions() {
+            try {
+                const response = await fetch('article-brand-dropdown.json');
+                articleBrandOptions = await response.json();
+                console.log(`Loaded ${articleBrandOptions.length} article brand options`);
+                // Populate datalist after loading
+                populateArticleBrandDatalist();
+            } catch (error) {
+                console.error('Error loading article brand options:', error);
+                articleBrandOptions = [];
+            }
+        }
+
+        // Populate the datalist with all brand options
+        function populateArticleBrandDatalist() {
+            const datalist = document.getElementById('articleBrandList');
+            if (!datalist) return;
+
+            // Clear existing options
+            datalist.innerHTML = '';
+
+            // Add all options (browser will handle filtering)
+            articleBrandOptions.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option.value;
+                optionElement.textContent = option.label;
+                datalist.appendChild(optionElement);
+            });
+        }
+
+        // Filter and show article brand suggestions
+        function filterArticleBrands(searchTerm) {
+            if (!searchTerm) {
+                document.getElementById('brandSearchResults').textContent = '';
+                return;
+            }
+
+            const searchUpper = searchTerm.toUpperCase();
+            const matches = articleBrandOptions.filter(option =>
+                option.label.toUpperCase().includes(searchUpper) ||
+                option.value.toUpperCase().includes(searchUpper)
+            );
+
+            const resultsDiv = document.getElementById('brandSearchResults');
+            if (matches.length > 0) {
+                resultsDiv.textContent = `Found ${matches.length} matching brand${matches.length !== 1 ? 's' : ''}`;
+            } else {
+                resultsDiv.textContent = 'No matches found';
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadArticleBrandOptions();
+            renderForm();
+        });
+
+        function renderForm() {
+            const formContainer = document.getElementById('form-fields');
+            const spec = querySpecs[currentQueryType];
+
+            // Get all possible fields for this query type
+            const allFields = new Set();
+            spec.combinations.forEach(combo => {
+                combo.fields.forEach(f => allFields.add(f));
+                if (combo.optionalFields) {
+                    combo.optionalFields.forEach(f => allFields.add(f));
+                }
+            });
+
+            // Always add purposeCode
+            allFields.add('purposeCode');
+
+            // Define field order
+            const fieldOrder = ['purposeCode', 'articleSerialNumber', 'articleTypeCode', 'articleBrand', 'articleCategory'];
+
+            let orderedFields = fieldOrder.filter(f => allFields.has(f));
+
+            let html = '';
+
+            orderedFields.forEach(fieldName => {
+                const field = fieldDefinitions[fieldName];
+                if (!field) return;
+
+                // Determine if field is required
+                let isRequired = fieldName === 'purposeCode' || fieldName === 'articleSerialNumber';
+
+                let value = formData[fieldName] || '';
+
+                const shouldHideCategory = fieldName === 'articleCategory' && !formData.articleTypeCode;
+                const shouldHideBrand = fieldName === 'articleBrand' && !!formData.articleTypeCode;
+                const shouldHideTypeCode = fieldName === 'articleTypeCode' && !!formData.articleBrand;
+
+
+                html += `
+                    <div class="form-group" id="form-group-${fieldName}"${(shouldHideCategory || shouldHideBrand || shouldHideTypeCode) ? ' style="display:none"' : ''}>
+                        <label>
+                            ${field.label}
+                            ${isRequired ? '<span class="required">*</span>' : ''}
+                        </label>
+                `;
+
+                if (field.type === 'select') {
+                    let extraHandlers = '';
+                    if (fieldName === 'articleCategory') {
+                        extraHandlers = ` onfocus="restoreCategoryLabels()" onmousedown="restoreCategoryLabels()"`;
+                    } else if (fieldName === 'articleTypeCode') {
+                        extraHandlers = ` onchange="updateFormData('${fieldName}', this.value); autoPopulateCategoryFromCode();"`;
+                    }
+                    const changeHandler = fieldName === 'articleTypeCode' ? '' : ` onchange="updateFormData('${fieldName}', this.value)"`;
+                    html += `<select id="${fieldName}"${changeHandler}${extraHandlers}>`;
+                    field.options.forEach(opt => {
+                        html += `<option value="${opt.value}" ${value === opt.value ? 'selected' : ''}>${opt.label}</option>`;
+                    });
+                    html += `</select>`;
+                } else if (field.type === 'datalist' && fieldName === 'articleBrand') {
+                    // Datalist for article brand (searchable dropdown)
+                    const attrs = field.maxLength ? `maxlength="${field.maxLength}"` : '';
+                    html += `
+                        <input type="text"
+                               id="${fieldName}"
+                               list="${fieldName}List"
+                               placeholder="${field.placeholder}"
+                               value="${value}"
+                               ${attrs}
+                               oninput="updateFormData('${fieldName}', this.value); filterArticleBrands(this.value); onBrandInput(this.value);"
+                               autocomplete="off">
+                        <datalist id="${fieldName}List">
+                        </datalist>
+                        <div id="brandSearchResults" style="margin-top: 5px; font-size: 12px; color: #666;"></div>
+                    `;
+                } else {
+                    const attrs = field.maxLength ? `maxlength="${field.maxLength}"` : '';
+                    html += `<input type="${field.type}" id="${fieldName}" placeholder="${field.placeholder}" value="${value}" ${attrs} oninput="updateFormData('${fieldName}', this.value)">`;
+                }
+
+                // Add hint text if available
+                if (field.hint) {
+                    html += `<small style="display: block; margin-top: 5px; color: #666; font-size: 12px;">${field.hint}</small>`;
+                }
+
+                html += `</div>`;
+
+                // Add separators after specific fields
+                if (fieldName === 'purposeCode') {
+                    html += `<div style="text-align: center; margin: 20px 0; font-size: 16px; font-weight: bold; color: #2196F3;">THEN</div>`;
+                } else if (fieldName === 'articleSerialNumber') {
+                    html += `<div style="text-align: center; margin: 20px 0; font-size: 16px; font-weight: bold; color: #2196F3;">THEN CHOOSE TYP OR BRA</div>`;
+                }
+            });
+
+            formContainer.innerHTML = html;
+
+            // When user tabs out of articleTypeCode: hide brand, show category (or reverse if empty)
+            const typeCodeSelect = document.getElementById('articleTypeCode');
+            if (typeCodeSelect) {
+                typeCodeSelect.addEventListener('blur', function() {
+                    const hasType = this.value.trim() !== '';
+                    const catGroup = document.getElementById('form-group-articleCategory');
+                    const brandGroup = document.getElementById('form-group-articleBrand');
+                    if (catGroup) catGroup.style.display = hasType ? 'block' : 'none';
+                    if (brandGroup) brandGroup.style.display = hasType ? 'none' : 'block';
+                });
+            }
+
+            // Populate article brand datalist after form is rendered
+            populateArticleBrandDatalist();
+
+            updateValidateButton();
+        }
+
+        function isFormReadyToValidate() {
+            if (!formData.purposeCode) return false;
+            if (!formData.articleSerialNumber || formData.articleSerialNumber.trim() === '') return false;
+
+            // Require either Article Type Code OR Article Brand
+            const hasTypeCode = formData.articleTypeCode && formData.articleTypeCode.trim() !== '';
+            const hasBrand = formData.articleBrand && formData.articleBrand.trim() !== '';
+            if (!hasTypeCode && !hasBrand) return false;
+
+            // If Article Type Code is populated, Article Category must also be populated
+            if (hasTypeCode && (!formData.articleCategory || formData.articleCategory.trim() === '')) {
+                return false;
+            }
+
+            return true;
+        }
+
+        function updateValidateButton() {
+            const buttonContainer = document.getElementById('validate-button-container');
+            const isReady = isFormReadyToValidate();
+
+            if (isReady) {
+                buttonContainer.innerHTML = `<button class="validate-btn ready" onclick="validateQuery()">SUBMIT</button>`;
+            } else {
+                buttonContainer.innerHTML = `<button class="validate-btn not-ready" onclick="return false;">NOT READY</button>`;
+            }
+        }
+
+        function updateFormData(field, value) {
+            formData[field] = value;
+
+            // Special handling for articleCategory - show only category letter when selected
+            if (field === 'articleCategory' && value) {
+                const selectElement = document.getElementById('articleCategory');
+                if (selectElement) {
+                    const selectedOption = selectElement.options[selectElement.selectedIndex];
+                    if (selectedOption && value !== '') {
+                        // Store original label and update display
+                        if (!selectedOption.dataset.originalLabel) {
+                            selectedOption.dataset.originalLabel = selectedOption.text;
+                        }
+                        selectedOption.text = value;
+                    }
+                }
+            }
+
+            updateValidateButton();
+        }
+
+        function restoreCategoryLabels() {
+            const selectElement = document.getElementById('articleCategory');
+            if (selectElement) {
+                Array.from(selectElement.options).forEach(option => {
+                    if (option.dataset.originalLabel) {
+                        option.text = option.dataset.originalLabel;
+                    }
+                });
+            }
+        }
+
+        function autoPopulateCategoryFromCode() {
+            const typeCodeElement = document.getElementById('articleTypeCode');
+            const categoryElement = document.getElementById('articleCategory');
+
+            if (typeCodeElement && categoryElement) {
+                const selectedCode = typeCodeElement.value;
+                if (selectedCode && articleCodeToCategory[selectedCode]) {
+                    const category = articleCodeToCategory[selectedCode];
+                    formData.articleCategory = category;
+                    categoryElement.value = category;
+
+                    // Update display to show only category letter
+                    const selectedOption = categoryElement.options[categoryElement.selectedIndex];
+                    if (selectedOption && category !== '') {
+                        if (!selectedOption.dataset.originalLabel) {
+                            selectedOption.dataset.originalLabel = selectedOption.text;
+                        }
+                        selectedOption.text = category;
+                    }
+
+                    updateValidateButton();
+                }
+            }
+        }
+
+        function validateQuery() {
+            const spec = querySpecs[currentQueryType];
+            const results = {
+                valid: false,
+                errors: [],
+                warnings: [],
+                matchedCombination: null,
+                xml: ''
+            };
+
+            if (!formData.purposeCode) {
+                results.errors.push('CA Purpose Code is mandatory per AB 1747 (required since July 21, 2021)');
+            }
+
+            if (!formData.articleSerialNumber || formData.articleSerialNumber.trim() === '') {
+                results.errors.push('Article Serial Number is required');
+            }
+
+            // Validate that either Article Type Code OR Article Brand is provided
+            const hasTypeCode = formData.articleTypeCode && formData.articleTypeCode.trim() !== '';
+            const hasBrand = formData.articleBrand && formData.articleBrand.trim() !== '';
+
+            if (!hasTypeCode && !hasBrand) {
+                results.errors.push('Either Article Type Code (TYP) or Article Brand (BRA) must be provided');
+            }
+
+            // If Article Type Code is populated, Article Category must also be populated
+            if (hasTypeCode && (!formData.articleCategory || formData.articleCategory.trim() === '')) {
+                results.errors.push('Article Category is required when Article Type Code is provided');
+            }
+
+            const filledFields = Object.keys(formData).filter(key => {
+                return formData[key] && formData[key].trim() !== '' && key !== 'purposeCode';
+            });
+
+            if (filledFields.length === 0) {
+                results.errors.push('At least one query field must be provided');
+                displayResults(results);
+                return;
+            }
+
+            const validCombinations = spec.combinations.filter(combo => {
+                const allowedFields = [...combo.fields];
+                if (combo.optionalFields) {
+                    allowedFields.push(...combo.optionalFields);
+                }
+
+                const invalidFields = filledFields.filter(f => !allowedFields.includes(f));
+                if (invalidFields.length > 0) return false;
+
+                const missingRequired = combo.fields.filter(f => !filledFields.includes(f));
+                if (missingRequired.length > 0) return false;
+
+                return true;
+            });
+
+            if (validCombinations.length === 0 && results.errors.length === 0) {
+                results.errors.push('The provided field combination is not valid for this query type');
+                results.errors.push('📋 Valid combinations are listed in the Field Requirements section below');
+            } else if (results.errors.length === 0) {
+                results.valid = true;
+                results.matchedCombination = validCombinations[0];
+            }
+
+            if (results.valid) {
+                results.xml = generateXML(spec.name, formData);
+            }
+
+            displayResults(results);
+        }
+
+        function generateXML(queryType, data) {
+            const queryTypeTag = queryType.replace(/ /g, '');
+
+            let xml = `<Request>\n`;
+            xml += `  <MessageType>${queryTypeTag}</MessageType>\n`;
+            xml += `  <Id>MARK43GENERATEDMSGID</Id>\n`;
+
+            if (data.purposeCode) {
+                xml += `  <CaRequestPurposeCode>${data.purposeCode}</CaRequestPurposeCode>\n`;
+            }
+
+            const fieldOrder = ['articleSerialNumber', 'articleTypeCode', 'articleCategory', 'articleBrand'];
+
+            fieldOrder.forEach(key => {
+                if (key === 'purposeCode' || !data[key]) return;
+
+                const value = data[key];
+
+                if (key === 'articleSerialNumber') {
+                    xml += `  <ArticleSerialNumber>${value}</ArticleSerialNumber>\n`;
+                } else if (key === 'articleTypeCode') {
+                    xml += `  <ArticleTypeCode>${value}</ArticleTypeCode>\n`;
+                } else if (key === 'articleCategory') {
+                    xml += `  <ArticleCategory>${value}</ArticleCategory>\n`;
+                } else if (key === 'articleBrand') {
+                    xml += `  <ArticleBrand>${value}</ArticleBrand>\n`;
+                }
+            });
+
+            xml += `</Request>`;
+
+            return xml;
+        }
+
+        function displayResults(results) {
+            const container = document.getElementById('validation-results');
+            let html = '';
+
+            if (results.valid && results.errors.length === 0) {
+                html += `<div class="validation-status valid">✓ Query is valid and ready to submit</div>`;
+            } else if (results.errors.length > 0) {
+                html += `<div class="validation-status invalid">✗ Query has validation errors</div>`;
+            }
+
+            if (results.errors.length > 0) {
+                html += `<ul class="error-list">`;
+                results.errors.forEach(error => {
+                    html += `<li>❌ ${error}</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            if (results.matchedCombination) {
+                html += `<div class="combination-info">`;
+                html += `<h3>Matched Valid Combination</h3>`;
+                html += `<code>${results.matchedCombination.description}</code>`;
+                html += `</div>`;
+            }
+
+            if (results.xml) {
+                html += `<h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 14px;">Expected XML Output</h3>`;
+                html += `<div class="xml-output">${escapeHtml(results.xml)}</div>`;
+            }
+
+            html += generateFieldRequirements();
+
+            container.innerHTML = html;
+        }
+
+        function generateFieldRequirements() {
+            const spec = querySpecs[currentQueryType];
+            let html = `<div class="field-requirements">`;
+
+            html += `<h3>Valid Field Combinations for ${spec.name}</h3>`;
+
+            html += `<p style="margin-bottom: 12px; font-size: 13px; color: #555; line-height: 1.6;">`;
+            html += `<strong>Required fields:</strong> CA Purpose Code + Article Serial Number (SER/OAN) + either Article Type Code (TYP) or Article Brand (BRA) or both.<br>`;
+            html += `<strong>Important:</strong> If Article Type Code is populated, Article Category must also be populated.`;
+            html += `</p>`;
+
+            html += `<ul style="line-height: 1.8;">`;
+
+            spec.combinations.forEach(combo => {
+                html += `<li style="margin-bottom: 8px;">`;
+                html += `<strong>${combo.description}</strong>`;
+                if (combo.note) {
+                    html += `<br><span style="font-size: 12px; color: #666; font-style: italic;">${combo.note}</span>`;
+                }
+                html += `</li>`;
+            });
+
+            html += `</ul>`;
+            html += `</div>`;
+
+            return html;
+        }
+
+        function onBrandInput(value) {
+            const hasBrand = value.trim() !== '';
+            const typeGroup = document.getElementById('form-group-articleTypeCode');
+            if (typeGroup) typeGroup.style.display = hasBrand ? 'none' : 'block';
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function downloadCSV(rows, filename) {
+            const csvContent = rows.map(row =>
+                row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+            ).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function exportArticleTypesCSV() {
+            const options = fieldDefinitions.articleTypeCode.options.filter(o => o.value !== '');
+            const rows = [['Code', 'Description']];
+            options.forEach(opt => {
+                const code = opt.value;
+                const parts = opt.label.split(' - ');
+                const description = parts.length > 1 ? parts.slice(1).join(' - ') : opt.label;
+                rows.push([code, description]);
+            });
+            downloadCSV(rows, 'article-types.csv');
+        }
+
+        function exportArticleCategoryCSV() {
+            const options = fieldDefinitions.articleCategory.options.filter(o => o.value !== '');
+            const rows = [['Category Code', 'Article Type Code']];
+            options.forEach(opt => {
+                const parts = opt.label.split(' - ');
+                const categoryCode = parts[0].trim();
+                const typeCode = parts.length > 1 ? parts.slice(1).join(' - ').trim() : '';
+                rows.push([categoryCode, typeCode]);
+            });
+            downloadCSV(rows, 'article-categories.csv');
+        }
+
+        function exportArticleBrandCSV() {
+            const rows = [['Code', 'Brand Name']];
+            articleBrandOptions.forEach(opt => {
+                const parts = opt.label.split(' - ');
+                const brandName = parts.length > 1 ? parts.slice(1).join(' - ') : opt.label;
+                rows.push([opt.value, brandName]);
+            });
+            downloadCSV(rows, 'article-brands.csv');
+        }
+    </script>
+</body>
+</html>

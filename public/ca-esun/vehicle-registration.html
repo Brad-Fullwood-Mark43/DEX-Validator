@@ -1,0 +1,3176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Registration Query - CA eSUN Validator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .section {
+            background: #000000;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #ffffff;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+
+        .query-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .query-type-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .query-type-btn:hover {
+            border-color: #3498db;
+        }
+
+        .query-type-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        .state-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .state-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .state-btn:hover {
+            border-color: #2ecc71;
+        }
+
+        .state-btn.active {
+            background: #2ecc71;
+            color: white;
+            border-color: #2ecc71;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #e0e0e0;
+        }
+
+        .form-group label .required {
+            color: #e74c3c;
+            margin-left: 3px;
+        }
+
+        .form-group label .optional {
+            color: #aaaaaa;
+            font-size: 12px;
+            font-weight: normal;
+            margin-left: 5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #e74c3c;
+            box-shadow: 0 0 32px 12px rgba(231, 76, 60, 0.9);
+        }
+
+        .form-group input.error {
+            border-color: #e74c3c;
+        }
+
+        .form-group input.warning {
+            border-color: #f39c12;
+        }
+
+        .form-group input:disabled {
+            background: #ecf0f1;
+            cursor: not-allowed;
+        }
+
+        .validate-btn {
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .validate-btn:hover {
+            background: #2980b9;
+        }
+
+        .validate-btn:active {
+            transform: translateY(1px);
+        }
+
+        .validate-btn.not-ready {
+            background: #e74c3c;
+            cursor: not-allowed;
+        }
+
+        .validate-btn.not-ready:hover {
+            background: #c0392b;
+        }
+
+        .validate-btn.ready {
+            background: #2ecc71;
+        }
+
+        .validate-btn.ready:hover {
+            background: #27ae60;
+        }
+
+        .results {
+            position: sticky;
+            top: 20px;
+        }
+
+        .validation-status {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .validation-status.valid {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .validation-status.invalid {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .validation-status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .error-list {
+            list-style: none;
+            margin-top: 10px;
+        }
+
+        .error-list li {
+            padding: 8px 12px;
+            background: white;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            border-left: 3px solid #e74c3c;
+        }
+
+        .warning-list li {
+            border-left-color: #f39c12;
+        }
+
+        .combination-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #90caf9;
+        }
+
+        .combination-info h3 {
+            font-size: 14px;
+            color: #1976d2;
+            margin-bottom: 8px;
+        }
+
+        .combination-info code {
+            display: block;
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin-top: 8px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .xml-output {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.5;
+        }
+
+        .xml-tag {
+            color: #82aaff;
+        }
+
+        .xml-attr {
+            color: #c792ea;
+        }
+
+        .xml-value {
+            color: #c3e88d;
+        }
+
+        .field-requirements {
+            background: #fff9e6;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border: 1px solid #ffe082;
+        }
+
+        .field-requirements h3 {
+            font-size: 14px;
+            color: #f57c00;
+            margin-bottom: 10px;
+        }
+
+        .field-requirements ul {
+            margin-left: 20px;
+            font-size: 13px;
+        }
+
+        .field-requirements li {
+            margin-bottom: 5px;
+        }
+
+        .info-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 16px;
+            font-size: 12px;
+            cursor: help;
+            margin-left: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .results {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" style="color: #3498db; text-decoration: none; font-size: 14px; display: inline-block; margin-bottom: 10px;">&larr; Back to Query Types</a>
+            <h1>Vehicle Registration Query Validator</h1>
+            <p>Validate vehicle registration queries for California eSUN system</p>
+            <div style="margin-top: 12px;">
+                <button onclick="exportVehicleMakeCodeCSV()" title="Export Vehicle Make Codes" style="background: #e74c3c; color: white; border: none; padding: 6px 14px; border-radius: 4px; font-size: 13px; cursor: pointer;">VEH Make Codes CSV</button>
+                <button onclick="document.getElementById('importVMAInput').click()" title="Import Vehicle Make Codes from CSV file" style="background: #27ae60; color: white; border: none; padding: 6px 14px; border-radius: 4px; font-size: 13px; cursor: pointer; margin-left: 8px;">Import VEH Make Codes CSV</button>
+                <input type="file" id="importVMAInput" accept=".csv" style="display:none" onchange="importVehicleMakeCodeCSV(this)">
+                <button onclick="exportStateCodesCSV()" title="Export State Codes" style="background: #e74c3c; color: white; border: none; padding: 6px 14px; border-radius: 4px; font-size: 13px; cursor: pointer; margin-left: 8px;">State Codes CSV</button>
+                <button onclick="document.getElementById('importStateInput').click()" title="Import State Codes from CSV file" style="background: #27ae60; color: white; border: none; padding: 6px 14px; border-radius: 4px; font-size: 13px; cursor: pointer; margin-left: 8px;">Import State Codes CSV</button>
+                <input type="file" id="importStateInput" accept=".csv" style="display:none" onchange="importStateCodesCSV(this)">
+                <button onclick="exportLicensePlateTypeCodesCSV()" title="Export License Plate Type Codes" style="background: #e74c3c; color: white; border: none; padding: 6px 14px; border-radius: 4px; font-size: 13px; cursor: pointer; margin-left: 8px;">LIC Plate Type Codes CSV</button>
+                <button onclick="document.getElementById('importPlateTypeInput').click()" title="Import License Plate Type Codes from CSV file" style="background: #27ae60; color: white; border: none; padding: 6px 14px; border-radius: 4px; font-size: 13px; cursor: pointer; margin-left: 8px;">Import LIC Plate Type Codes CSV</button>
+                <input type="file" id="importPlateTypeInput" accept=".csv" style="display:none" onchange="importLicensePlateTypeCodesCSV(this)">
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="section" style="border: 9px solid red; border-radius: 6px; padding: 16px;">
+                <h2>Query Configuration</h2>
+
+                <div class="state-selector" id="state-selector">
+                    <button class="state-btn active" data-state="in-state">In-State (CA)</button>
+                    <button class="state-btn" data-state="out-of-state">Out-of-State</button>
+                </div>
+
+                <div id="form-fields"></div>
+
+                <div id="validate-button-container"></div>
+            </div>
+
+            <div class="section results">
+                <h2>Validation Results</h2>
+                <div id="validation-results">
+                    <div class="validation-status" style="background: #e8f4f8; color: #546e7a; border-color: #b0bec5;">
+                        Enter query details and click "Validate Query" to see results
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Query specifications based on CA eSUN documentation
+        const querySpecs = {
+            'vehicle-registration': {
+                name: 'Vehicle Registration Query',
+                combinations: [
+                    {
+                        id: 1,
+                        description: '(In) LicensePlateNumber only',
+                        fields: ['licensePlateNumber'],
+                        state: 'in-state',
+                        keyReference: 'QV'
+                    },
+                    {
+                        id: 2,
+                        description: '(In) LicensePlateNumber, [LicensePlateTypeCode, LicensePlateYear]',
+                        fields: ['licensePlateNumber'],
+                        optionalFields: ['licensePlateTypeCode', 'licensePlateYear'],
+                        state: 'in-state',
+                        keyReference: 'RQP'
+                    },
+                    {
+                        id: 3,
+                        description: '(In/Out) LicensePlateNumber, LicensePlateTypeCode, LicensePlateYear, [State]',
+                        fields: ['licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear'],
+                        optionalFields: ['state'],
+                        state: 'both',
+                        keyReference: 'RQP'
+                    },
+                    {
+                        id: 5,
+                        description: '(In) VehicleIdentificationNumber only',
+                        fields: ['vehicleIdentificationNumber'],
+                        state: 'in-state',
+                        keyReference: ['QV', '4V']
+                    },
+                    {
+                        id: 6,
+                        description: '(In) VehicleIdentificationNumber, [VehicleMakeCode or VehicleYear]',
+                        fields: ['vehicleIdentificationNumber'],
+                        optionalFields: ['vehicleMakeCode', 'vehicleYear'],
+                        state: 'in-state',
+                        keyReference: 'RQV'
+                    },
+                    {
+                        id: 7,
+                        description: '(In/Out) VehicleIdentificationNumber, [VehicleMakeCode, VehicleYear, or State]',
+                        fields: ['vehicleIdentificationNumber'],
+                        optionalFields: ['state', 'vehicleMakeCode', 'vehicleYear'],
+                        state: 'both',
+                        keyReference: 'RQV'
+                    },
+                    {
+                        id: 8,
+                        description: '(In) Name, AddressStreetNumber, AddressCity',
+                        fields: ['name', 'addressStreetNumber', 'addressCity'],
+                        optionalFields: [],
+                        state: 'in-state',
+                        keyReference: 'RQN'
+                    },
+                    {
+                        id: 9,
+                        description: '(In) Name, BirthDate',
+                        fields: ['name', 'birthDate'],
+                        optionalFields: [],
+                        state: 'in-state',
+                        keyReference: 'RQN'
+                    }
+                ]
+            }
+        };
+
+        // Field definitions
+        const fieldDefinitions = {
+            name: {
+                label: 'Name',
+                type: 'text',
+                placeholder: 'Last, First Middle',
+                hint: 'Format: LAST, FIRST MIDDLE'
+            },
+            addressStreetNumber: {
+                label: 'Address Street Number',
+                type: 'text',
+                placeholder: '',
+                hint: 'Street number (e.g., 123)',
+                maxLength: 10
+            },
+            addressCity: {
+                label: 'Address City',
+                type: 'text',
+                placeholder: '',
+                hint: 'City name',
+                maxLength: 30
+            },
+            operatorLicenseNumber: {
+                label: "Operator's License Number",
+                type: 'text',
+                placeholder: '',
+                hint: 'Driver license number'
+            },
+            birthDate: {
+                label: 'Birth Date',
+                type: 'text',
+                placeholder: 'YYYY-MM-DD',
+                hint: 'Date of birth'
+            },
+            sexCode: {
+                label: 'Sex Code',
+                type: 'select',
+                options: [
+                    { value: '', label: 'Select...' },
+                    { value: 'M', label: 'M - Male' },
+                    { value: 'F', label: 'F - Female' },
+                    { value: 'U', label: 'U - Unknown' }
+                ],
+                hint: 'Gender'
+            },
+            state: {
+                label: 'State',
+                type: 'datalist',
+                placeholder: 'Type or select...',
+                hint: '<strong>If License Plate State is CA leave blank.</strong> Otherwise choose appropriate 2 letter state code',
+                maxLength: 2,
+                options: [
+                    { value: 'AL', label: 'AL - Alabama' },
+                    { value: 'AK', label: 'AK - Alaska' },
+                    { value: 'AZ', label: 'AZ - Arizona' },
+                    { value: 'AR', label: 'AR - Arkansas' },
+                    { value: 'CA', label: 'CA - California' },
+                    { value: 'CO', label: 'CO - Colorado' },
+                    { value: 'CT', label: 'CT - Connecticut' },
+                    { value: 'DE', label: 'DE - Delaware' },
+                    { value: 'FL', label: 'FL - Florida' },
+                    { value: 'GA', label: 'GA - Georgia' },
+                    { value: 'HI', label: 'HI - Hawaii' },
+                    { value: 'ID', label: 'ID - Idaho' },
+                    { value: 'IL', label: 'IL - Illinois' },
+                    { value: 'IN', label: 'IN - Indiana' },
+                    { value: 'IA', label: 'IA - Iowa' },
+                    { value: 'KS', label: 'KS - Kansas' },
+                    { value: 'KY', label: 'KY - Kentucky' },
+                    { value: 'LA', label: 'LA - Louisiana' },
+                    { value: 'ME', label: 'ME - Maine' },
+                    { value: 'MD', label: 'MD - Maryland' },
+                    { value: 'MA', label: 'MA - Massachusetts' },
+                    { value: 'MI', label: 'MI - Michigan' },
+                    { value: 'MN', label: 'MN - Minnesota' },
+                    { value: 'MS', label: 'MS - Mississippi' },
+                    { value: 'MO', label: 'MO - Missouri' },
+                    { value: 'MT', label: 'MT - Montana' },
+                    { value: 'NE', label: 'NE - Nebraska' },
+                    { value: 'NV', label: 'NV - Nevada' },
+                    { value: 'NH', label: 'NH - New Hampshire' },
+                    { value: 'NJ', label: 'NJ - New Jersey' },
+                    { value: 'NM', label: 'NM - New Mexico' },
+                    { value: 'NY', label: 'NY - New York' },
+                    { value: 'NC', label: 'NC - North Carolina' },
+                    { value: 'ND', label: 'ND - North Dakota' },
+                    { value: 'OH', label: 'OH - Ohio' },
+                    { value: 'OK', label: 'OK - Oklahoma' },
+                    { value: 'OR', label: 'OR - Oregon' },
+                    { value: 'PA', label: 'PA - Pennsylvania' },
+                    { value: 'RI', label: 'RI - Rhode Island' },
+                    { value: 'SC', label: 'SC - South Carolina' },
+                    { value: 'SD', label: 'SD - South Dakota' },
+                    { value: 'TN', label: 'TN - Tennessee' },
+                    { value: 'TX', label: 'TX - Texas' },
+                    { value: 'UT', label: 'UT - Utah' },
+                    { value: 'VT', label: 'VT - Vermont' },
+                    { value: 'VA', label: 'VA - Virginia' },
+                    { value: 'WA', label: 'WA - Washington' },
+                    { value: 'WV', label: 'WV - West Virginia' },
+                    { value: 'WI', label: 'WI - Wisconsin' },
+                    { value: 'WY', label: 'WY - Wyoming' },
+                    { value: 'DC', label: 'DC - District of Columbia' },
+                    { value: 'PR', label: 'PR - Puerto Rico' },
+                    { value: 'A1', label: 'NLETS Region A1' },
+                    { value: 'B1', label: 'NLETS Region B1' },
+                    { value: 'C1', label: 'NLETS Region C1' },
+                    { value: 'D1', label: 'NLETS Region D1' },
+                    { value: 'E1', label: 'NLETS Region E1' },
+                    { value: 'F1', label: 'NLETS Region F1' },
+                    { value: 'G1', label: 'NLETS Region G1' },
+                    { value: 'H1', label: 'NLETS Region H1' }
+                ]
+            },
+            licensePlateNumber: {
+                label: 'License Plate Number',
+                type: 'text',
+                placeholder: '',
+                hint: 'License plate number (max 10 characters)',
+                maxLength: 10
+            },
+            licensePlateTypeCode: {
+                label: 'License Plate Type Code',
+                type: 'select',
+                options: [
+                    { value: '', label: 'Select Plate Type...' },
+                    { value: 'PC', label: 'PC - Passenger Car' },
+                    { value: 'CO', label: 'CO - Commercial' },
+                    { value: 'MC', label: 'MC - Motorcycle' },
+                    { value: 'TM', label: 'TM - Temporary' },
+                    { value: 'TK', label: 'TK - Truck' },
+                    { value: 'TL', label: 'TL - Trailer' },
+                    { value: 'TX', label: 'TX - Taxi' },
+                    { value: 'BU', label: 'BU - Bus' },
+                    { value: 'AF', label: 'AF - Alternative Fuel' },
+                    { value: 'AM', label: 'AM - Ambulance' },
+                    { value: 'AP', label: 'AP - Apportioned' },
+                    { value: 'AQ', label: 'AQ - Antique' },
+                    { value: 'AR', label: 'AR - Amateur Radio/Ham Radio' },
+                    { value: 'AT', label: 'AT - All-Terrain Vehicles' },
+                    { value: 'CC', label: 'CC - Consular Corps' },
+                    { value: 'CI', label: 'CI - City-Owned' },
+                    { value: 'CL', label: 'CL - Collegiate' },
+                    { value: 'CM', label: 'CM - Commemorative' },
+                    { value: 'CN', label: 'CN - Conservation' },
+                    { value: 'CU', label: 'CU - County-Owned' },
+                    { value: 'DA', label: 'DA - Drive-Away' },
+                    { value: 'DB', label: 'DB - Dune Buggy' },
+                    { value: 'DD', label: 'DD - Dentist' },
+                    { value: 'DL', label: 'DL - Dealer' },
+                    { value: 'DP', label: 'DP - Diplomatic' },
+                    { value: 'DU', label: 'DU - Duplicate/Reissue' },
+                    { value: 'DV', label: 'DV - Disabled Veteran' },
+                    { value: 'DX', label: 'DX - Disabled Person' },
+                    { value: 'EX', label: 'EX - Exempt' },
+                    { value: 'FD', label: 'FD - Fire Department' },
+                    { value: 'FG', label: 'FG - Foreign Government' },
+                    { value: 'FM', label: 'FM - Farm Vehicle' },
+                    { value: 'HI', label: 'HI - Hearing Impaired' },
+                    { value: 'IP', label: 'IP - International Plate' },
+                    { value: 'IT', label: 'IT - In-Transit' },
+                    { value: 'JJ', label: 'JJ - Judge or Justice' },
+                    { value: 'LE', label: 'LE - Law Enforcement' },
+                    { value: 'LF', label: 'LF - Legislative (Federal)' },
+                    { value: 'LS', label: 'LS - Legislative (State)' },
+                    { value: 'MD', label: 'MD - Motorcycle Dealer' },
+                    { value: 'MF', label: 'MF - Manufacturer' },
+                    { value: 'ML', label: 'ML - Military Vehicle (Canadian)' },
+                    { value: 'MP', label: 'MP - Moped' },
+                    { value: 'MR', label: 'MR - Armed Forces Reservist' },
+                    { value: 'MV', label: 'MV - Military Vehicle (U.S.)' },
+                    { value: 'MY', label: 'MY - Military Aircraft' },
+                    { value: 'NG', label: 'NG - National Guard' },
+                    { value: 'NP', label: 'NP - Nonpassenger (Civilian Aircraft)' },
+                    { value: 'OB', label: 'OB - Omnibus' },
+                    { value: 'OR', label: 'OR - Organization' },
+                    { value: 'PE', label: 'PE - Personalized/Customized' },
+                    { value: 'PF', label: 'PF - Professions' },
+                    { value: 'PH', label: 'PH - Pharmacist' },
+                    { value: 'PP', label: 'PP - Passenger (Civilian Aircraft)' },
+                    { value: 'PR', label: 'PR - Press' },
+                    { value: 'PS', label: 'PS - Professional Sports Team' },
+                    { value: 'PX', label: 'PX - Physician/Doctor' },
+                    { value: 'RE', label: 'RE - Reciprocal/Reciprocity' },
+                    { value: 'RV', label: 'RV - Rented Vehicle' },
+                    { value: 'SC', label: 'SC - Special Purpose Commercial' },
+                    { value: 'SN', label: 'SN - Snowmobile' },
+                    { value: 'ST', label: 'ST - State-Owned' },
+                    { value: 'SV', label: 'SV - School Vehicle' },
+                    { value: 'TP', label: 'TP - Transporter' },
+                    { value: 'TR', label: 'TR - Semitruck Cab' },
+                    { value: 'US', label: 'US - U.S. Government' },
+                    { value: 'VF', label: 'VF - Veteran' },
+                    { value: 'ZZ', label: 'ZZ - Other (ATV/Snowmobile/Equipment)' }
+                ],
+                hint: 'Select Plate Type for best results'
+            },
+            licensePlateYear: {
+                label: 'License Plate Year',
+                type: 'text',
+                placeholder: '',
+                hint: 'Year of plate registration (4 digits)',
+                maxLength: 4
+            },
+            vehicleIdentificationNumber: {
+                label: 'Vehicle Identification Number (VIN)',
+                type: 'text',
+                placeholder: '',
+                hint: 'Vehicle Identification Number (up to 30 characters)',
+                maxLength: 30
+            },
+            vehicleMakeCode: {
+                label: 'Vehicle Make Code',
+                type: 'select',
+                hint: 'NCIC vehicle make code',
+                options: [
+                    { value: '', label: 'Select...' },
+                    { value: '4WN', label: '4WN - FOUR WINNS' },
+                    { value: 'AAL', label: 'AAL - ATLANTIC BOAT WORKS' },
+                    { value: 'ABM', label: 'ABM - APOLLO BOAT MFG. CO.' },
+                    { value: 'ABW', label: 'ABW - ATLANTIC BOAT WORKS' },
+                    { value: 'AC', label: 'AC - AC' },
+                    { value: 'ACB', label: 'ACB - ALUMACRAFT BOAT CO.' },
+                    { value: 'ACH', label: 'ACH - ACHILLES KCI CORP.' },
+                    { value: 'ACM', label: 'ACM - ACTION MARINE INC.' },
+                    { value: 'ACUR', label: 'ACUR - ACURA' },
+                    { value: 'ADK', label: 'ADK - ATLANTIC BOAT WORKS' },
+                    { value: 'ADVN', label: 'ADVN - ADVANCE MACHINE CO' },
+                    { value: 'AERA', label: 'AERA - AEROCAR' },
+                    { value: 'AFC', label: 'AFC - AMERICAN FIBERGLASS CO.' },
+                    { value: 'AFD', label: 'AFD - AIRBOAT ENGINEERING' },
+                    { value: 'AFF', label: 'AFF - AMERICAN FIBERGLASS' },
+                    { value: 'AFG', label: 'AFG - AMERICAN FIBER-LITE' },
+                    { value: 'AGB', label: 'AGB - AERO-GLASS BOAT CO. (PHANTOM BOATS)' },
+                    { value: 'AGC', label: 'AGC - BAJA (AEROGLASTICS INC)' },
+                    { value: 'AHE', label: 'AHE - APACHE AIRBOATS, INC.' },
+                    { value: 'AIH', label: 'AIH - AMERICAN IRONHORSE' },
+                    { value: 'AIRS', label: 'AIRS - AIRSTREAM' },
+                    { value: 'AJAX', label: 'AJAX - AJAX TRAILER CO.' },
+                    { value: 'ALAB', label: 'ALAB - ALABAMA TRAILER' },
+                    { value: 'ALD', label: 'ALD - YAZOO BOATS (ALADDIN MFG. CO.)' },
+                    { value: 'ALFA', label: 'ALFA - ALFA ROMEO' },
+                    { value: 'ALFB', label: 'ALFB - ALFAB, INC.' },
+                    { value: 'ALIE', label: 'ALIE - ALLIED' },
+                    { value: 'ALIS', label: 'ALIS - ALLIS CHALMERS' },
+                    { value: 'ALKO', label: 'ALKO - ALOIS KOBER' },
+                    { value: 'ALL', label: 'ALL - ALLISON CRAFT BOAT CO.' },
+                    { value: 'ALOU', label: 'ALOU - ALOUETTE' },
+                    { value: 'ALS', label: 'ALS - ALL SEASONS INDUSTRIES' },
+                    { value: 'ALT', label: 'ALT - ALLISON CRAFT BOATS' },
+                    { value: 'ALUE', label: 'ALUE - ALOUETTE' },
+                    { value: 'AMER', label: 'AMER - AMERICAN MOTORS' },
+                    { value: 'AMF', label: 'AMF - AMF ALCORT' },
+                    { value: 'AMF', label: 'AMF - AMF LAWN & GARDEN DIV.' },
+                    { value: 'AMGN', label: 'AMGN - AM GENERAL' },
+                    { value: 'ANG', label: 'ANG - ANGLER BOAT CORP.' },
+                    { value: 'ANP', label: 'ANP - ANCHOR INDUSTRIES, INC' },
+                    { value: 'ANT', label: 'ANT - ANTHONY BOAT CO.' },
+                    { value: 'APAC', label: 'APAC - APACHE' },
+                    { value: 'APB', label: 'APB - APPLEBY MFG. CO.' },
+                    { value: 'APG', label: 'APG - APOLLO BOATS' },
+                    { value: 'APH', label: 'APH - APACHE' },
+                    { value: 'APL', label: 'APL - APOLLO BOATS' },
+                    { value: 'APRI', label: 'APRI - APRILIA MOTORCYCLES' },
+                    { value: 'ARCC', label: 'ARCC - ARCTIC CAT (ARCTCO)' },
+                    { value: 'ARCC', label: 'ARCC - ARCTIC CAT (ARTCO)' },
+                    { value: 'ARGS', label: 'ARGS - ARGOSY TRAVEL TRAILER' },
+                    { value: 'ARK', label: 'ARK - ARKANSAS TRAVELER BOAT' },
+                    { value: 'ARLB', label: 'ARLB - ARLBERG' },
+                    { value: 'ARR', label: 'ARR - ARROW CRAFT' },
+                    { value: 'ARRO', label: 'ARRO - ARROW' },
+                    { value: 'ARW', label: 'ARW - ARROW GLASS (DAY CO & ARROWGLASS)' },
+                    { value: 'ASK', label: 'ASK - ARIZONA SKI BOATS' },
+                    { value: 'ASP', label: 'ASP - AQUASPORT, INC.' },
+                    { value: 'AST', label: 'AST - PRO CRAFT (ASTROGLASS BOATS)' },
+                    { value: 'ASTO', label: 'ASTO - ASTON-MARTIN' },
+                    { value: 'ASUN', label: 'ASUN - ASUNA' },
+                    { value: 'ATL', label: 'ATL - ARISTO CRAFT BOAT CORP. (ATLANTABOAT WORKS)' },
+                    { value: 'ATM', label: 'ATM - ATLANTIC BOAT WORKS' },
+                    { value: 'AUDI', label: 'AUDI - AUDI' },
+                    { value: 'AUHE', label: 'AUHE - AUSTIN-HEALY' },
+                    { value: 'AURR', label: 'AURR - AURORA' },
+                    { value: 'AUST', label: 'AUST - AUSTIN' },
+                    { value: 'AUTC', label: 'AUTC - AUTOCAR' },
+                    { value: 'AUTO', label: 'AUTO - AUTOCAR' },
+                    { value: 'AUTS', label: 'AUTS - AUTO SKI- INC.' },
+                    { value: 'AVB', label: 'AVB - AVON RUBBER CO.' },
+                    { value: 'AVN', label: 'AVN - AVENGER MFG. CO. (ADVANCED MARINE CONCEPTS INC)' },
+                    { value: 'AVTI', label: 'AVTI - AVANTI' },
+                    { value: 'AWB', label: 'AWB - ALUMAWELD BOATS' },
+                    { value: 'AXC', label: 'AXC - ARCTIC ENTERPRISE (SPIRIT MARINE)' },
+                    { value: 'AXT', label: 'AXT - AZTEC BOAT CORP.' },
+                    { value: 'AYR', label: 'AYR - AYR-WAY INDUSTRIES' },
+                    { value: 'AZU', label: 'AZU - AZURE DYNAMICS CORPORATION' },
+                    { value: 'BAH', label: 'BAH - BAHNER CUSTOM BOATS, INC.' },
+                    { value: 'BAM', label: 'BAM - THUNDERBIRD PRODUCTS CORP.(BROWNING AEROCRAFT MARI' },
+                    { value: 'BAR', label: 'BAR - BARRON BOATS, INC.' },
+                    { value: 'BAS', label: 'BAS - BASS CATS BOATS' },
+                    { value: 'BASH', label: 'BASH - BASHAN MOTORCYCLE' },
+                    { value: 'BBW', label: 'BBW - BOURGETS BIKE WORKS' },
+                    { value: 'BCB', label: 'BCB - B-CRAFT BOAT MFG. CO.' },
+                    { value: 'BCC', label: 'BCC - BEACH CRAFT MARINE' },
+                    { value: 'BEM', label: 'BEM - CORNERSPORT CRESTLINERS (BEMIDJI BOAT CO)' },
+                    { value: 'BENS', label: 'BENS - BENSON' },
+                    { value: 'BENT', label: 'BENT - BENTLEY' },
+                    { value: 'BER', label: 'BER - BERTRAM YACHT (WHITTAKER CORP.)' },
+                    { value: 'BERO', label: 'BERO - BERTONE' },
+                    { value: 'BETA', label: 'BETA - BETA MOTORCYCLES' },
+                    { value: 'BFF', label: 'BFF - BLUE FIN INDUSTRIES, INC' },
+                    { value: 'BGDG', label: 'BGDG - BIG DOG MOTORCYCLES' },
+                    { value: 'BIGT', label: 'BIGT - BIG TEX TRAILERS' },
+                    { value: 'BIRM', label: 'BIRM - BIRMINGHAM MFG' },
+                    { value: 'BITT', label: 'BITT - BITTER' },
+                    { value: 'BJC', label: 'BJC - BOJO BOATCO. (DURKEE ENTERPRISES INC.)' },
+                    { value: 'BKH', label: 'BKH - BASS HUNTER' },
+                    { value: 'BL1', label: 'BL1 - BAYLINER MARINE, INC.' },
+                    { value: 'BL2', label: 'BL2 - BAYLINER MARINE, INC.' },
+                    { value: 'BL3', label: 'BL3 - BAYLINER MARINE, INC.' },
+                    { value: 'BL4', label: 'BL4 - BAYLINER MARINE, INC.' },
+                    { value: 'BL5', label: 'BL5 - BAYLINER MARINE, INC.' },
+                    { value: 'BLB', label: 'BLB - BAYLINER MARINE, INC.' },
+                    { value: 'BLP', label: 'BLP - BOMBER RAIDER' },
+                    { value: 'BLS', label: 'BLS - BLUE STAR MARINE CORP.' },
+                    { value: 'BLUB', label: 'BLUB - BLUE BIRD' },
+                    { value: 'BLUG', label: 'BLUG - BLUE RIDGE PRE-BUILT MOBILE HOMES' },
+                    { value: 'BLY', label: 'BLY - BAYOU BOATS' },
+                    { value: 'BMBR', label: 'BMBR - CAN-AM ATV' },
+                    { value: 'BMBR', label: 'BMBR - SKI-DOO' },
+                    { value: 'BMC', label: 'BMC - BMC' },
+                    { value: 'BMR', label: 'BMR - BIESMEYER BOATS' },
+                    { value: 'BMW', label: 'BMW - BMW' },
+                    { value: 'BNB', label: 'BNB - BONAIR BOATS, INC.' },
+                    { value: 'BNDR', label: 'BNDR - BOUNDER' },
+                    { value: 'BNDT', label: 'BNDT - BANDIT INDUSTRIES' },
+                    { value: 'BNM', label: 'BNM - BONANZA MOLDING CORP.' },
+                    { value: 'BNT', label: 'BNT - BONITO BOATS, INC.' },
+                    { value: 'BOAS', label: 'BOAS - ALSPORT' },
+                    { value: 'BOAT', label: 'BOAT - BOATEL SKI' },
+                    { value: 'BORG', label: 'BORG - BORGWARD' },
+                    { value: 'BRC', label: 'BRC - BRAMCO, INC.' },
+                    { value: 'BRDL', label: 'BRDL - BRADLEY GT' },
+                    { value: 'BREN', label: 'BREN - BRENNER' },
+                    { value: 'BRIC', label: 'BRIC - BRICKLIN' },
+                    { value: 'BRIS', label: 'BRIS - BRISTOL' },
+                    { value: 'BRNG', label: 'BRNG - BERING TRUCK DISTRIBUTOR' },
+                    { value: 'BROK', label: 'BROK - BROKEN ARROW MOBILE HOME' },
+                    { value: 'BRU', label: 'BRU - SMYRNA SKIFFS' },
+                    { value: 'BRUZ', label: 'BRUZ - BRUTANZA' },
+                    { value: 'BRW', label: 'BRW - HARWILL, INC. (BROWNING MARINE DIV.& AERO-CRAFT BO' },
+                    { value: 'BSA', label: 'BSA - BSA' },
+                    { value: 'BTD', label: 'BTD - B-CRAFT BOAT CO.' },
+                    { value: 'BUDC', label: 'BUDC - BUDD CO. TRAILER DIVISION' },
+                    { value: 'BUEL', label: 'BUEL - BUELL MOTOR CO' },
+                    { value: 'BUGA', label: 'BUGA - BUGATTI' },
+                    { value: 'BUIC', label: 'BUIC - BUICK' },
+                    { value: 'BUJ', label: 'BUJ - BASS TRACKER CORP.' },
+                    { value: 'BUSP', label: 'BUSP - BUFFALO SPRINGFIELD' },
+                    { value: 'BVD', label: 'BVD - BREVARD BOAT WORKS' },
+                    { value: 'BWC', label: 'BWC - BOSTON WHALER, INC.' },
+                    { value: 'BXE', label: 'BXE - BELLCO BOATS, INC.' },
+                    { value: 'CAB', label: 'CAB - CAL BOATS (BANGOR PUNTA MARINE)' },
+                    { value: 'CADI', label: 'CADI - CADILLAC' },
+                    { value: 'CALK', label: 'CALK - CALKINS TRAILER' },
+                    { value: 'CANA', label: 'CANA - CAN-AM ATV' },
+                    { value: 'CAP', label: 'CAP - CAPRI' },
+                    { value: 'CAPR', label: 'CAPR - CAPRI' },
+                    { value: 'CASE', label: 'CASE - CASE (J.I. , CO.)' },
+                    { value: 'CAT', label: 'CAT - CATERPILLAR TRACTOR' },
+                    { value: 'CBA', label: 'CBA - COBIA BOAT CO.' },
+                    { value: 'CBC', label: 'CBC - CHRYSLER BOAT CORP (TEXAS MARINE INTERNATIONAL)' },
+                    { value: 'CBM', label: 'CBM - CEE BEE MFG. CO.' },
+                    { value: 'CCA', label: 'CCA - CHRIS CRAFT' },
+                    { value: 'CCB', label: 'CCB - CHRIS CRAFT' },
+                    { value: 'CCD', label: 'CCD - CHRIS CRAFT' },
+                    { value: 'CCF', label: 'CCF - CHRIS CRAFT' },
+                    { value: 'CCH', label: 'CCH - CHRIS CRAFT' },
+                    { value: 'CCK', label: 'CCK - COLLINSCRAFT, INC.' },
+                    { value: 'CCM', label: 'CCM - HOBIE CAT (COAST CATAMARAN CORP.)' },
+                    { value: 'CCN', label: 'CCN - CHRIS CRAFT' },
+                    { value: 'CCR', label: 'CCR - CHRIS CRAFT ROAMER' },
+                    { value: 'CCT', label: 'CCT - CHRIS CRAFT' },
+                    { value: 'CCU', label: 'CCU - CHRIS CRAFT' },
+                    { value: 'CCV', label: 'CCV - CHRIS CRAFT' },
+                    { value: 'CCX', label: 'CCX - CRUISE BOATS, INC.' },
+                    { value: 'CDR', label: 'CDR - CARVER BOAT CORP. (CABRAL BOATS)' },
+                    { value: 'CEB', label: 'CEB - CENTURY BOAT CO.' },
+                    { value: 'CEE', label: 'CEE - CENTURIAN BOATS, INC.' },
+                    { value: 'CEM', label: 'CEM - COLE BOATS (COLE MARINE)' },
+                    { value: 'CFHG', label: 'CFHG - CHUNFENG HOLDING GROUP (ATV)' },
+                    { value: 'CFS', label: 'CFS - COLUMBIA FIBERGLASS' },
+                    { value: 'CFT', label: 'CFT - CACCI CRAFT, INC.' },
+                    { value: 'CFY', label: 'CFY - COBRA MFG. CO.' },
+                    { value: 'CGF', label: 'CGF - COLLINS CRAFT, INC.' },
+                    { value: 'CHAM', label: 'CHAM - CHAMPION' },
+                    { value: 'CHAM', label: 'CHAM - TRANS VAN' },
+                    { value: 'CHE', label: 'CHE - CHALLENGER BOAT, INC.' },
+                    { value: 'CHEC', label: 'CHEC - CHECKER' },
+                    { value: 'CHEV', label: 'CHEV - CHEVROLET' },
+                    { value: 'CHJ', label: 'CHJ - CHARGER CUSTOMBOATS (TRITON CUSTOM BOATS)' },
+                    { value: 'CHK', label: 'CHK - CHECKMATE BOATS, INC.' },
+                    { value: 'CHM', label: 'CHM - CRITCHFIELD MARINE, INC.' },
+                    { value: 'CHOC', label: 'CHOC - CHRYSLER OUTBOARD' },
+                    { value: 'CHPR', label: 'CHPR - CHAPARRAL' },
+                    { value: 'CHRY', label: 'CHRY - CHRYSLER' },
+                    { value: 'CHT', label: 'CHT - CHEETAH BOAT MFG., INC.' },
+                    { value: 'CIMC', label: 'CIMC - CHINA INTERNATIONAL MARINE CONTAINERS CO' },
+                    { value: 'CISI', label: 'CISI - CISITALIA' },
+                    { value: 'CITI', label: 'CITI - CITICAR' },
+                    { value: 'CITR', label: 'CITR - CITROEN' },
+                    { value: 'CKB', label: 'CKB - CHEROKEE BOAT CO.' },
+                    { value: 'CKL', label: 'CKL - CONCORD BOAT CORP.' },
+                    { value: 'CLA', label: 'CLA - CLASSIC BOAT, CORP.' },
+                    { value: 'CLAR', label: 'CLAR - CLARK EQUIP. COMPANY' },
+                    { value: 'CLEM', label: 'CLEM - CLEMENT BRASWELL' },
+                    { value: 'CLEN', label: 'CLEN - CLENET COACH WORKS' },
+                    { value: 'CLK', label: 'CLK - CLARK BOAT CO.' },
+                    { value: 'CMA', label: 'CMA - CROSBY MARINE ENGR CORP' },
+                    { value: 'CMCO', label: 'CMCO - CONCHEMCO HOMES GROUP' },
+                    { value: 'CMN', label: 'CMN - CUSTOM MARINE' },
+                    { value: 'CMP', label: 'CMP - CAMP WAYS, INC.' },
+                    { value: 'CMPG', label: 'CMPG - CAMPAGNA MOTO SPORT' },
+                    { value: 'CNE', label: 'CNE - CAROLINA BOAT CO.' },
+                    { value: 'CNH', label: 'CNH - CENTARK INDUSTRIES, INC.' },
+                    { value: 'CNP', label: 'CNP - COLEMAN CO., INC.' },
+                    { value: 'CNT', label: 'CNT - CORONET BOATS OF NORTH AMERICA' },
+                    { value: 'COBR', label: 'COBR - AC COBRA' },
+                    { value: 'COCA', label: 'COCA - COCAR (LIMITED USE AUTO)' },
+                    { value: 'COLE', label: 'COLE - COLEMAN CAMPING TRAILERS' },
+                    { value: 'COLL', label: 'COLL - COLLINS BUS' },
+                    { value: 'COLT', label: 'COLT - COLT' },
+                    { value: 'CONC', label: 'CONC - CONCORD' },
+                    { value: 'CONT', label: 'CONT - CONTINENTAL' },
+                    { value: 'CONU', label: 'CONU - CONSULIER' },
+                    { value: 'COVA', label: 'COVA - COVAN (LIMITED USE AUTO)' },
+                    { value: 'CP2', label: 'CP2 - COLEMAN CO., INC.' },
+                    { value: 'CRAN', label: 'CRAN - CRANE CARRIER' },
+                    { value: 'CRL', label: 'CRL - CRESTLINER DIV. (AMF CRESTLINER)' },
+                    { value: 'CRMT', label: 'CRMT - CAR MATE TRAILERS' },
+                    { value: 'CRS', label: 'CRS - MIRRO MARINE DIV. (CRUISERS DIV.)' },
+                    { value: 'CRT', label: 'CRT - CIGARETTE RACING TEAM' },
+                    { value: 'CRW', label: 'CRW - CREWS CRAFT, INC.' },
+                    { value: 'CSB', label: 'CSB - CLASSIC BOAT, INC.' },
+                    { value: 'CSHM', label: 'CSHM - CUSHMAN' },
+                    { value: 'CST', label: 'CST - AQUARIUS DIV. OF LAGUNA YACHTSCOASTAL RECREATION' },
+                    { value: 'CTC', label: 'CTC - CORRECT CRAFT, INC.' },
+                    { value: 'CTL', label: 'CTL - CONTINENTAL BOAT CO. (ANSWER MARINE)' },
+                    { value: 'CTY', label: 'CTY - CATALINA YACHTS' },
+                    { value: 'CUB', label: 'CUB - CUB CRAFT' },
+                    { value: 'CUC', label: 'CUC - CUSTOM MARINE' },
+                    { value: 'CUP', label: 'CUP - CUSTOM MARINE' },
+                    { value: 'CUSM', label: 'CUSM - CUSTOM TRAILERS' },
+                    { value: 'CVB', label: 'CVB - CARAVELLE BOAT CO.' },
+                    { value: 'CXN', label: 'CXN - CRUSADER CUSTOM BOATS' },
+                    { value: 'CYCL', label: 'CYCL - UNPUBLISHED MOTORCYCLE MFR.' },
+                    { value: 'CYV', label: 'CYV - COBRA BOAT MFG., INC.' },
+                    { value: 'DAEW', label: 'DAEW - DAEWOO' },
+                    { value: 'DAIH', label: 'DAIH - DAIHATSU' },
+                    { value: 'DAIR', label: 'DAIR - DIAMOND REO' },
+                    { value: 'DAIX', label: 'DAIX - DAIXI ZHENHUA TECH (MOTORCYCLE)' },
+                    { value: 'DATS', label: 'DATS - DATSUN' },
+                    { value: 'DAUP', label: 'DAUP - DAUPHIN' },
+                    { value: 'DAW', label: 'DAW - DAWSON BOAT CO.' },
+                    { value: 'DCB', label: 'DCB - DEM-CRAFT BOAT CO.' },
+                    { value: 'DEER', label: 'DEER - JOHN DEERE' },
+                    { value: 'DEL', label: 'DEL - DELTA MARINE, INC.' },
+                    { value: 'DELO', label: 'DELO - DELOREAN' },
+                    { value: 'DEM', label: 'DEM - DELHI MFG. CORP. (DELCRAFT)' },
+                    { value: 'DERB', label: 'DERB - DERBI MOTOR CORP.' },
+                    { value: 'DES', label: 'DES - DESOTO MFG. & SUPPLY CO.' },
+                    { value: 'DESO', label: 'DESO - DESOTO' },
+                    { value: 'DETO', label: 'DETO - DETOMASO' },
+                    { value: 'DFL', label: 'DFL - DOLPHIN BOATS, INC.' },
+                    { value: 'DFM', label: 'DFM - MOSSBACK BOAT MFG. CO.' },
+                    { value: 'DFP', label: 'DFP - DELCO FIBERGLASS PRODUCTS' },
+                    { value: 'DIAT', label: 'DIAT - DIAMOND T' },
+                    { value: 'DIPL', label: 'DIPL - DIPLOMAT' },
+                    { value: 'DIVC', label: 'DIVC - DIVCO' },
+                    { value: 'DIVE', label: 'DIVE - DIVELY MFG CO (TRAILER)' },
+                    { value: 'DLN', label: 'DLN - DOLPHIN BOATS, INC.' },
+                    { value: 'DMB', label: 'DMB - DI MARCO BOATS' },
+                    { value: 'DMH', label: 'DMH - HOSEA MFG. CO.' },
+                    { value: 'DMP', label: 'DMP - DAYTON MARINE PRODUCTS' },
+                    { value: 'DMR', label: 'DMR - DONZI MARINE, INC.' },
+                    { value: 'DNC', label: 'DNC - DURANAUTIC MFG. CORP.' },
+                    { value: 'DNU', label: 'DNU - DURANAUTIC, INC.' },
+                    { value: 'DODG', label: 'DODG - DODGE' },
+                    { value: 'DOOL', label: 'DOOL - DOOLITTLE' },
+                    { value: 'DORS', label: 'DORS - DORSEY TRAILER' },
+                    { value: 'DPD', label: 'DPD - DOLPHIN CANOE CO.' },
+                    { value: 'DST', label: 'DST - DORSETT MARINE, INC.' },
+                    { value: 'DUCA', label: 'DUCA - DUCATI' },
+                    { value: 'DUES', label: 'DUES - DUESENBERG' },
+                    { value: 'DUPL', label: 'DUPL - DUPLEX TRUCK' },
+                    { value: 'DUR', label: 'DUR - DURACRAFT BOATS, INC.' },
+                    { value: 'DUS', label: 'DUS - DUSKY MARINE, INC.' },
+                    { value: 'DUT', label: 'DUT - DURATECH MFG. CO.' },
+                    { value: 'DWE', label: 'DWE - CHIEF MFG., INC. (D & W ENTERPRISES)' },
+                    { value: 'DXA', label: 'DXA - DIXIE AIRBOATS, INC.' },
+                    { value: 'DXE', label: 'DXE - DIXIE BOAT WORKS' },
+                    { value: 'DXF', label: 'DXF - DIXIE FIBERGLASS PRODUCTS' },
+                    { value: 'DXM', label: 'DXM - DIXIE CRAFT (DIXIE MARINE MFG)' },
+                    { value: 'DYE', label: 'DYE - DYERCRAFT BOATS' },
+                    { value: 'EADU', label: 'EADU - EAST DUMP TRAILER' },
+                    { value: 'EAGI', label: 'EAGI - EAGLE INTERNATIONAL' },
+                    { value: 'EALO', label: 'EALO - EASY LOADER TRAILER' },
+                    { value: 'EAST', label: 'EAST - EASTON CAR & CONSTRUCTION' },
+                    { value: 'EBK', label: 'EBK - EBKO INDUSTRIES' },
+                    { value: 'ECX', label: 'ECX - CANE CUTTER, INC.' },
+                    { value: 'EDSE', label: 'EDSE - EDSEL' },
+                    { value: 'EGIL', label: 'EGIL - EAGLE' },
+                    { value: 'EKW', label: 'EKW - MARLIN BOATS, INC.' },
+                    { value: 'ELB', label: 'ELB - ELIMINATOR BOATS' },
+                    { value: 'ELD', label: 'ELD - ELDO CRAFT BOAT CO.' },
+                    { value: 'ELDO', label: 'ELDO - ELDORADO' },
+                    { value: 'ELE', label: 'ELE - ELITE BOATS' },
+                    { value: 'ELG', label: 'ELG - ELGIN' },
+                    { value: 'ELGN', label: 'ELGN - ELGIN SWEEPER' },
+                    { value: 'ELX', label: 'ELX - ELI LAMINATES CO., INC.' },
+                    { value: 'ENGF', label: 'ENGF - ENGLISH FORD' },
+                    { value: 'ENN', label: 'ENN - ENSIGN YACHTS' },
+                    { value: 'ERF', label: 'ERF - EASY RIDER FIBERGLASS' },
+                    { value: 'ESCP', label: 'ESCP - ESCAPADE' },
+                    { value: 'ESK', label: 'ESK - ESKAY PLASTICS, LTD.' },
+                    { value: 'ESN', label: 'ESN - RANDALL CRAFT, INC.' },
+                    { value: 'ESSE', label: 'ESSE - ESSEX' },
+                    { value: 'ETC', label: 'ETC - EBBTIDE CORP.' },
+                    { value: 'ETF', label: 'ETF - EAST TEX FIBERGLASS PRODUCTS' },
+                    { value: 'EXCL', label: 'EXCL - EXCALIBUR' },
+                    { value: 'EXPL', label: 'EXPL - EXPLORER MOTOR HOME' },
+                    { value: 'EXU', label: 'EXU - ASTRO PLASTICS CORP.' },
+                    { value: 'EZDU', label: 'EZDU - EZ DUMPER TRAILERS' },
+                    { value: 'FAB', label: 'FAB - FABUGLASS CO., INC.' },
+                    { value: 'FALC', label: 'FALC - FALCON' },
+                    { value: 'FBF', label: 'FBF - FIBER-FORM (DIV. OF BAYLINER MARINE)' },
+                    { value: 'FBG', label: 'FBG - FIBERFORM (US INDUSTRIES, INC.)' },
+                    { value: 'FBK', label: 'FBK - FIBERKING BOAT CO. (FIBERKING, INC.)' },
+                    { value: 'FCL', label: 'FCL - FIBER-CELL, INC.' },
+                    { value: 'FCN', label: 'FCN - FALCON BOATS OF CALIFORNIA' },
+                    { value: 'FCP', label: 'FCP - FIBERCRAFT MFG. CO.' },
+                    { value: 'FCS', label: 'FCS - FALCON BOATS, INC.' },
+                    { value: 'FEA', label: 'FEA - FEATHERCRAFT' },
+                    { value: 'FELL', label: 'FELL - FELLWON TRAILER' },
+                    { value: 'FEMC', label: 'FEMC - FELDMAN ENGINEERING & MFG.' },
+                    { value: 'FERR', label: 'FERR - FERRARI' },
+                    { value: 'FGB', label: 'FGB - CHAPARRAL BOATS, INC. (FIBERGLASS FABRIC, INC.)' },
+                    { value: 'FGE', label: 'FGE - COBALT BOATS' },
+                    { value: 'FIAT', label: 'FIAT - FIAT' },
+                    { value: 'FIVE', label: 'FIVE - FIVE STAR ENGINEERING, INC.' },
+                    { value: 'FLB', label: 'FLB - FOLBOT CORP.' },
+                    { value: 'FLEX', label: 'FLEX - FLXIBLE BUS CO.' },
+                    { value: 'FLQ', label: 'FLQ - FLAGSHIP YACHT SALES, INC.' },
+                    { value: 'FMC', label: 'FMC - FISHER MARINE, INC.' },
+                    { value: 'FMC', label: 'FMC - FMC' },
+                    { value: 'FMY', label: 'FMY - FM MARINE' },
+                    { value: 'FONA', label: 'FONA - FONTAINE TRUCK' },
+                    { value: 'FORD', label: 'FORD - FORD' },
+                    { value: 'FRAN', label: 'FRAN - FRANKLIN' },
+                    { value: 'FRED', label: 'FRED - FREDERICK-WILLYS' },
+                    { value: 'FRHT', label: 'FRHT - FREIGHTLINER CORP.' },
+                    { value: 'FRK', label: 'FRK - KURTIS KRAFT BOATS' },
+                    { value: 'FRUE', label: 'FRUE - FRAUHAUF' },
+                    { value: 'FSF', label: 'FSF - FOUR STAR FIBERGLASS CORP.' },
+                    { value: 'FSJ', label: 'FSJ - FIBER SKIFF, INCORPORATED' },
+                    { value: 'FSKR', label: 'FSKR - FISKER AUTOMOTIVE' },
+                    { value: 'FSM', label: 'FSM - FISHMASTER' },
+                    { value: 'FSTL', label: 'FSTL - FASTLINE LTD.' },
+                    { value: 'FTWD', label: 'FTWD - FLEETWOOD MOTOR HOME' },
+                    { value: 'FUR', label: 'FUR - FURY BOATS (FURY SPEED AND MARINE)' },
+                    { value: 'FWD', label: 'FWD - FWS' },
+                    { value: 'GAE', label: 'GAE - GALAXIE BOATS, INC.' },
+                    { value: 'GAL', label: 'GAL - GALAXY BOAT MFG. CO.' },
+                    { value: 'GBC', label: 'GBC - GREGOR BOATS' },
+                    { value: 'GBCO', label: 'GBCO - GILSON BROTHERS COMPANY' },
+                    { value: 'GBF', label: 'GBF - OSAGIAN BOATS, INC.' },
+                    { value: 'GBM', label: 'GBM - GRUMMAN ALLIED INDUSTRIES, INC. (GRUMMAN BOATS)' },
+                    { value: 'GBN', label: 'GBN - GIBSON FIBERGLASS PRODUCTS' },
+                    { value: 'GBP', label: 'GBP - GRUMMAN BOATS INC(GRUMAN-CARMICHAELS)' },
+                    { value: 'GBW', label: 'GBW - GALAXIE BOAT WORKS, INC.' },
+                    { value: 'GCV', label: 'GCV - GLASTRON-CARLSON' },
+                    { value: 'GDAN', label: 'GDAN - GREAT DANE TRAILERS' },
+                    { value: 'GEM', label: 'GEM - GEM' },
+                    { value: 'GENI', label: 'GENI - GENIE' },
+                    { value: 'GENS', label: 'GENS - GENESIS' },
+                    { value: 'GEO', label: 'GEO - GEO' },
+                    { value: 'GHE', label: 'GHE - GHEENOE (GHEEN MANUFACTURING)' },
+                    { value: 'GILG', label: 'GILG - GILLIG CORPORATION' },
+                    { value: 'GIND', label: 'GIND - GINDY' },
+                    { value: 'GLA', label: 'GLA - GLASTRON BOAT CO.' },
+                    { value: 'GLSC', label: 'GLSC - GLASSIC' },
+                    { value: 'GLX', label: 'GLX - GREAT LAKE INFLATABLE, INC.' },
+                    { value: 'GM', label: 'GM - GM' },
+                    { value: 'GMA', label: 'GMA - GENERAL MARINE CO.' },
+                    { value: 'GMC', label: 'GMC - GMC' },
+                    { value: 'GNSH', label: 'GNSH - GENERAL SHELTERS' },
+                    { value: 'GPC', label: 'GPC - GLASS MASTER BOAT CO., INC. (GLASSMASTER PLASTICS)' },
+                    { value: 'GPD', label: 'GPD - BEACH COMBER BOATS & GLASS BOATS UNLIMITED CORP' },
+                    { value: 'GRUM', label: 'GRUM - GRUMMAN' },
+                    { value: 'GSY', label: 'GSY - GLASSTREAM BOATS' },
+                    { value: 'GTX', label: 'GTX - GLASTEX CO.' },
+                    { value: 'HAL', label: 'HAL - HALLET' },
+                    { value: 'HALM', label: 'HALM - HALLMARK' },
+                    { value: 'HAUL', label: 'HAUL - HAULETTE TRAILER' },
+                    { value: 'HBU', label: 'HBU - HOLETON BOAT WORKS' },
+                    { value: 'HBY', label: 'HBY - HOWMAR BOATS, INC.' },
+                    { value: 'HCB', label: 'HCB - HOWARD CUSTOM BOATS' },
+                    { value: 'HD', label: 'HD - HARLEY DAVIDSON' },
+                    { value: 'HDMC', label: 'HDMC - HARLEY DAVIDSON (AMF)' },
+                    { value: 'HDSN', label: 'HDSN - HUDSON TRAILER' },
+                    { value: 'HEIL', label: 'HEIL - HEIL' },
+                    { value: 'HER', label: 'HER - HERTERS, INC.' },
+                    { value: 'HEW', label: 'HEW - HEWES MARINE CO. INC.' },
+                    { value: 'HGB', label: 'HGB - HORIS' },
+                    { value: 'HGG', label: 'HGG - HIGGINBOTHAN BOAT CO.' },
+                    { value: 'HIGH', label: 'HIGH - HIGHWAY TRAILER' },
+                    { value: 'HIN', label: 'HIN - HUSTLER INDUSTRIES' },
+                    { value: 'HINO', label: 'HINO - HINO' },
+                    { value: 'HMDE', label: 'HMDE - HOMEMADE' },
+                    { value: 'HMJ', label: 'HMJ - HOLIDAY MANUFACTURING' },
+                    { value: 'HND', label: 'HND - HONDO BOATS' },
+                    { value: 'HNK', label: 'HNK - HANS KLEPPER CORP.' },
+                    { value: 'HOBB', label: 'HOBB - HOBBS TRAILERS' },
+                    { value: 'HODA', label: 'HODA - HODAKA' },
+                    { value: 'HOLR', label: 'HOLR - HOLIDAY RAMBLER' },
+                    { value: 'HOMD', label: 'HOMD - HOMEMADE MOTORCYCLE' },
+                    { value: 'HOME', label: 'HOME - HOMETTE' },
+                    { value: 'HOND', label: 'HOND - HONDA' },
+                    { value: 'HRTI', label: 'HRTI - HERTERS INC.' },
+                    { value: 'HRTO', label: 'HRTO - HORTON' },
+                    { value: 'HSB', label: 'HSB - HUSTLER BOATS' },
+                    { value: 'HSL', label: 'HSL - HUSTLER BOAT CO. (HUSTLER MARINE CO.& HUSTLER, INC' },
+                    { value: 'HSP', label: 'HSP - HYDRO STREAM BOATS' },
+                    { value: 'HST', label: 'HST - HURST ENTERPRISES, INC.(MASTER ENTERPRISES, INC.)' },
+                    { value: 'HSX', label: 'HSX - HYDRA-SPORTS, INC.' },
+                    { value: 'HTB', label: 'HTB - CUSTOM MARINE (HOT BOAT ALLEY & MACHONE BOATS)' },
+                    { value: 'HUB', label: 'HUB - HUBBS YACHT SALES, INC.' },
+                    { value: 'HUDS', label: 'HUDS - HUDSON' },
+                    { value: 'HUL', label: 'HUL - HULLS, INC. (VALCO ALUMINUM BOATS)' },
+                    { value: 'HUMM', label: 'HUMM - HUMMER' },
+                    { value: 'HURU', label: 'HURU - HUSTLER-RUSTLER' },
+                    { value: 'HUS', label: 'HUS - HUSTLER BOAT CO., INC.' },
+                    { value: 'HUSQ', label: 'HUSQ - HUSQVARNA MOTORCYCLES' },
+                    { value: 'HUU', label: 'HUU - HURST ENTERPRISES, INC.' },
+                    { value: 'HUX', label: 'HUX - HUSTLER MARINE, INC.' },
+                    { value: 'HVC', label: 'HVC - U. S. HOVERCRAFT' },
+                    { value: 'HWE', label: 'HWE - HOLLYWOOD ENTERPRISES, INC.' },
+                    { value: 'HYD', label: 'HYD - DYNA-PAC, INC. (HYDROSWIFT CORP)' },
+                    { value: 'HYUN', label: 'HYUN - HYUNDAI' },
+                    { value: 'IMPE', label: 'IMPE - IMPERIAL' },
+                    { value: 'INDI', label: 'INDI - INDIAN MOTORCYCLES' },
+                    { value: 'INFI', label: 'INFI - INFINITI' },
+                    { value: 'INGS', label: 'INGS - INGERSOLL-RAND CO.' },
+                    { value: 'INTL', label: 'INTL - INTERNATIONAL HARVESTER' },
+                    { value: 'INTL', label: 'INTL - TRANSTAR' },
+                    { value: 'IRDG', label: 'IRDG - IRONDOG TRAILERS' },
+                    { value: 'ISLA', label: 'ISLA - ISLANDER MOTOR HOME' },
+                    { value: 'ISO', label: 'ISO - ISO' },
+                    { value: 'ISU', label: 'ISU - ISUZU' },
+                    { value: 'ITAL', label: 'ITAL - ITALJET' },
+                    { value: 'ITAS', label: 'ITAS - ITASCA MOTOR HOME' },
+                    { value: 'IVEC', label: 'IVEC - IVECO (MAGIRUS DISTR.)' },
+                    { value: 'IVEC', label: 'IVEC - IVECO TRUCKS' },
+                    { value: 'JACC', label: 'JACC - JAC-TRAC INC.' },
+                    { value: 'JAGU', label: 'JAGU - JAGUAR' },
+                    { value: 'JAWA', label: 'JAWA - JAWA' },
+                    { value: 'JBC', label: 'JBC - JETT BOAT COMPANY (ALUMA-WELD)' },
+                    { value: 'JBN', label: 'JBN - JET BOAT ENGINEERING (PERFORMANCE ENGINEERING)' },
+                    { value: 'JBX', label: 'JBX - JET BOAT ENGINEERING OF OKLAHOMA' },
+                    { value: 'JCBE', label: 'JCBE - JCB EXCAVATORS' },
+                    { value: 'JCE', label: 'JCE - MAIDEN CRAFT & PRO CRAFT (ASTROGLASS BOATS)' },
+                    { value: 'JDB', label: 'JDB - JOHN DORY BOAT WORKS, INC.' },
+                    { value: 'JDER', label: 'JDER - J DEERE AND COMPANY' },
+                    { value: 'JEB', label: 'JEB - JET-STER BOATS' },
+                    { value: 'JEEP', label: 'JEEP - JEEP' },
+                    { value: 'JENS', label: 'JENS - JENSEN' },
+                    { value: 'JET', label: 'JET - GLEN-COE BOAT MFG.' },
+                    { value: 'JHR', label: 'JHR - INDIAN RIVER BOATS' },
+                    { value: 'JNC', label: 'JNC - JEM-CRAFT' },
+                    { value: 'JRDN', label: 'JRDN - JERR-DAN' },
+                    { value: 'JRS', label: 'JRS - KONABOATS, INC. (JRS FIBERGLASS UNLIMITED, INC.)' },
+                    { value: 'JSB', label: 'JSB - JET-STER BOAT CO.' },
+                    { value: 'JTA', label: 'JTA - JET-STER BOATS OF ALABAMA' },
+                    { value: 'JTB', label: 'JTB - JET-STER BOAT OF MEMPHIS' },
+                    { value: 'KAIS', label: 'KAIS - KAISER' },
+                    { value: 'KARA', label: 'KARA - KARAVAN TRAILERS, INC.' },
+                    { value: 'KARI', label: 'KARI - KARI KOOL TRAILER' },
+                    { value: 'KAW', label: 'KAW - KAWASAKI MOTORS MFG' },
+                    { value: 'KAWK', label: 'KAWK - KAWASAKI' },
+                    { value: 'KBW', label: 'KBW - KENNEDY BOAT CO.' },
+                    { value: 'KCK', label: 'KCK - K-CRAFT, INC.' },
+                    { value: 'KENT', label: 'KENT - KENTUCKY MFG' },
+                    { value: 'KENY', label: 'KENY - KENNY BOYCE MOTORCYCLES' },
+                    { value: 'KIA', label: 'KIA - KIA MOTOR COMPANY' },
+                    { value: 'KMCU', label: 'KMCU - KAWASAKI' },
+                    { value: 'KNG', label: 'KNG - MASTER MOLDERS, INC. (KINGFISHER FIBERGLASS)' },
+                    { value: 'KNNW', label: 'KNNW - KENWORTH NORTHWEST' },
+                    { value: 'KODI', label: 'KODI - KODIAK' },
+                    { value: 'KOMA', label: 'KOMA - KOMATSU AMERICAN CORP.' },
+                    { value: 'KOME', label: 'KOME - KOMETIC' },
+                    { value: 'KRG', label: 'KRG - IMAGE BOAT CO. (KRONENBERG INDUSTRIES, INC.)' },
+                    { value: 'KRU', label: 'KRU - CRUISERS, INC.' },
+                    { value: 'KST', label: 'KST - CHARLOMA FIBERGLASS, INC.' },
+                    { value: 'KTM', label: 'KTM - KTM' },
+                    { value: 'KVA', label: 'KVA - KENOVA INDUSTRIES' },
+                    { value: 'KW', label: 'KW - KENWORTH' },
+                    { value: 'KWDT', label: 'KWDT - KW DART' },
+                    { value: 'KYMC', label: 'KYMC - KYMCO SCOOTERS & MOTORCYCLES' },
+                    { value: 'KYRV', label: 'KYRV - KEYSTONE RV CO.' },
+                    { value: 'LADA', label: 'LADA - LADA' },
+                    { value: 'LAMO', label: 'LAMO - LAMBORGHINI' },
+                    { value: 'LANU', label: 'LANU - LANDAU MOTOR HOME' },
+                    { value: 'LAR', label: 'LAR - LARSON BOAT CO.' },
+                    { value: 'LARV', label: 'LARV - LARVIN - FIRMA LENKO' },
+                    { value: 'LAY', label: 'LAY - LAGUNA YACHTS, INC.' },
+                    { value: 'LBC', label: 'LBC - LIVINGSTON BOAT CO., INC.' },
+                    { value: 'LBD', label: 'LBD - LANDAU BOAT CO.' },
+                    { value: 'LBHR', label: 'LBHR - LIEBHERR' },
+                    { value: 'LBO', label: 'LBO - LANDAU BOAT COMPANY' },
+                    { value: 'LBOS', label: 'LBOS - LOAD BOSS, INC.' },
+                    { value: 'LBTY', label: 'LBTY - LIBERTY, INC.' },
+                    { value: 'LCB', label: 'LCB - LYN-CRAFT BOAT CO.' },
+                    { value: 'LCN', label: 'LCN - LINCOLN CANOE CO. (MAINE MARINE CO.)' },
+                    { value: 'LCR', label: 'LCR - RADISSON CANOES' },
+                    { value: 'LDMS', label: 'LDMS - LOADMASTER, INC.' },
+                    { value: 'LEL', label: 'LEL - CAJUN SPECIAL BOATS (LOLELL IND.)' },
+                    { value: 'LEXS', label: 'LEXS - LEXUS' },
+                    { value: 'LFZA', label: 'LFZA - LAFORZA UTILITY VEHICLE' },
+                    { value: 'LINC', label: 'LINC - LINCOLN' },
+                    { value: 'LIOL', label: 'LIOL - LIONAL ENTERPRISES INC.' },
+                    { value: 'LMA', label: 'LMA - CADDO BOAT MFG. CO., INC' },
+                    { value: 'LNCI', label: 'LNCI - LANCIA' },
+                    { value: 'LNDR', label: 'LNDR - LAND ROVER' },
+                    { value: 'LNS', label: 'LNS - LONE STAR FIBERGLASS CO.' },
+                    { value: 'LONG', label: 'LONG - LONG MFG' },
+                    { value: 'LOTU', label: 'LOTU - LOTUS' },
+                    { value: 'LPB', label: 'LPB - MAKO SHARK BOATS (LYNCH PERFORMANCE BOATS)' },
+                    { value: 'LSKP', label: 'LSKP - LORI ENGINEERING CORP.' },
+                    { value: 'LUFK', label: 'LUFK - LUFKIN TRAILERS' },
+                    { value: 'LUG', label: 'LUG - LUGER INDUSTRIES, INC.' },
+                    { value: 'LUN', label: 'LUN - LUND AMERICAN, INC.' },
+                    { value: 'LWN', label: 'LWN - LOWEINDUSTRIES (CARL A. LOWE INDUSTRIES, INC.)' },
+                    { value: 'LYN', label: 'LYN - LYN CRAFT BOAT CO.' },
+                    { value: 'MAC', label: 'MAC - MACGREGOR YACHT CORP.' },
+                    { value: 'MACK', label: 'MACK - MACK TRUCKS' },
+                    { value: 'MAD', label: 'MAD - MAD RIVER CANOE CO., INC.' },
+                    { value: 'MADM', label: 'MADM - MADAMI MOTOR SCOOTERS' },
+                    { value: 'MAG', label: 'MAG - MAGNUM MARINE' },
+                    { value: 'MAHA', label: 'MAHA - MARMON HARRINGTON' },
+                    { value: 'MAK', label: 'MAK - MONARK BOAT CO.' },
+                    { value: 'MALR', label: 'MALR - MALLARD' },
+                    { value: 'MANT', label: 'MANT - MANTA' },
+                    { value: 'MASE', label: 'MASE - MASERATI' },
+                    { value: 'MASS', label: 'MASS - MASSEY-FERGUSON INC.' },
+                    { value: 'MASS', label: 'MASS - MASSEY-FURGUSON' },
+                    { value: 'MAYB', label: 'MAYB - MAYBACH' },
+                    { value: 'MAZ', label: 'MAZ - MACS AIRBOATS AND SKIFFS' },
+                    { value: 'MAZD', label: 'MAZD - MAZDA' },
+                    { value: 'MBC', label: 'MBC - MASTERCRAFT BOAT CO.' },
+                    { value: 'MBD', label: 'MBD - MARLIN BOAT CO.' },
+                    { value: 'MBE', label: 'MBE - MANTRA BOAT CO.' },
+                    { value: 'MBK', label: 'MBK - MAKAI BOATS, INC.' },
+                    { value: 'MBP', label: 'MBP - MITCHELL BOAT CO.' },
+                    { value: 'MCC', label: 'MCC - MICH-CRAFT CORP' },
+                    { value: 'MCD', label: 'MCD - MCDANIEL BOAT CO., INC.' },
+                    { value: 'MCIN', label: 'MCIN - MOTOR COACH INDUSTRIES (MCI)' },
+                    { value: 'MCLA', label: 'MCLA - MCLAREN' },
+                    { value: 'MDT', label: 'MDT - MIDDLE TENNESSEE FIBERGLASS, INC.' },
+                    { value: 'MELR', label: 'MELR - MELROE DIV (BOBCAT SKID STEER)' },
+                    { value: 'MERC', label: 'MERC - MERCURY' },
+                    { value: 'MERK', label: 'MERK - MERKUR' },
+                    { value: 'MERZ', label: 'MERZ - MERCEDES BENZ' },
+                    { value: 'MESS', label: 'MESS - MESSERSCHMITT' },
+                    { value: 'METR', label: 'METR - METROPOLITAN' },
+                    { value: 'MEY', label: 'MEY - MEYERS INDUSTRIES, INC.' },
+                    { value: 'MFG', label: 'MFG - MFG BOATS (MOLDED FIBER GLASS BOAT)' },
+                    { value: 'MFS', label: 'MFS - WITCHCRAFT & APACHE (MIKE F. SHANNON CO.)' },
+                    { value: 'MG', label: 'MG - MG' },
+                    { value: 'MG', label: 'MG - MGB' },
+                    { value: 'MGM', label: 'MGM - MAGTEX CO. (MAGNUM BOAT)' },
+                    { value: 'MGW', label: 'MGW - MONTGOMERY WARD CO.' },
+                    { value: 'MHP', label: 'MHP - MEL-HART PRODUCTS, INC.' },
+                    { value: 'MIDS', label: 'MIDS - MIDAS MOTOR HOME' },
+                    { value: 'MIFU', label: 'MIFU - MITSUBISHI FUSO' },
+                    { value: 'MILL', label: 'MILL - MILLER TRAILERS' },
+                    { value: 'MITS', label: 'MITS - MITSUBISHI' },
+                    { value: 'MKC', label: 'MKC - MCKEE CRAFT' },
+                    { value: 'MKS', label: 'MKS - MAKO, INC' },
+                    { value: 'MMN', label: 'MMN - MOHAWK MFG. CO.' },
+                    { value: 'MNNI', label: 'MNNI - MINI (COOPER/COOPER-S) (RIGHTS BOUGHT BY BMW)' },
+                    { value: 'MNT', label: 'MNT - MANATEE MARINE PRODUCTS, INC.' },
+                    { value: 'MOBE', label: 'MOBE - MOTO BETA' },
+                    { value: 'MOGU', label: 'MOGU - MOTO GUZZI' },
+                    { value: 'MONA', label: 'MONA - MONARCH' },
+                    { value: 'MONG', label: 'MONG - LAC ST-JEAN MOTONEIGE LTD. - SEE MONTAGNAIS' },
+                    { value: 'MONN', label: 'MONN - MONON TRAILER DIV.' },
+                    { value: 'MONW', label: 'MONW - MONTONE MFG' },
+                    { value: 'MORG', label: 'MORG - MORGAN' },
+                    { value: 'MORR', label: 'MORR - MORRIS' },
+                    { value: 'MOSK', label: 'MOSK - MOSKOVICH' },
+                    { value: 'MOWA', label: 'MOWA - MONTGOMERY WARD' },
+                    { value: 'MPM', label: 'MPM - COMBEE AIRBOATS, INC.' },
+                    { value: 'MRB', label: 'MRB - MARQUIS BOAT CO., INC.' },
+                    { value: 'MRCU', label: 'MRCU - MERCURY' },
+                    { value: 'MRH', label: 'MRH - MARIAH BOATS' },
+                    { value: 'MRJ', label: 'MRJ - MARQUIS BOATS, INC.' },
+                    { value: 'MRK', label: 'MRK - MAKO MARINE, INC.' },
+                    { value: 'MRR', label: 'MRR - MIRRO MARINE DIV. (MIRROCRAFT & MIRRO MARINE)' },
+                    { value: 'MSFI', label: 'MSFI - MASSEY-FERGUSON INC.' },
+                    { value: 'MTD', label: 'MTD - MTD PRODUCTS, INC. (LAWN FLITE - MFD)' },
+                    { value: 'MTM', label: 'MTM - MARK TWAIN MARINE INDUSTRIES' },
+                    { value: 'MTMV', label: 'MTMV - MIGHTY MOVER TRAILERS, INC.' },
+                    { value: 'MTPI', label: 'MTPI - MTD PRODUCTS INC. (COLUMBIA)' },
+                    { value: 'MUNT', label: 'MUNT - MUNTZ' },
+                    { value: 'MYW', label: 'MYW - AMERICAN FIBERLITE, INCORPORATED' },
+                    { value: 'MZ', label: 'MZ - MZ' },
+                    { value: 'NAB', label: 'NAB - NORTH AMERICAN BOAT CORP.' },
+                    { value: 'NABO', label: 'NABO - NABORS TRAILERS' },
+                    { value: 'NAP', label: 'NAP - LIGHTING BOATS (EXCALIBUR MARINE CORP.)' },
+                    { value: 'NASH', label: 'NASH - NASH' },
+                    { value: 'NAVI', label: 'NAVI - NAVISTAR' },
+                    { value: 'NDC', label: 'NDC - NORDIC BOATS' },
+                    { value: 'NEW', label: 'NEW - NEWMAN INDUSTRIES, INC.' },
+                    { value: 'NEWL', label: 'NEWL - NEWELL' },
+                    { value: 'NEWP', label: 'NEWP - NEWPORT' },
+                    { value: 'NFLY', label: 'NFLY - NEW FLYER' },
+                    { value: 'NISS', label: 'NISS - NISSAN' },
+                    { value: 'NNA', label: 'NNA - NONA BOAT CO.' },
+                    { value: 'NORT', label: 'NORT - NORTON' },
+                    { value: 'NRTS', label: 'NRTS - NORTHWAY' },
+                    { value: 'NTL', label: 'NTL - NATIONALBOAT WORKS, INC. (GRADY-WHITE BOATS)' },
+                    { value: 'NWCT', label: 'NWCT - NORTHWEST CUSTOM TRAILER' },
+                    { value: 'OCKE', label: 'OCKE - OCKELBO INDUSTRY AB' },
+                    { value: 'ODGL', label: 'ODGL - ARGO' },
+                    { value: 'ODSS', label: 'ODSS - ODYSSEY' },
+                    { value: 'OLDS', label: 'OLDS - OLDSMOBILE' },
+                    { value: 'OLYM', label: 'OLYM - OLYMPIA' },
+                    { value: 'OMCJ', label: 'OMCJ - JOHNSON (OMC)' },
+                    { value: 'OPEL', label: 'OPEL - OPEL' },
+                    { value: 'ORIG', label: 'ORIG - ORIGINAL EQUIPMENT MANUFACTURING LTD.' },
+                    { value: 'OSHK', label: 'OSHK - OSHKOSH MOTOR TRUCK' },
+                    { value: 'OTPE', label: 'OTPE - OUTDOOR POWER EQUIPMENT' },
+                    { value: 'OUTM', label: 'OUTM - EVINRUDE - SEE OUTBOARD MARINE CORPORATION' },
+                    { value: 'OVEL', label: 'OVEL - OVERLAND MOTOR HOMES' },
+                    { value: 'OVER', label: 'OVER - OVERLAND' },
+                    { value: 'PACK', label: 'PACK - PACKARD' },
+                    { value: 'PANH', label: 'PANH - PANHARD' },
+                    { value: 'PAP', label: 'PAP - PANTHER AIRBOATS CORP.' },
+                    { value: 'PARO', label: 'PARO - PACE ARROW' },
+                    { value: 'PASS', label: 'PASS - PASSPORT' },
+                    { value: 'PDC', label: 'PDC - P & D BOAT CORP.' },
+                    { value: 'PDL', label: 'PDL - SURFGLAS, INC. (PRINDLE CATAMARANS )' },
+                    { value: 'PER', label: 'PER - PERFORMER BOAT CO.' },
+                    { value: 'PEUG', label: 'PEUG - PEUGEOT' },
+                    { value: 'PFS', label: 'PFS - PERFORMANCE SAILCRAFT' },
+                    { value: 'PHB', label: 'PHB - PHANTOM BOAT, INC.' },
+                    { value: 'PHOE', label: 'PHOE - PHOENIX' },
+                    { value: 'PHU', label: 'PHU - PHANTOM BROTHERS, INC. (PHANTOM BOAT, INC.)' },
+                    { value: 'PHV', label: 'PHV - PACIFIC HOVERCRAFT' },
+                    { value: 'PHX', label: 'PHX - PHOENIX PRODUCTS, INC.' },
+                    { value: 'PIAG', label: 'PIAG - PIAGGIO' },
+                    { value: 'PLC', label: 'PLC - PRO-LINE BOAT CO.' },
+                    { value: 'PLR', label: 'PLR - POLAR KRAFT MFG. CO.' },
+                    { value: 'PLRN', label: 'PLRN - POLORON' },
+                    { value: 'PLYC', label: 'PLYC - PLAYCAT INDUSTRIES INC.' },
+                    { value: 'PLYM', label: 'PLYM - PLYMOUTH' },
+                    { value: 'PMR', label: 'PMR - PANTHER MARINE CORP.' },
+                    { value: 'PNT', label: 'PNT - PIONEER BOATS' },
+                    { value: 'POLA', label: 'POLA - POLAR MFG' },
+                    { value: 'POLB', label: 'POLB - POLAR BEAR' },
+                    { value: 'POLS', label: 'POLS - POLARIS INDUSTRIES INC. (E-Z-GO)' },
+                    { value: 'PONI', label: 'PONI - PONTIAC' },
+                    { value: 'PONT', label: 'PONT - PONTIAC' },
+                    { value: 'PORS', label: 'PORS - PORSCHE' },
+                    { value: 'PPE', label: 'PPE - PERFORMANCE PLUS PRODUCTS' },
+                    { value: 'PRCA', label: 'PRCA - PIERCE ARROW' },
+                    { value: 'PREO', label: 'PREO - PREVOST' },
+                    { value: 'PRO', label: 'PRO - PRO CRAFT, INC.' },
+                    { value: 'PSL', label: 'PSL - J BOATS WEST (PERFORMANCE & LASER SAILCRAFT)' },
+                    { value: 'PTRB', label: 'PTRB - PETERBUILT MOTORS' },
+                    { value: 'PUCH', label: 'PUCH - PUCH' },
+                    { value: 'PWR', label: 'PWR - POWER CAT MFG., INC.' },
+                    { value: 'PYB', label: 'PYB - PENN YAN BOATS, INC.' },
+                    { value: 'PYH', label: 'PYH - PYTHON BOATS' },
+                    { value: 'RA1', label: 'RA1 - AMF ROBALO DIVISION' },
+                    { value: 'RAID', label: 'RAID - LEISURE VEHICLES INC.' },
+                    { value: 'RAL', label: 'RAL - AMF ROBALO' },
+                    { value: 'RAM', label: 'RAM - RAM' },
+                    { value: 'RAMB', label: 'RAMB - RAMBLER' },
+                    { value: 'RAS', label: 'RAS - RAYSON MARINE (RAYSONCRAFT)' },
+                    { value: 'RBM', label: 'RBM - RENKEN BOAT MFG. CO' },
+                    { value: 'RCB', label: 'RCB - ROGERS CUSTOM BOATS' },
+                    { value: 'RCH', label: 'RCH - RICH LINE BOATS (RICHLAND MFG. CO.)' },
+                    { value: 'RDA', label: 'RDA - CHARGER BOAT COMPANY' },
+                    { value: 'RELA', label: 'RELA - RELIANT' },
+                    { value: 'REN', label: 'REN - REINELL BOATS, INC.' },
+                    { value: 'RENA', label: 'RENA - RENAULT' },
+                    { value: 'REO', label: 'REO - REO' },
+                    { value: 'RGH', label: 'RGH - ROUGHNECK BOAT CO.' },
+                    { value: 'RGM', label: 'RGM - REGAL MARINE INDUSTRIES, INC.' },
+                    { value: 'RGP', label: 'RGP - RIVERS-GILMAN MOULD PRODS.' },
+                    { value: 'RHE', label: 'RHE - ROCHELL CRAFT CORP.' },
+                    { value: 'RHT', label: 'RHT - SURF-JET CORP.' },
+                    { value: 'RHY', label: 'RHY - RHYAN-CRAFT BOATS MFG.' },
+                    { value: 'RILE', label: 'RILE - RILEY' },
+                    { value: 'RJS', label: 'RJS - OLYMPIAN BOATS (R. J. SMITH CO.)' },
+                    { value: 'RNG', label: 'RNG - WOOD MANUFACTURING CO., INC.(FORREST WOOD MFG. CO.' },
+                    { value: 'RNK', label: 'RNK - RINKER BOAT CO., INC.' },
+                    { value: 'ROCE', label: 'ROCE - ROCKET TRAILER, LTD.' },
+                    { value: 'ROL', label: 'ROL - ROLLS-ROYCE' },
+                    { value: 'ROLF', label: 'ROLF - ROLL-O-FLEX LTD.' },
+                    { value: 'ROV', label: 'ROV - ROVER' },
+                    { value: 'RPII', label: 'RPII - H & H SNOWMOBILES' },
+                    { value: 'RROV', label: 'RROV - RANGE ROVER' },
+                    { value: 'RSB', label: 'RSB - RSB FIBERGLASS FORMS' },
+                    { value: 'RSE', label: 'RSE - CHARGER CUSTOM BOATS' },
+                    { value: 'RUPP', label: 'RUPP - RUPP' },
+                    { value: 'RVR', label: 'RVR - RIVERA BOAT, INC.' },
+                    { value: 'SAA', label: 'SAA - SAAB' },
+                    { value: 'SABE', label: 'SABE - SABRE (RECREATIVES INC.)' },
+                    { value: 'SAG', label: 'SAG - RAY CRAFT (SAN AUGUSTINE FIBERGLASS PRODUCTS)' },
+                    { value: 'SAN', label: 'SAN - SANGER BOAT MFG.' },
+                    { value: 'SATR', label: 'SATR - SATURN CORPORATION' },
+                    { value: 'SAW', label: 'SAW - SAWYER CANOE CO.' },
+                    { value: 'SBC', label: 'SBC - SUMMER BOAT CO.' },
+                    { value: 'SBM', label: 'SBM - SOONER BOAT MFG. CO.' },
+                    { value: 'SBW', label: 'SBW - STAUTER BOAT WORKS' },
+                    { value: 'SCAN', label: 'SCAN - SAAB SCANIA OF AMERICA' },
+                    { value: 'SCAT', label: 'SCAT - SKAT-KITTY' },
+                    { value: 'SCC', label: 'SCC - SCAT-CRAFT MARINE, INC.' },
+                    { value: 'SCIO', label: 'SCIO - SCION' },
+                    { value: 'SCN', label: 'SCN - SEACREST MARINE CORP.' },
+                    { value: 'SCOR', label: 'SCOR - SCORPION INC.' },
+                    { value: 'SCR', label: 'SCR - SPORT CRAFT, INC.' },
+                    { value: 'SCRP', label: 'SCRP - SCORPION INC.' },
+                    { value: 'SCT', label: 'SCT - SCOTT BOAT CO., INC.' },
+                    { value: 'SEA', label: 'SEA - SEA NYMPH MFG.' },
+                    { value: 'SEAR', label: 'SEAR - SEARS' },
+                    { value: 'SEC', label: 'SEC - SEA CRAFT, INC.' },
+                    { value: 'SECE', label: 'SECE - SE/CE (LIMITED USE AUTO)' },
+                    { value: 'SECO', label: 'SECO - SECO' },
+                    { value: 'SEJ', label: 'SEJ - SEAJAY BOATS, INC.' },
+                    { value: 'SEN', label: 'SEN - SEABIRD INDUSTRIES, INC.' },
+                    { value: 'SER', label: 'SER - SEA RAY BOATS, INC.' },
+                    { value: 'SES', label: 'SES - SEARS AND ROEBUCK, MARINE DIV.' },
+                    { value: 'SEV', label: 'SEV - SEVYLOR USA, INC.' },
+                    { value: 'SGN', label: 'SGN - THUNDERBIRD PRODS. (SIGNA CORP.)' },
+                    { value: 'SHAS', label: 'SHAS - SHASTA MOTOR HOME' },
+                    { value: 'SHEB', label: 'SHEB - SHELBY AMERICAN' },
+                    { value: 'SIM', label: 'SIM - SIMCA' },
+                    { value: 'SKB', label: 'SKB - DILKS & CO.' },
+                    { value: 'SKIR', label: 'SKIR - SKIROULE LTD (ARIENS)' },
+                    { value: 'SKJ', label: 'SKJ - SKI BOATS, INC.' },
+                    { value: 'SKM', label: 'SKM - SKIMMAR BOATS' },
+                    { value: 'SLB', label: 'SLB - SHELL LAKE BOATS (DIV. OF LUND AMERICAN)' },
+                    { value: 'SLE', label: 'SLE - SLEEK CRAFT BOATS' },
+                    { value: 'SLK', label: 'SLK - AMF SLICKCRAFT (AMF POWERBOAT & AMFROBALO)' },
+                    { value: 'SLV', label: 'SLV - SILVERLINE, INC. (MOOREHEAD PLASTICS, INC.)' },
+                    { value: 'SMD', label: 'SMD - SEA MAID' },
+                    { value: 'SMK', label: 'SMK - SMOKER LUMBER CO., INC.' },
+                    { value: 'SMRT', label: 'SMRT - SMART' },
+                    { value: 'SNA', label: 'SNA - SNARK PRODUCTS, INC.' },
+                    { value: 'SNOJ', label: 'SNOJ - SABRE JET - SEE SNO*JET, INC.' },
+                    { value: 'SNOW', label: 'SNOW - UNLISTED SNOW MFR' },
+                    { value: 'SNT', label: 'SNT - COLLINS CRAFT, INC. (SANTA ROSE BOATS-CAMPERS)' },
+                    { value: 'SNX', label: 'SNX - SUNDANCE MARINE' },
+                    { value: 'SPA', label: 'SPA - SPACE CRAFT BOATS WORKS, INC' },
+                    { value: 'SPAR', label: 'SPAR - SPARTA' },
+                    { value: 'SPE', label: 'SPE - SPECTRA MARINE' },
+                    { value: 'SPNR', label: 'SPNR - SPRINTER' },
+                    { value: 'SPPI', label: 'SPPI - SPEEDWAY PRODUCTS INC.' },
+                    { value: 'SPR', label: 'SPR - MARLINBOATS (SUPERIOR PLASTICS, INC.)' },
+                    { value: 'SPU', label: 'SPU - SPORTSMAN CANOE CO.' },
+                    { value: 'SPX', label: 'SPX - SPORTSPAL, INC.' },
+                    { value: 'SRC', label: 'SRC - STEURY CORP.' },
+                    { value: 'SRCO', label: 'SRCO - SEARS' },
+                    { value: 'SSB', label: 'SSB - SEA SPRITE BOAT CO., INC.' },
+                    { value: 'SSI', label: 'SSI - SSI' },
+                    { value: 'SSR', label: 'SSR - SEA STAR BOAT CO.' },
+                    { value: 'SSU', label: 'SSU - S2 YACHTS, INC.' },
+                    { value: 'STAO', label: 'STAO - STARCRAFT' },
+                    { value: 'STCO', label: 'STCO - STARCRAFT CORPORATION' },
+                    { value: 'STDP', label: 'STDP - STEYR-DAIMLER-PUCH' },
+                    { value: 'STE', label: 'STE - SKEETER PRODS., INC. (STEMCO MARINE)' },
+                    { value: 'STF', label: 'STF - STERNCRAFT BOAT CO.' },
+                    { value: 'STLG', label: 'STLG - STERLING' },
+                    { value: 'STM', label: 'STM - FOUR WINNS (SAF-T-MATE, INC.)' },
+                    { value: 'STOU', label: 'STOU - STOUGHTON TRAILERS' },
+                    { value: 'STR', label: 'STR - STARCRAFT MARINE' },
+                    { value: 'STRG', label: 'STRG - STERLING' },
+                    { value: 'STRI', label: 'STRI - STRICK TRAILERS' },
+                    { value: 'STRM', label: 'STRM - STREAMLINE MOTOR HOME' },
+                    { value: 'STRN', label: 'STRN - SATURN' },
+                    { value: 'STU', label: 'STU - STUDEBAKER' },
+                    { value: 'STUZ', label: 'STUZ - STUTZ' },
+                    { value: 'SUBA', label: 'SUBA - SUBARU' },
+                    { value: 'SUE', label: 'SUE - SUPERIOR PLASTICS' },
+                    { value: 'SUNB', label: 'SUNB - SUNBEAM' },
+                    { value: 'SUPE', label: 'SUPE - SUPERIOR' },
+                    { value: 'SUR', label: 'SUR - SURFGLAS, INC. (PRINDLE CAT)' },
+                    { value: 'SUZI', label: 'SUZI - SUZUKI' },
+                    { value: 'SVU', label: 'SVU - STINGER BOAT CO.' },
+                    { value: 'SWE', label: 'SWE - THE STOWE CANOE CO. (MANSFIELD CANOE)' },
+                    { value: 'SWGR', label: 'SWGR - SWINGER SNOWMOBILES (GRISWOLD INDUSTRIES)' },
+                    { value: 'SWIN', label: 'SWIN - SWINGER' },
+                    { value: 'SWM', label: 'SWM - SIDEWINDER OF WISCONSIN' },
+                    { value: 'SWT', label: 'SWT - SWITZER CRAFT, INC.' },
+                    { value: 'SXL', label: 'SXL - NORTH AMERICAN CATAMARANS' },
+                    { value: 'SYK', label: 'SYK - STRYKER BOATS (R & R FIBERGLASS CO.)' },
+                    { value: 'SYL', label: 'SYL - SYLVAN INDUSTRIES, INC.' },
+                    { value: 'TAH', label: 'TAH - TAHITI BOATS (BELL INDUSTRIES)' },
+                    { value: 'TAOI', label: 'TAOI - TAOTAO INDUSTRY CO' },
+                    { value: 'TAY', label: 'TAY - TAYLOR BOATS' },
+                    { value: 'TBH', label: 'TBH - THE BLUE HOLE CANOE CO.' },
+                    { value: 'TCT', label: 'TCT - THUNDER CRAFT BOAT, INC.' },
+                    { value: 'TDC', label: 'TDC - TIDE CRAFT, INC.' },
+                    { value: 'TEC', label: 'TEC - TEC' },
+                    { value: 'TER', label: 'TER - TERRY BASS BOAT' },
+                    { value: 'TESL', label: 'TESL - TESLA MOTORS' },
+                    { value: 'THEU', label: 'THEU - TDEURER ATLANTIC' },
+                    { value: 'THMS', label: 'THMS - THOMAS BUILT BUSES' },
+                    { value: 'TIMP', label: 'TIMP - TIMPTE' },
+                    { value: 'TIOG', label: 'TIOG - TIOGA MOTOR HOME' },
+                    { value: 'TMC', label: 'TMC - TRANSPORTATION MFG. CORP.' },
+                    { value: 'TMH', label: 'TMH - TOMAHAWK, INC.' },
+                    { value: 'TMR', label: 'TMR - TOM SAWYER BOATS' },
+                    { value: 'TMS', label: 'TMS - THOMPSON BROS. BOAT MFG.' },
+                    { value: 'TN1', label: 'TN1 - THUNDERBIRD PRODUCTS CORP.' },
+                    { value: 'TNR', label: 'TNR - THUNDERBIRD PRODUCTS CORP.' },
+                    { value: 'TNV', label: 'TNV - TENNESSEE VALLEY FIBERGLASS CO.' },
+                    { value: 'TORO', label: 'TORO - TORO CO.' },
+                    { value: 'TOYT', label: 'TOYT - TOYOTA' },
+                    { value: 'TPC', label: 'TPC - TRIPLE C ENTERPRISES' },
+                    { value: 'TPL', label: 'TPL - TPL BOATS' },
+                    { value: 'TRA', label: 'TRA - TRAILORBOATS CO INC' },
+                    { value: 'TRAB', label: 'TRAB - TRABANT' },
+                    { value: 'TRAI', label: 'TRAI - TRAILEX' },
+                    { value: 'TRAO', label: 'TRAO - TRANSCRAFT CORP' },
+                    { value: 'TREK', label: 'TREK - TREK' },
+                    { value: 'TRIU', label: 'TRIU - TRIUMPH' },
+                    { value: 'TRJ', label: 'TRJ - TROJAN YACHT DIV.' },
+                    { value: 'TRLC', label: 'TRLC - TRAILCO' },
+                    { value: 'TROJ', label: 'TROJ - TROJAN' },
+                    { value: 'TRR', label: 'TRR - TOM ROLAND SAILBO (NORTH AMERICAN CATAMARANS)' },
+                    { value: 'TRS', label: 'TRS - TRI-SONIC MARINE DIV.' },
+                    { value: 'TRUM', label: 'TRUM - TRIUMPH MOTORCYCLES' },
+                    { value: 'TRV', label: 'TRV - STANRY (TRAVELLER BOATS)' },
+                    { value: 'TRVC', label: 'TRVC - TRAVCO CORP' },
+                    { value: 'TSB', label: 'TSB - CHAMPION BOATS (THE STORIE CO.)' },
+                    { value: 'TSCC', label: 'TSCC - TUCKER SNO-CAT CORPORATION (AKTIV)' },
+                    { value: 'TTII', label: 'TTII - T & T INDUSTRIES- INC.' },
+                    { value: 'TUCK', label: 'TUCK - TUCKER' },
+                    { value: 'TVR', label: 'TVR - TVR' },
+                    { value: 'TYR', label: 'TYR - TAYLOR BOATS (HI-PERFORMANCE MARINE)' },
+                    { value: 'UD', label: 'UD - NISSAN DIESEL MOTOR CO.' },
+                    { value: 'UHAU', label: 'UHAU - UHAUL' },
+                    { value: 'UMC', label: 'UMC - UNIVERSAL MARINE SERVICE' },
+                    { value: 'USSM', label: 'USSM - U.S. SUZUKI MOTOR CORP. LTD.' },
+                    { value: 'UTIL', label: 'UTIL - UTILITY TRAILER MFG.' },
+                    { value: 'UTIM', label: 'UTIM - UTILIMASTER' },
+                    { value: 'VAB', label: 'VAB - VALLEY ALUMINUM BOATS (VALCO ALUMINUM BOATS)' },
+                    { value: 'VACE', label: 'VACE - VACATIONAR' },
+                    { value: 'VACR', label: 'VACR - VECTOR AUTOMOTIVE' },
+                    { value: 'VAGA', label: 'VAGA - VAGABOND' },
+                    { value: 'VAUX', label: 'VAUX - VAUXHALL' },
+                    { value: 'VBC', label: 'VBC - VIKING BOAT COMPANY' },
+                    { value: 'VCTY', label: 'VCTY - VICTORY MOTORCYCLES' },
+                    { value: 'VENU', label: 'VENU - VENUS' },
+                    { value: 'VESP', label: 'VESP - VESPA' },
+                    { value: 'VIKI', label: 'VIKI - VIKING' },
+                    { value: 'VINC', label: 'VINC - BLACK KNIGHT' },
+                    { value: 'VKB', label: 'VKB - VIKING BOATS' },
+                    { value: 'VKNG', label: 'VKNG - VIKING SNOWMOBILES INC.' },
+                    { value: 'VKP', label: 'VKP - VIKING BOATS' },
+                    { value: 'VKX', label: 'VKX - VIKING BOATS' },
+                    { value: 'VNB', label: 'VNB - VENTURA BOATS, INC.' },
+                    { value: 'VNG', label: 'VNG - VANGUARD, INC.' },
+                    { value: 'VNTO', label: 'VNTO - VENTO MOTORCYCLES' },
+                    { value: 'VOGA', label: 'VOGA - VOLGA' },
+                    { value: 'VOLK', label: 'VOLK - VOLKSWAGEN' },
+                    { value: 'VOLV', label: 'VOLV - VOLVO' },
+                    { value: 'VVN', label: 'VVN - VIVIAN INDUSTRIES PLASTICS' },
+                    { value: 'VVV', label: 'VVV - CHRYSLER BOAT CORP.' },
+                    { value: 'VXP', label: 'VXP - VIP MARINE INDUSTRIES' },
+                    { value: 'VXX', label: 'VXX - MARIAH BOATS, INC. (MAGNUM MARINE,INC.)' },
+                    { value: 'WAC', label: 'WAC - WACO MFG., INC.' },
+                    { value: 'WALA', label: 'WALA - WARD LAFRANCE INTERNATIONAL' },
+                    { value: 'WALK', label: 'WALK - WALKER' },
+                    { value: 'WARD', label: 'WARD - MONTGOMERY WARD' },
+                    { value: 'WART', label: 'WART - WARTBURG' },
+                    { value: 'WB2', label: 'WB2 - WESTWIND BOATS, INC.' },
+                    { value: 'WBB', label: 'WBB - WEBBCRAFT, INC.' },
+                    { value: 'WDC', label: 'WDC - WARRENCRAFT DISTRIBUTOR, INC' },
+                    { value: 'WDN', label: 'WDN - WOODSON' },
+                    { value: 'WDT', label: 'WDT - WREIDT CUSTOM BOATS' },
+                    { value: 'WEL', label: 'WEL - WELLCRAFT MARINE' },
+                    { value: 'WELL', label: 'WELL - WELLS CARGO' },
+                    { value: 'WEM', label: 'WEM - PERCEPTION, INC., (MARBA GLAS & WILLIAM MASTERS)' },
+                    { value: 'WFMI', label: 'WFMI - MICKEY TRUCK BODIES' },
+                    { value: 'WHB', label: 'WHB - WHITE WATER BOATS' },
+                    { value: 'WHGM', label: 'WHGM - WHITE GMC' },
+                    { value: 'WHIT', label: 'WHIT - WHITE MOTOR CORP' },
+                    { value: 'WHT', label: 'WHT - WHITE HOUSE' },
+                    { value: 'WINN', label: 'WINN - WINNEBAGO INDUSTRIES' },
+                    { value: 'WIPT', label: 'WIPT - WHIP IT SNOWMOBIL (MELVIN MANUFACTURING)' },
+                    { value: 'WKM', label: 'WKM - WALKIKI MARINE' },
+                    { value: 'WLLS', label: 'WLLS - WILLYS' },
+                    { value: 'WLR', label: 'WLR - WOLVERINE MARINE CO.' },
+                    { value: 'WNB', label: 'WNB - WINNER BOATS' },
+                    { value: 'WRKH', label: 'WRKH - WORKHORSE CUSTOM CHASIS' },
+                    { value: 'WRN', label: 'WRN - WARREN CRAFT' },
+                    { value: 'WSF', label: 'WSF - WINDSURFING INTERNATIONAL, INC.' },
+                    { value: 'WST', label: 'WST - WEST WIND BOAT CO. (PISCES BOAT CO.)' },
+                    { value: 'WSTR', label: 'WSTR - WESTERN STAR' },
+                    { value: 'WXH', label: 'WXH - FALCON BOATS, INC. (WI HUDSON CO.,INC.)' },
+                    { value: 'XBD', label: 'XBD - AMERICAN INTERNATIONAL AIRBOAT, INC.' },
+                    { value: 'XBW', label: 'XBW - OZARK BOAT WORKS' },
+                    { value: 'XDC', label: 'XDC - ZODIAC OF NORTH AMERICA' },
+                    { value: 'XDY', label: 'XDY - O DAY CORP. (BANGOR PUNTA MARINE)' },
+                    { value: 'XHC', label: 'XHC - SUNRIDER HOVERCRA (BRITISH SPORTS HOVERCRAFT, LTD)' },
+                    { value: 'XKA', label: 'XKA - OCEAN KAYAK' },
+                    { value: 'XMG', label: 'XMG - OMEGA BOATCORP. (TRICORP BOATS, INC.)' },
+                    { value: 'XMP', label: 'XMP - APECO CORP. (IMP BOATS)' },
+                    { value: 'XMR', label: 'XMR - OUCHITA MRNE & IND CORP' },
+                    { value: 'XNA', label: 'XNA - NORTH AMERICAN FIBERGLASS' },
+                    { value: 'XRR', label: 'XRR - ORRION BOATS' },
+                    { value: 'XSF', label: 'XSF - SABRE MARINE, INC.' },
+                    { value: 'XTB', label: 'XTB - SUPREME INDUSTRIES, INC.' },
+                    { value: 'XTC', label: 'XTC - OLD TOWN CANOE CO.' },
+                    { value: 'XUS', label: 'XUS - SINTERPLAST' },
+                    { value: 'XVA', label: 'XVA - INVADER CORP.' },
+                    { value: 'YACH', label: 'YACH - YACHT CLUB' },
+                    { value: 'YAMA', label: 'YAMA - YAMAHA' },
+                    { value: 'YAMA', label: 'YAMA - YAMAHA MOTOR CORP. (CHAPPY)' },
+                    { value: 'YMCL', label: 'YMCL - YAMAHA MOTOR COMPANY' },
+                    { value: 'YUGO', label: 'YUGO - YUGO' },
+                    { value: 'ZCZY', label: 'ZCZY - YUGO' },
+                    { value: 'ZFS', label: 'ZFS - LES VOILIERS PERFORMANCE, INC' },
+                    { value: 'ZIMM', label: 'ZIMM - ZIMMER' }
+                ]
+            },
+            vehicleYear: {
+                label: 'Vehicle Year',
+                type: 'text',
+                placeholder: '',
+                hint: 'Vehicle year (4 digits)',
+                maxLength: 4
+            },
+            purposeCode: {
+                label: 'CA Purpose Code',
+                type: 'select',
+                options: [
+                    { value: '', label: 'Select...' },
+                    { value: 'C', label: 'C - Criminal' },
+                    { value: 'I', label: 'I - Intelligence' },
+                    { value: 'U', label: 'U - Immigration Violations (Section 1325)' }
+                ],
+                hint: 'Required per AB 1747 (mandatory since July 21, 2021)',
+                required: true
+            },
+            articleSerialNumber: {
+                label: 'Article Serial Number',
+                type: 'text',
+                placeholder: '',
+                hint: 'Article serial number (max 20 characters)',
+                maxLength: 20
+            },
+            articleTypeCode: {
+                label: 'Article Type Code',
+                type: 'select',
+                options: [
+                    { value: '', label: 'Select...' },
+                    { value: 'BCYCL', label: 'BCYCL' },
+                    { value: 'LAPTOP', label: 'LAPTOP' }
+                ],
+                hint: 'Article type code (max 6 characters)'
+            },
+            articleBrand: {
+                label: 'Article Brand',
+                type: 'select',
+                options: [
+                    { value: '', label: 'Select...' },
+                    { value: 'SCHWINN', label: 'SCHWINN' },
+                    { value: 'DELL', label: 'DELL' }
+                ],
+                hint: 'Article brand (max 6 characters)'
+            },
+            articleCategory: {
+                label: 'Article Category',
+                type: 'select',
+                options: [
+                    { value: '', label: 'Select...' },
+                    { value: 'B', label: 'B' },
+                    { value: 'D', label: 'D' }
+                ],
+                hint: 'Article category (max 1 character)'
+            }
+        };
+
+        let currentQueryType = 'vehicle-registration';
+        let currentState = 'in-state';
+        let formData = {};
+        let vinErrorAcknowledged = false;
+        let vinErrorMessage = '';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            renderForm();
+        });
+
+        function setupEventListeners() {
+            // Query type buttons
+            document.querySelectorAll('.query-type-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.query-type-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentQueryType = this.dataset.type;
+
+                    // Auto-determine state mode for vehicle registration based on State field
+                    if (currentQueryType === 'vehicle-registration') {
+                        const stateValue = formData.state ? formData.state.trim().toUpperCase() : '';
+                        if (stateValue === '' || stateValue === 'CA') {
+                            currentState = 'in-state';
+                        } else {
+                            currentState = 'out-of-state';
+                        }
+                    }
+
+                    renderForm();
+
+                    // Auto-focus on CA Purpose Code field for vehicle registration
+                    if (currentQueryType === 'vehicle-registration') {
+                        setTimeout(() => {
+                            const purposeCodeField = document.getElementById('purposeCode');
+                            if (purposeCodeField) {
+                                purposeCodeField.focus();
+                            }
+                        }, 0);
+                    }
+                });
+            });
+
+            // State buttons
+            document.querySelectorAll('.state-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentState = this.dataset.state;
+                    renderForm();
+                });
+            });
+        }
+
+        function renderForm() {
+            const formContainer = document.getElementById('form-fields');
+            const spec = querySpecs[currentQueryType];
+
+            // Hide/show state selector based on query type
+            // For vehicle-registration, hide selector as state is determined by State field value
+            const stateSelector = document.getElementById('state-selector');
+            if (currentQueryType === 'article' || currentQueryType === 'vehicle-registration') {
+                stateSelector.style.display = 'none';
+            } else {
+                stateSelector.style.display = 'flex';
+            }
+
+            // Get all possible fields for this query type
+            const allFields = new Set();
+            spec.combinations.forEach(combo => {
+                combo.fields.forEach(f => allFields.add(f));
+                if (combo.optionalFields) {
+                    combo.optionalFields.forEach(f => allFields.add(f));
+                }
+            });
+
+            // Always add purposeCode
+            allFields.add('purposeCode');
+
+            // Define field order based on query type
+            let fieldOrder;
+            if (currentQueryType === 'article') {
+                fieldOrder = ['purposeCode', 'articleSerialNumber', 'articleTypeCode', 'articleCategory', 'articleBrand'];
+            } else if (currentQueryType === 'vehicle-registration') {
+                // Specific order for vehicle registration: Purpose Code, State, Plate/VIN fields, then Name/Address/BirthDate
+                fieldOrder = ['purposeCode', 'state',
+                             'licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear',
+                             'vehicleIdentificationNumber', 'vehicleMakeCode', 'vehicleYear',
+                             'name', 'addressStreetNumber', 'addressCity', 'birthDate'];
+            } else {
+                // For other query types, convert Set to Array
+                fieldOrder = Array.from(allFields);
+            }
+
+            // Filter fieldOrder to only include fields that exist in allFields
+            let orderedFields = fieldOrder.filter(f => allFields.has(f));
+
+            // Ensure purposeCode is always first
+            orderedFields = orderedFields.filter(f => f !== 'purposeCode');
+            if (allFields.has('purposeCode')) {
+                orderedFields.unshift('purposeCode');
+            }
+
+            let html = '';
+
+            orderedFields.forEach(fieldName => {
+                const field = fieldDefinitions[fieldName];
+                if (!field) return;
+
+                // Vehicle registration field visibility logic
+                if (currentQueryType === 'vehicle-registration') {
+                    const hasPlateNumber = formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '';
+                    const hasVIN = formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '';
+                    const hasName = formData.name && formData.name.trim() !== '';
+                    const hasBirthDate = formData.birthDate && formData.birthDate.trim() !== '';
+                    const hasAddress = (formData.addressStreetNumber && formData.addressStreetNumber.trim() !== '') ||
+                                      (formData.addressCity && formData.addressCity.trim() !== '');
+                    const stateValue = formData.state ? formData.state.trim().toUpperCase() : '';
+                    const isCAOrEmpty = stateValue === '' || stateValue === 'CA';
+
+                    // Add "AND" separator between CA Purpose Code and State (hide when Name has data)
+                    if (fieldName === 'state' && !hasName) {
+                        html += `
+                            <div style="text-align: center; margin: 20px 0; position: relative;">
+                                <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
+                                <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">AND</span>
+                            </div>
+                        `;
+                    }
+
+                    // Add "THEN" separator between State and License Plate Number (hide when Name or Plate has data)
+                    if (fieldName === 'licensePlateNumber' && !hasName) {
+                        const _hideThenPlate = hasPlateNumber;
+                        html += `
+                            <div id="sep-then-plate" style="text-align: center; margin: 20px 0; position: relative;${_hideThenPlate ? ' display:none;' : ''}">
+                                <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
+                                <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">THEN ONE OF THE FOLLOWING</span>
+                            </div>
+                        `;
+                    }
+
+                    // Add "OR" separator before VIN field (only if neither field has data yet and Name is empty)
+                    if (fieldName === 'vehicleIdentificationNumber' && !hasPlateNumber && !hasVIN && !hasName) {
+                        html += `
+                            <div id="sep-or-vin" style="text-align: center; margin: 20px 0; position: relative;">
+                                <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
+                                <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">OR</span>
+                            </div>
+                        `;
+                    }
+
+                    // Add "OR" separator before Name field (separating VIN section from Name section, hide when Name has data or state is not CA/empty or plate/VIN has data)
+                    if (fieldName === 'name' && !hasName && isCAOrEmpty && !hasPlateNumber && !hasVIN) {
+                        html += `
+                            <div id="sep-or-name" style="text-align: center; margin: 20px 0; position: relative;">
+                                <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
+                                <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">OR</span>
+                            </div>
+                        `;
+                    }
+
+                    // Always render address/birthDate separators but hidden until name is entered
+                    if (fieldName === 'addressStreetNumber') {
+                        const _hide = !hasName || hasBirthDate || hasAddress;
+                        html += `
+                            <div id="sep-then-either-by" style="text-align: center; margin: 20px 0; position: relative;${_hide ? ' display:none;' : ''}">
+                                <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
+                                <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">THEN EITHER BY</span>
+                            </div>
+                        `;
+                    }
+
+                    if (fieldName === 'addressCity') {
+                        const _hide = !hasName || hasBirthDate;
+                        html += `
+                            <div id="sep-and-address-city" style="text-align: center; margin: 20px 0; position: relative;${_hide ? ' display:none;' : ''}">
+                                <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
+                                <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">AND</span>
+                            </div>
+                        `;
+                    }
+
+                    if (fieldName === 'birthDate') {
+                        const _hideOr = !hasName || hasAddress;
+                        html += `
+                            <div id="sep-or-birthdate" style="text-align: center; margin: 20px 0; position: relative;${_hideOr ? ' display:none;' : ''}">
+                                <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
+                                <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">OR</span>
+                            </div>
+                        `;
+                        const _hideThen = !hasName || !hasBirthDate;
+                        html += `
+                            <div id="sep-then-birthdate" style="text-align: center; margin: 20px 0; position: relative;${_hideThen ? ' display:none;' : ''}">
+                                <div style="border-top: 2px solid #ddd; position: absolute; top: 50%; left: 0; right: 0; z-index: 0;"></div>
+                                <span style="background: #e74c3c; padding: 4px 16px; border-radius: 12px; position: relative; z-index: 1; font-weight: 700; color: white; font-size: 13px; letter-spacing: 0.5px;">THEN</span>
+                            </div>
+                        `;
+                    }
+
+                    // Hide State field when Name has data
+                    if (hasName && fieldName === 'state') {
+                        return; // Skip rendering this field
+                    }
+
+                    // Hide Name and related fields if State is not CA and not empty (Name only works for in-state CA)
+                    if (!isCAOrEmpty && (fieldName === 'name' || fieldName === 'addressStreetNumber' ||
+                                         fieldName === 'addressCity' || fieldName === 'birthDate')) {
+                        return; // Skip rendering these fields
+                    }
+
+                    // Plate detail fields are always rendered but hidden until plate is entered (handled via onVRPlateInput)
+
+                    // VIN detail fields are always rendered but hidden until VIN is entered (handled via onVINInput)
+
+                    // Name detail fields are always rendered but hidden until name is entered (handled via onNameInput)
+
+                    // Hide address fields if birthDate has data (mutual exclusivity)
+                    if (hasBirthDate && (fieldName === 'addressStreetNumber' || fieldName === 'addressCity')) {
+                        return; // Skip rendering these fields
+                    }
+
+                    // Hide birthDate field if address has data (mutual exclusivity)
+                    if (hasAddress && fieldName === 'birthDate') {
+                        return; // Skip rendering this field
+                    }
+
+                    // Hide VIN and Name sections if license plate number has data
+                    if (hasPlateNumber && (fieldName === 'vehicleIdentificationNumber' || fieldName === 'vehicleMakeCode' || fieldName === 'vehicleYear' ||
+                                          fieldName === 'name' || fieldName === 'addressStreetNumber' || fieldName === 'addressCity' || fieldName === 'birthDate')) {
+                        return; // Skip rendering these fields
+                    }
+
+                    // Hide plate and Name sections if VIN has data
+                    if (hasVIN && (fieldName === 'licensePlateNumber' || fieldName === 'licensePlateTypeCode' || fieldName === 'licensePlateYear' ||
+                                  fieldName === 'name' || fieldName === 'addressStreetNumber' || fieldName === 'addressCity' || fieldName === 'birthDate')) {
+                        return; // Skip rendering these fields
+                    }
+
+                    // Hide plate and VIN sections if Name has data
+                    if (hasName && (fieldName === 'licensePlateNumber' || fieldName === 'licensePlateTypeCode' || fieldName === 'licensePlateYear' ||
+                                   fieldName === 'vehicleIdentificationNumber' || fieldName === 'vehicleMakeCode' || fieldName === 'vehicleYear')) {
+                        return; // Skip rendering these fields
+                    }
+                }
+
+                // Determine if field is required
+                let isRequired = fieldName === 'purposeCode';
+
+                // For vehicle registration, license plate type and year are required for out-of-state queries
+                if (currentQueryType === 'vehicle-registration') {
+                    const stateValue = formData.state ? formData.state.trim().toUpperCase() : '';
+                    const isOutOfState = stateValue !== '' && stateValue !== 'CA';
+                    const hasPlateNumber = formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '';
+                    const hasAddressStreetNumber = formData.addressStreetNumber && formData.addressStreetNumber.trim() !== '';
+                    const hasAddressCity = formData.addressCity && formData.addressCity.trim() !== '';
+
+                    if (isOutOfState && hasPlateNumber) {
+                        if (fieldName === 'licensePlateTypeCode' || fieldName === 'licensePlateYear') {
+                            isRequired = true;
+                        }
+                    }
+
+                    // Address City is required if Address Street Number has data (and vice versa)
+                    if (hasAddressStreetNumber && fieldName === 'addressCity') {
+                        isRequired = true;
+                    }
+                    if (hasAddressCity && fieldName === 'addressStreetNumber') {
+                        isRequired = true;
+                    }
+                }
+
+                // Set default value for licensePlateYear to current year for out-of-state queries only
+                let value = formData[fieldName] || '';
+                if (fieldName === 'licensePlateYear' && !value && currentState === 'out-of-state') {
+                    value = new Date().getFullYear().toString();
+                    formData[fieldName] = value;
+                }
+
+                const _hasPlate = !!(formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '');
+                const _hasVIN = !!(formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '');
+                const _hasName = !!(formData.name && formData.name.trim() !== '');
+                const _stateVal = formData.state ? formData.state.trim().toUpperCase() : '';
+                const _isCA = _stateVal === '' || _stateVal === 'CA';
+                const _plateDetailHidden = currentQueryType === 'vehicle-registration' && (
+                    (!_hasPlate && (fieldName === 'licensePlateTypeCode' || fieldName === 'licensePlateYear')) ||
+                    (_hasPlate && _isCA && fieldName === 'licensePlateYear')
+                );
+                const _vinDetailHidden = currentQueryType === 'vehicle-registration' && !_hasVIN &&
+                    (fieldName === 'vehicleMakeCode' || fieldName === 'vehicleYear');
+                const _nameDetailHidden = currentQueryType === 'vehicle-registration' && !_hasName &&
+                    (fieldName === 'addressStreetNumber' || fieldName === 'addressCity' || fieldName === 'birthDate');
+                html += `
+                    <div class="form-group" id="form-group-${fieldName}"${(_plateDetailHidden || _vinDetailHidden || _nameDetailHidden) ? ' style="display:none"' : ''}>
+                        <label>
+                            ${field.label}
+                            ${isRequired ? '<span class="required">*</span>' : ''}
+                        </label>
+                `;
+
+                if (field.type === 'select') {
+                    html += `<select id="${fieldName}" tabindex="0" onchange="updateFormData('${fieldName}', this.value)">`;
+                    field.options.forEach(opt => {
+                        html += `<option value="${opt.value}" ${value === opt.value ? 'selected' : ''}>${opt.label}</option>`;
+                    });
+                    html += `</select>`;
+                } else if (field.type === 'datalist') {
+                    const attrs = field.maxLength ? `maxlength="${field.maxLength}"` : '';
+                    const datalistId = `${fieldName}-list`;
+                    // Add blur handler for state field in vehicle registration
+                    let blurHandler = '';
+                    if (fieldName === 'state' && currentQueryType === 'vehicle-registration') {
+                        blurHandler = ` onblur="handleStateBlur(event)"`;
+                    }
+                    html += `<input type="text" id="${fieldName}" list="${datalistId}" placeholder="${field.placeholder}" value="${value}" ${attrs} tabindex="0" oninput="updateFormData('${fieldName}', this.value)" style="text-transform: uppercase;"${blurHandler}>`;
+                    html += `<datalist id="${datalistId}">`;
+                    if (field.options) {
+                        field.options.forEach(opt => {
+                            html += `<option value="${opt.value}">${opt.label}</option>`;
+                        });
+                    }
+                    html += `</datalist>`;
+                } else {
+                    const attrs = field.maxLength ? `maxlength="${field.maxLength}"` : '';
+                    // Add onblur handlers for license plate, VIN, name, state, and address/birthdate fields to trigger field showing/hiding
+                    let blurHandler = '';
+                    if (fieldName === 'licensePlateNumber') {
+                        blurHandler = ` onblur="handleLicensePlateBlur(event)"`;
+                    } else if (fieldName === 'vehicleIdentificationNumber') {
+                        blurHandler = ` onblur="handleVINBlur(event)"`;
+                    } else if (fieldName === 'name' && currentQueryType === 'vehicle-registration') {
+                        blurHandler = ` onblur="handleNameBlur(event)"`;
+                    } else if (fieldName === 'state' && currentQueryType === 'vehicle-registration') {
+                        blurHandler = ` onblur="handleStateBlur(event)"`;
+                    } else if (fieldName === 'birthDate' && currentQueryType === 'vehicle-registration') {
+                        blurHandler = ` onblur="handleBirthDateBlur(event)"`;
+                    } else if (fieldName === 'addressStreetNumber' && currentQueryType === 'vehicle-registration') {
+                        blurHandler = ` onblur="handleAddressStreetNumberBlur(event)"`;
+                    } else if (fieldName === 'addressCity' && currentQueryType === 'vehicle-registration') {
+                        blurHandler = ` onblur="handleAddressBlur(event)"`;
+                    }
+                    let oninputHandler = `updateFormData('${fieldName}', this.value)`;
+                    if (fieldName === 'licensePlateNumber' && currentQueryType === 'vehicle-registration') {
+                        oninputHandler += `; onVRPlateInput(this.value)`;
+                    }
+                    if (fieldName === 'vehicleIdentificationNumber' && currentQueryType === 'vehicle-registration') {
+                        oninputHandler += `; onVINInput(this.value)`;
+                    }
+                    if (fieldName === 'name' && currentQueryType === 'vehicle-registration') {
+                        oninputHandler += `; onNameInput(this.value)`;
+                    }
+                    if (fieldName === 'addressStreetNumber' && currentQueryType === 'vehicle-registration') {
+                        oninputHandler += `; onAddressStreetNumberInput(this.value)`;
+                    }
+                    if (fieldName === 'birthDate' && currentQueryType === 'vehicle-registration') {
+                        oninputHandler += `; onBirthDateInput(this.value)`;
+                    }
+                    html += `<input type="${field.type}" id="${fieldName}" placeholder="${field.placeholder}" value="${value}" ${attrs} tabindex="0" oninput="${oninputHandler}"${blurHandler}>`;
+                }
+
+                // Add hint text if available
+                if (field.hint) {
+                    html += `<small style="display: block; margin-top: 5px; color: #666; font-size: 12px;">${field.hint}</small>`;
+                }
+
+                html += `</div>`;
+            });
+
+            formContainer.innerHTML = html;
+
+            // Enforce visibility rules after render
+            if (currentQueryType === 'vehicle-registration') {
+                const _name = !!(formData.name && formData.name.trim() !== '');
+                const _plate = !!(formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '');
+                const _vin = !!(formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '');
+
+                // Address/birthDate: only visible when name has data
+                ['addressStreetNumber', 'addressCity', 'birthDate'].forEach(f => {
+                    const el = document.getElementById('form-group-' + f);
+                    if (el) el.style.display = _name ? '' : 'none';
+                });
+
+                // Plate detail fields: licensePlateTypeCode visible when plate has data and no name;
+                // licensePlateYear only visible for out-of-state
+                const _stateVal = formData.state ? formData.state.trim().toUpperCase() : '';
+                const _isCA = _stateVal === '' || _stateVal === 'CA';
+                const plateTypeEl = document.getElementById('form-group-licensePlateTypeCode');
+                if (plateTypeEl) plateTypeEl.style.display = (_plate && !_name) ? '' : 'none';
+                const plateYearEl = document.getElementById('form-group-licensePlateYear');
+                if (plateYearEl) plateYearEl.style.display = (_plate && !_name && !_isCA) ? '' : 'none';
+
+                // VIN detail fields: only visible when VIN has data and no name
+                ['vehicleMakeCode', 'vehicleYear'].forEach(f => {
+                    const el = document.getElementById('form-group-' + f);
+                    if (el) el.style.display = (_vin && !_name) ? '' : 'none';
+                });
+
+                // sep-then-plate: hide when plate has data
+                const _sepThenPlate = document.getElementById('sep-then-plate');
+                if (_sepThenPlate) _sepThenPlate.style.display = _plate ? 'none' : '';
+
+                // sep-then-either-by: always hidden after render (only shown by onNameInput while user is typing in Name)
+                const _sepEitherBy = document.getElementById('sep-then-either-by');
+                if (_sepEitherBy) _sepEitherBy.style.display = 'none';
+            }
+
+            updateValidateButton();
+        }
+
+        function getValidStateCodes() {
+            // Get valid state codes from the state field definition
+            const stateField = fieldDefinitions.state;
+            if (stateField && stateField.options) {
+                return stateField.options.map(opt => opt.value);
+            }
+            return [];
+        }
+
+        function isFormReadyToValidate() {
+            // Check if purpose code is filled (always required)
+            if (!formData.purposeCode) {
+                return false;
+            }
+
+            // Check if at least one query field is filled
+            const hasPlateNumber = formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '';
+            const hasVIN = formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '';
+            const hasName = formData.name && formData.name.trim() !== '';
+            const hasAddressStreetNumber = formData.addressStreetNumber && formData.addressStreetNumber.trim() !== '';
+            const hasAddressCity = formData.addressCity && formData.addressCity.trim() !== '';
+            const hasBirthDate = formData.birthDate && formData.birthDate.trim() !== '';
+            const stateValue = formData.state ? formData.state.trim().toUpperCase() : '';
+
+            // Validate state code - must be empty or a valid state code
+            if (stateValue !== '') {
+                const validStateCodes = getValidStateCodes();
+                if (!validStateCodes.includes(stateValue)) {
+                    return false; // Invalid state code
+                }
+            }
+
+            const isOutOfState = stateValue !== '' && stateValue !== 'CA';
+
+            // For vehicle registration, need at least one of: plate, VIN, or name+(address or birthdate)
+            if (currentQueryType === 'vehicle-registration') {
+                // If using license plate for out-of-state, require type and year
+                if (hasPlateNumber) {
+                    if (isOutOfState) {
+                        const hasPlateType = formData.licensePlateTypeCode && formData.licensePlateTypeCode.trim() !== '';
+                        const hasPlateYear = formData.licensePlateYear && formData.licensePlateYear.trim() !== '';
+                        return hasPlateType && hasPlateYear;
+                    }
+                    return true;
+                }
+                if (hasVIN) {
+                    return true;
+                }
+                // If using name with address, both street number and city are required
+                if (hasName) {
+                    if (hasAddressStreetNumber) {
+                        // Street number requires city
+                        return hasAddressCity;
+                    }
+                    if (hasAddressCity) {
+                        // City requires street number
+                        return hasAddressStreetNumber;
+                    }
+                    // Name with birthdate is valid
+                    if (hasBirthDate) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            // For other query types, check if at least one field is filled
+            const filledFields = Object.keys(formData).filter(key => {
+                return formData[key] && formData[key].trim() !== '' && key !== 'purposeCode';
+            });
+
+            return filledFields.length > 0;
+        }
+
+        function updateValidateButton() {
+            const buttonContainer = document.getElementById('validate-button-container');
+            const isReady = isFormReadyToValidate();
+
+            // Check and mark invalid state field
+            const stateValue = formData.state ? formData.state.trim().toUpperCase() : '';
+            const stateField = document.getElementById('state');
+            if (stateField && stateValue !== '') {
+                const validStateCodes = getValidStateCodes();
+                if (!validStateCodes.includes(stateValue)) {
+                    stateField.classList.add('error');
+                } else {
+                    stateField.classList.remove('error');
+                }
+            } else if (stateField) {
+                stateField.classList.remove('error');
+            }
+
+            if (isReady) {
+                buttonContainer.innerHTML = `<button class="validate-btn ready" onclick="validateQuery()">SUBMIT</button>`;
+            } else {
+                buttonContainer.innerHTML = `<button class="validate-btn not-ready" onclick="return false;">NOT READY</button>`;
+            }
+        }
+
+        function updateFormData(field, value) {
+            formData[field] = value;
+
+            // Auto-focus on State field when CA Purpose Code is selected
+            if (field === 'purposeCode' && value && currentQueryType === 'vehicle-registration') {
+                setTimeout(() => {
+                    const stateField = document.getElementById('state');
+                    if (stateField) {
+                        stateField.focus();
+                    }
+                }, 0);
+            }
+
+            // Reset VIN error state when VIN field changes
+            if (field === 'vehicleIdentificationNumber') {
+                vinErrorAcknowledged = false;
+                vinErrorMessage = '';
+                // Remove error styling and message
+                const vinField = document.getElementById('vehicleIdentificationNumber');
+                if (vinField) {
+                    vinField.classList.remove('error');
+                }
+                const existingError = document.getElementById('vin-error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+            }
+
+            // Auto-determine In-State vs Out-of-State for vehicle registration based on State field
+            if (currentQueryType === 'vehicle-registration' && field === 'state') {
+                const stateValue = value ? value.trim().toUpperCase() : '';
+                const isCAOrEmpty = stateValue === '' || stateValue === 'CA';
+                if (isCAOrEmpty) {
+                    currentState = 'in-state';
+                    // Clear License Plate Year for in-state CA queries
+                    formData.licensePlateYear = '';
+                    // Restore Name section if no plate/VIN data
+                    const hasPlate = !!(formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '');
+                    const hasVIN = !!(formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '');
+                    const hasName = !!(formData.name && formData.name.trim() !== '');
+                    if (!hasPlate && !hasVIN) {
+                        // Only restore name field itself; address/birthDate only show when name has data
+                        const nameEl = document.getElementById('form-group-name');
+                        if (nameEl) nameEl.style.display = '';
+                        const sepOrName = document.getElementById('sep-or-name');
+                        if (sepOrName) sepOrName.style.display = '';
+                        // Address/birthDate only visible if name already has data
+                        ['addressStreetNumber', 'addressCity', 'birthDate'].forEach(f => {
+                            const el = document.getElementById('form-group-' + f);
+                            if (el) el.style.display = hasName ? '' : 'none';
+                        });
+                    }
+                } else {
+                    currentState = 'out-of-state';
+                    // Immediately hide Name and related fields
+                    ['name', 'addressStreetNumber', 'addressCity', 'birthDate'].forEach(f => {
+                        const el = document.getElementById('form-group-' + f);
+                        if (el) el.style.display = 'none';
+                    });
+                    const sepOrName = document.getElementById('sep-or-name');
+                    if (sepOrName) sepOrName.style.display = 'none';
+                }
+            }
+
+            // Update validate button state
+            updateValidateButton();
+        }
+
+        function acknowledgeVINError() {
+            vinErrorAcknowledged = true;
+            vinErrorMessage = ''; // Clear error message after acknowledgment
+            handleVINBlur(); // Re-run the blur handler to proceed with form updates
+        }
+
+        function handleLicensePlateBlur() {
+            // Re-render form when user exits license plate number field
+            if (currentQueryType === 'vehicle-registration') {
+                const plateValue = formData.licensePlateNumber;
+                // Clear VIN and Name-related fields when license plate is entered
+                if (plateValue && plateValue.trim() !== '') {
+                    formData.vehicleIdentificationNumber = '';
+                    formData.vehicleMakeCode = '';
+                    formData.vehicleYear = '';
+                    formData.name = '';
+                    formData.addressStreetNumber = '';
+                    formData.addressCity = '';
+                    formData.birthDate = '';
+                    // Delay renderForm to allow tab navigation to complete, then focus on License Plate Type Code
+                    setTimeout(() => {
+                        renderForm();
+                        // Focus on License Plate Type Code field
+                        setTimeout(() => {
+                            const licensePlateTypeCodeField = document.getElementById('licensePlateTypeCode');
+                            if (licensePlateTypeCodeField) {
+                                licensePlateTypeCodeField.focus();
+                            }
+                        }, 0);
+                    }, 50);
+                }
+            }
+        }
+
+        function handleNameBlur(event) {
+            // Re-render form when user exits name field
+            if (currentQueryType === 'vehicle-registration') {
+                const nameValue = formData.name;
+                // Hide THEN EITHER BY separator as soon as user tabs out of Name
+                const sepThenEitherBy = document.getElementById('sep-then-either-by');
+                if (sepThenEitherBy) sepThenEitherBy.style.display = 'none';
+                // Clear License Plate and VIN-related fields when name is entered
+                if (nameValue && nameValue.trim() !== '') {
+                    formData.licensePlateNumber = '';
+                    formData.licensePlateTypeCode = '';
+                    formData.licensePlateYear = '';
+                    formData.vehicleIdentificationNumber = '';
+                    formData.vehicleMakeCode = '';
+                    formData.vehicleYear = '';
+                    setTimeout(() => {
+                        const focusedId = document.activeElement ? document.activeElement.id : null;
+                        renderForm();
+                        if (focusedId) { const el = document.getElementById(focusedId); if (el) el.focus(); }
+                    }, 50);
+                }
+            }
+        }
+
+        function handleStateBlur() {
+            // Re-render form when user exits state field
+            if (currentQueryType === 'vehicle-registration') {
+                const stateValue = formData.state ? formData.state.trim().toUpperCase() : '';
+                const isCAOrEmpty = stateValue === '' || stateValue === 'CA';
+
+                // Clear name-related fields if state is not CA and not empty
+                if (!isCAOrEmpty) {
+                    formData.name = '';
+                    formData.addressStreetNumber = '';
+                    formData.addressCity = '';
+                    formData.birthDate = '';
+                    setTimeout(() => {
+                        const focusedId = document.activeElement ? document.activeElement.id : null;
+                        renderForm();
+                        if (focusedId) { const el = document.getElementById(focusedId); if (el) el.focus(); }
+                    }, 50);
+                }
+            }
+        }
+
+        function handleAddressStreetNumberBlur(event) {
+            // Re-render form when user exits address street number field
+            if (currentQueryType === 'vehicle-registration') {
+                const addressStreetNumberValue = formData.addressStreetNumber;
+                if (addressStreetNumberValue && addressStreetNumberValue.trim() !== '') {
+                    // Has data: clear birthDate and re-render
+                    formData.birthDate = '';
+                    setTimeout(() => {
+                        const focusedId = document.activeElement ? document.activeElement.id : null;
+                        renderForm();
+                        if (focusedId) { const el = document.getElementById(focusedId); if (el) el.focus(); }
+                    }, 50);
+                } else {
+                    // No data: hide address street number, address city and all separators, show only birth date
+                    const addressStreetEl = document.getElementById('form-group-addressStreetNumber');
+                    if (addressStreetEl) addressStreetEl.style.display = 'none';
+                    const addressCityEl = document.getElementById('form-group-addressCity');
+                    if (addressCityEl) addressCityEl.style.display = 'none';
+                    ['sep-then-either-by', 'sep-and-address-city', 'sep-or-birthdate', 'sep-then-birthdate'].forEach(id => {
+                        const sep = document.getElementById(id);
+                        if (sep) sep.style.display = 'none';
+                    });
+                    const birthDateEl = document.getElementById('form-group-birthDate');
+                    if (birthDateEl) birthDateEl.style.display = '';
+                    setTimeout(() => {
+                        const birthDateInput = document.getElementById('birthDate');
+                        if (birthDateInput) birthDateInput.focus();
+                    }, 0);
+                }
+            }
+        }
+
+        function handleBirthDateBlur() {
+            // Re-render form when user exits birth date field
+            if (currentQueryType === 'vehicle-registration') {
+                const birthDateValue = formData.birthDate;
+                // Clear address fields when birth date is entered
+                if (birthDateValue && birthDateValue.trim() !== '') {
+                    formData.addressStreetNumber = '';
+                    formData.addressCity = '';
+                }
+                setTimeout(() => {
+                    renderForm();
+                    // Hide all separators after render
+                    ['sep-then-either-by', 'sep-and-address-city', 'sep-or-birthdate', 'sep-then-birthdate'].forEach(id => {
+                        const sep = document.getElementById(id);
+                        if (sep) sep.style.display = 'none';
+                    });
+                    // Focus the submit button
+                    const submitBtn = document.querySelector('#validate-button-container .validate-btn');
+                    if (submitBtn) submitBtn.focus();
+                }, 50);
+            }
+        }
+
+        function handleAddressBlur() {
+            // Re-render form when user exits address field
+            if (currentQueryType === 'vehicle-registration') {
+                const hasAddress = (formData.addressStreetNumber && formData.addressStreetNumber.trim() !== '') ||
+                                  (formData.addressCity && formData.addressCity.trim() !== '');
+                // Only re-render if birthDate needs clearing
+                if (hasAddress && formData.birthDate) {
+                    formData.birthDate = '';
+                    setTimeout(() => {
+                        const focusedId = document.activeElement ? document.activeElement.id : null;
+                        renderForm();
+                        if (focusedId) { const el = document.getElementById(focusedId); if (el) el.focus(); }
+                    }, 50);
+                }
+            }
+        }
+
+        function validateVIN(vin) {
+            // VIN validation according to ISO 3779:2009
+            if (!vin || vin.trim() === '') {
+                return { valid: true, error: '' }; // Empty is valid (optional field)
+            }
+
+            const vinUpper = vin.toUpperCase().trim();
+
+            // Check length - must be exactly 17 characters
+            if (vinUpper.length < 17) {
+                return {
+                    valid: false,
+                    error: `VIN is too short (${vinUpper.length} characters). A valid VIN must be exactly 17 characters.`
+                };
+            }
+            if (vinUpper.length > 17) {
+                return {
+                    valid: false,
+                    error: `VIN is too long (${vinUpper.length} characters). A valid VIN must be exactly 17 characters.`
+                };
+            }
+
+            // Check for invalid characters (I, O, Q are not allowed per ISO 3779)
+            const invalidChars = vinUpper.match(/[IOQ]/g);
+            if (invalidChars) {
+                const uniqueInvalid = [...new Set(invalidChars)].join(', ');
+                return {
+                    valid: false,
+                    error: `VIN contains invalid character(s): ${uniqueInvalid}. Letters I, O, and Q are not allowed in VINs (to avoid confusion with 1, 0).`
+                };
+            }
+
+            // Check that all characters are alphanumeric
+            const invalidPattern = vinUpper.match(/[^A-HJ-NPR-Z0-9]/g);
+            if (invalidPattern) {
+                const uniqueInvalid = [...new Set(invalidPattern)].join(', ');
+                return {
+                    valid: false,
+                    error: `VIN contains invalid character(s): ${uniqueInvalid}. Only letters A-Z (except I, O, Q) and numbers 0-9 are allowed.`
+                };
+            }
+
+            return { valid: true, error: '' };
+        }
+
+        function addVINError() {
+            // Helper function to add VIN error message to DOM
+            const vinField = document.getElementById('vehicleIdentificationNumber');
+            if (!vinField || !vinErrorMessage) return;
+
+            // Remove any existing error message first
+            const existingError = document.getElementById('vin-error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+
+            vinField.classList.add('error');
+
+            // Add error message with acknowledgment button
+            const errorContainer = document.createElement('div');
+            errorContainer.id = 'vin-error-message';
+            errorContainer.style.marginTop = '8px';
+
+            const errorMsg = document.createElement('div');
+            errorMsg.style.color = '#e74c3c';
+            errorMsg.style.fontSize = '12px';
+            errorMsg.style.fontWeight = '500';
+            errorMsg.style.marginBottom = '8px';
+            errorMsg.textContent = vinErrorMessage;
+
+            const acknowledgeBtn = document.createElement('button');
+            acknowledgeBtn.textContent = 'Proceed Anyway';
+            acknowledgeBtn.style.padding = '6px 12px';
+            acknowledgeBtn.style.backgroundColor = '#f39c12';
+            acknowledgeBtn.style.color = 'white';
+            acknowledgeBtn.style.border = 'none';
+            acknowledgeBtn.style.borderRadius = '4px';
+            acknowledgeBtn.style.fontSize = '12px';
+            acknowledgeBtn.style.fontWeight = '600';
+            acknowledgeBtn.style.cursor = 'pointer';
+            acknowledgeBtn.onclick = acknowledgeVINError;
+
+            errorContainer.appendChild(errorMsg);
+            errorContainer.appendChild(acknowledgeBtn);
+            vinField.parentElement.appendChild(errorContainer);
+        }
+
+        function handleVINBlur() {
+            // Validate VIN according to ISO 3779:2009
+            const vinValue = formData.vehicleIdentificationNumber;
+            const vinField = document.getElementById('vehicleIdentificationNumber');
+
+            if (vinValue && vinValue.trim() !== '') {
+                const validation = validateVIN(vinValue);
+
+                if (!validation.valid) {
+                    // Store error message
+                    vinErrorMessage = validation.error;
+
+                    // Add error message
+                    addVINError();
+
+                    // Block form progression until error is acknowledged
+                    if (!vinErrorAcknowledged) {
+                        return;
+                    }
+                } else {
+                    // Clear error state for valid VIN
+                    vinErrorMessage = '';
+                    vinErrorAcknowledged = false;
+                    if (vinField) {
+                        vinField.classList.remove('error');
+                    }
+                    const existingError = document.getElementById('vin-error-message');
+                    if (existingError) {
+                        existingError.remove();
+                    }
+                }
+            } else {
+                // Clear error state when field is empty
+                vinErrorMessage = '';
+                if (vinField) {
+                    vinField.classList.remove('error');
+                }
+                const existingError = document.getElementById('vin-error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+            }
+
+            // Re-render form when user exits VIN field (only if valid or acknowledged)
+            if (currentQueryType === 'vehicle-registration') {
+                // Clear plate and name-related fields when VIN is entered
+                if (vinValue && vinValue.trim() !== '') {
+                    formData.licensePlateNumber = '';
+                    formData.licensePlateTypeCode = '';
+                    formData.licensePlateYear = '';
+                    formData.name = '';
+                    formData.addressStreetNumber = '';
+                    formData.addressCity = '';
+                    formData.birthDate = '';
+                    // Delay renderForm to allow tab navigation to complete
+                    setTimeout(() => renderForm(), 50);
+                }
+            }
+        }
+
+        function onVRPlateInput(value) {
+            const hasPlate = value.trim() !== '';
+            const hasName = !!(formData.name && formData.name.trim() !== '');
+            const hasVIN = !!(formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '');
+            // VIN field: hide when plate has content, restore when cleared
+            const vinEl = document.getElementById('form-group-vehicleIdentificationNumber');
+            if (vinEl) vinEl.style.display = hasPlate ? 'none' : '';
+            // VIN detail fields: only visible if VIN has data and no plate
+            ['vehicleMakeCode', 'vehicleYear'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = (hasPlate || !hasVIN) ? 'none' : '';
+            });
+            // Name field: hide when plate has content, restore when cleared
+            const nameEl = document.getElementById('form-group-name');
+            if (nameEl) nameEl.style.display = hasPlate ? 'none' : '';
+            // Address/birthDate: only visible if name has data and no plate
+            ['addressStreetNumber', 'addressCity', 'birthDate'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = (hasPlate || !hasName) ? 'none' : '';
+            });
+            // Separators: hide all when plate has content
+            ['sep-then-plate', 'sep-or-vin', 'sep-or-name'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = hasPlate ? 'none' : '';
+            });
+            // Plate detail fields: licensePlateTypeCode always shown when plate has content;
+            // licensePlateYear only shown for out-of-state (state != CA and not empty)
+            const stateVal = formData.state ? formData.state.trim().toUpperCase() : '';
+            const isCA = stateVal === '' || stateVal === 'CA';
+            const plateTypeEl = document.getElementById('form-group-licensePlateTypeCode');
+            if (plateTypeEl) plateTypeEl.style.display = hasPlate ? '' : 'none';
+            const plateYearEl = document.getElementById('form-group-licensePlateYear');
+            if (plateYearEl) plateYearEl.style.display = (hasPlate && !isCA) ? '' : 'none';
+        }
+
+        function onVINInput(value) {
+            const hasVIN = value.trim() !== '';
+            const hasName = !!(formData.name && formData.name.trim() !== '');
+            const hasPlate = !!(formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '');
+            // Plate field: hide when VIN has content, restore when cleared
+            const plateEl = document.getElementById('form-group-licensePlateNumber');
+            if (plateEl) plateEl.style.display = hasVIN ? 'none' : '';
+            // Plate detail fields: only visible if plate has data and no VIN
+            ['licensePlateTypeCode', 'licensePlateYear'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = (hasVIN || !hasPlate) ? 'none' : '';
+            });
+            // Name field: hide when VIN has content, restore when cleared
+            const nameEl = document.getElementById('form-group-name');
+            if (nameEl) nameEl.style.display = hasVIN ? 'none' : '';
+            // Address/birthDate: only visible if name has data and no VIN
+            ['addressStreetNumber', 'addressCity', 'birthDate'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = (hasVIN || !hasName) ? 'none' : '';
+            });
+            // Separators
+            ['sep-then-plate', 'sep-or-vin', 'sep-or-name'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = hasVIN ? 'none' : '';
+            });
+            // VIN detail fields: only visible when VIN has content
+            ['vehicleMakeCode', 'vehicleYear'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = hasVIN ? '' : 'none';
+            });
+        }
+
+        function onNameInput(value) {
+            const hasName = value.trim() !== '';
+            const hasPlate = !!(formData.licensePlateNumber && formData.licensePlateNumber.trim() !== '');
+            const hasVIN = !!(formData.vehicleIdentificationNumber && formData.vehicleIdentificationNumber.trim() !== '');
+            // Plate field: hide when name has content, restore when cleared
+            const plateEl = document.getElementById('form-group-licensePlateNumber');
+            if (plateEl) plateEl.style.display = hasName ? 'none' : '';
+            // Plate detail fields: only visible if plate has data and no name
+            ['licensePlateTypeCode', 'licensePlateYear'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = (hasName || !hasPlate) ? 'none' : '';
+            });
+            // VIN field: hide when name has content, restore when cleared
+            const vinEl = document.getElementById('form-group-vehicleIdentificationNumber');
+            if (vinEl) vinEl.style.display = hasName ? 'none' : '';
+            // VIN detail fields: only visible if VIN has data and no name
+            ['vehicleMakeCode', 'vehicleYear'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = (hasName || !hasVIN) ? 'none' : '';
+            });
+            // Separators: hide when name has content
+            ['sep-then-plate', 'sep-or-vin', 'sep-or-name'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = hasName ? 'none' : '';
+            });
+            // Address/birthDate: only visible when name has content
+            ['addressStreetNumber', 'addressCity', 'birthDate'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = hasName ? '' : 'none';
+            });
+            // Address/birthDate separators: show when name has content, hide when cleared
+            const _hasAddress = !!(formData.addressStreetNumber && formData.addressStreetNumber.trim() !== '');
+            const _hasBirthDate = !!(formData.birthDate && formData.birthDate.trim() !== '');
+            // sep-then-either-by: only show when name has data but neither address nor birthDate committed yet
+            const sepEitherBy = document.getElementById('sep-then-either-by');
+            if (sepEitherBy) sepEitherBy.style.display = (hasName && !_hasAddress && !_hasBirthDate) ? '' : 'none';
+            // sep-and-address-city and sep-or-birthdate follow standard name visibility
+            ['sep-and-address-city', 'sep-or-birthdate'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = hasName ? '' : 'none';
+            });
+            // sep-then-birthdate stays hidden (only shown when birthDate has data)
+            const sepThenBirthdate = document.getElementById('sep-then-birthdate');
+            if (sepThenBirthdate) sepThenBirthdate.style.display = 'none';
+        }
+
+        function onAddressStreetNumberInput(value) {
+            const hasAddress = value.trim() !== '';
+            // Hide birth date and its separators as soon as address street number has content
+            const el = document.getElementById('form-group-birthDate');
+            if (el) el.style.display = hasAddress ? 'none' : '';
+            ['sep-or-birthdate', 'sep-then-birthdate', 'sep-then-either-by'].forEach(id => {
+                const sep = document.getElementById(id);
+                if (sep) sep.style.display = hasAddress ? 'none' : '';
+            });
+        }
+
+        function onBirthDateInput(value) {
+            const hasBirthDate = value.trim() !== '';
+            // Hide address street number, city and their separators as soon as birth date has content
+            ['addressStreetNumber', 'addressCity'].forEach(f => {
+                const el = document.getElementById('form-group-' + f);
+                if (el) el.style.display = hasBirthDate ? 'none' : '';
+            });
+            ['sep-then-either-by', 'sep-and-address-city'].forEach(id => {
+                const sep = document.getElementById(id);
+                if (sep) sep.style.display = hasBirthDate ? 'none' : '';
+            });
+        }
+
+        function validateQuery() {
+            const spec = querySpecs[currentQueryType];
+            const results = {
+                valid: false,
+                errors: [],
+                warnings: [],
+                matchedCombination: null,
+                xml: ''
+            };
+
+            // Check CA Purpose Code (always required per AB 1747)
+            if (!formData.purposeCode) {
+                results.errors.push('CA Purpose Code is mandatory per AB 1747 (required since July 21, 2021)');
+            }
+
+            // Get filled fields (excluding purposeCode and state=CA for combination matching)
+            // state=CA is treated as absent: it is the default in-state value and is never included in XML output
+            const filledFields = Object.keys(formData).filter(key => {
+                if (!formData[key] || formData[key].trim() === '') return false;
+                if (key === 'purposeCode') return false;
+                if (key === 'state' && formData[key].trim().toUpperCase() === 'CA') return false;
+                return true;
+            });
+
+            if (filledFields.length === 0) {
+                results.errors.push('At least one query field must be provided');
+                displayResults(results);
+                return;
+            }
+
+            // Check for valid combinations
+            let invalidFieldsList = [];
+            let missingFieldsList = [];
+
+            const validCombinations = spec.combinations.filter(combo => {
+                // Check if combination is valid for current state
+                if (combo.state === 'in-state' && currentState !== 'in-state') return false;
+                if (combo.state === 'out-of-state' && currentState !== 'out-of-state') return false;
+
+                // Get all allowed fields for this combination
+                const allowedFields = [...combo.fields];
+                if (combo.optionalFields) {
+                    allowedFields.push(...combo.optionalFields);
+                }
+
+                // Check if all filled fields are allowed
+                const invalidFields = filledFields.filter(f => !allowedFields.includes(f));
+                if (invalidFields.length > 0) {
+                    invalidFieldsList = [...new Set([...invalidFieldsList, ...invalidFields])];
+                    return false;
+                }
+
+                // Check if all required fields are filled
+                const missingRequired = combo.fields.filter(f => !filledFields.includes(f));
+                if (missingRequired.length > 0) {
+                    missingFieldsList = [...new Set([...missingFieldsList, ...missingRequired])];
+                    return false;
+                }
+
+                return true;
+            });
+
+            if (validCombinations.length === 0) {
+                // Provide specific feedback about what's wrong
+                if (invalidFieldsList.length > 0) {
+                    const fieldLabels = invalidFieldsList.map(f => {
+                        const def = fieldDefinitions[f];
+                        return def ? `"${def.label}"` : f;
+                    }).join(', ');
+
+                    // Special handling for State field in in-state queries
+                    if (currentState === 'in-state' && invalidFieldsList.includes('state')) {
+                        results.errors.push(`❌ State field must be REMOVED for in-state California queries. Clear the State field value.`);
+                    } else {
+                        results.errors.push(`❌ Invalid field(s) for this combination: ${fieldLabels}`);
+                    }
+                }
+
+                if (missingFieldsList.length > 0 && invalidFieldsList.length === 0) {
+                    const fieldLabels = missingFieldsList.map(f => {
+                        const def = fieldDefinitions[f];
+                        return def ? `"${def.label}"` : f;
+                    }).join(', ');
+                    results.errors.push(`❌ Missing required field(s): ${fieldLabels}`);
+                }
+
+                if (invalidFieldsList.length === 0 && missingFieldsList.length === 0) {
+                    results.errors.push('The provided field combination is not valid for this query type and state selection');
+                }
+
+                results.errors.push('📋 Valid combinations are listed in the Field Requirements section below');
+            } else {
+                results.valid = true;
+                results.matchedCombination = validCombinations[0];
+
+                // State field validation
+                // state=CA: silently accepted, omitted from XML (in-state default)
+                if (currentState === 'in-state' && formData.state && formData.state.trim().toUpperCase() !== 'CA') {
+                    results.errors.push(`State field "${formData.state}" should not be used for in-state queries. Remove the State field or switch to Out-of-State mode.`);
+                    results.valid = false;
+                }
+
+                if (currentState === 'out-of-state' && !formData.state) {
+                    // Check if state is optional or required for this combination
+                    const combo = results.matchedCombination;
+                    if (combo.optionalFields && combo.optionalFields.includes('state')) {
+                        results.warnings.push('State field is recommended for out-of-state queries to ensure proper routing');
+                    }
+                }
+            }
+
+            // Generate XML if valid
+            if (results.valid || results.warnings.length > 0) {
+                results.xml = generateXML(spec.name, formData, currentState);
+            }
+
+            displayResults(results);
+        }
+
+        function generateXML(queryType, data, state) {
+            const queryTypeTag = queryType.replace(/ /g, '');
+
+            // Generate Request wrapper structure
+            let xml = `<Request>\n`;
+            xml += `  <MessageType>${queryTypeTag}</MessageType>\n`;
+            xml += `  <Id>MARK43GENERATEDMSGID</Id>\n`;
+
+            // Add CaRequestPurposeCode (always required per CA AB 1747)
+            if (data.purposeCode) {
+                xml += `  <CaRequestPurposeCode>${data.purposeCode}</CaRequestPurposeCode>\n`;
+            }
+
+            // Add other fields in appropriate order
+            // Order: Name, Address, BirthDate, SexCode, OperatorLicenseNumber, State, then vehicle fields, then article fields
+            const fieldOrder = ['name', 'addressStreetNumber', 'addressCity', 'birthDate', 'sexCode', 'operatorLicenseNumber', 'state',
+                               'licensePlateNumber', 'licensePlateTypeCode', 'licensePlateYear',
+                               'vehicleIdentificationNumber', 'vehicleMakeCode', 'vehicleYear',
+                               'articleSerialNumber', 'articleTypeCode', 'articleCategory', 'articleBrand'];
+
+            fieldOrder.forEach(key => {
+                if (key === 'purposeCode' || !data[key]) return;
+
+                const value = data[key];
+
+                // Map internal field names to CA eSUN XML field names
+                if (key === 'name') {
+                    // Name field is sent as-is per CA eSUN spec (format: LAST, FIRST MIDDLE)
+                    xml += `  <Name>${value}</Name>\n`;
+                } else if (key === 'addressStreetNumber') {
+                    xml += `  <AddressStreetNumber>${value}</AddressStreetNumber>\n`;
+                } else if (key === 'addressCity') {
+                    xml += `  <AddressCity>${value}</AddressCity>\n`;
+                } else if (key === 'birthDate') {
+                    // Convert YYYY-MM-DD to YYYYMMDD format
+                    const dateFormatted = value.replace(/-/g, '');
+                    xml += `  <BirthDate>${dateFormatted}</BirthDate>\n`;
+                } else if (key === 'sexCode') {
+                    xml += `  <SexCode>${value}</SexCode>\n`;
+                } else if (key === 'operatorLicenseNumber') {
+                    xml += `  <OperatorLicenseNumber>${value}</OperatorLicenseNumber>\n`;
+                } else if (key === 'state') {
+                    // CRITICAL: Never include State field for in-state CA queries per CA eSUN spec
+                    // Only include State field for out-of-state queries
+                    if (state === 'out-of-state' && value) {
+                        xml += `  <State>${value.toUpperCase()}</State>\n`;
+                    }
+                    // For in-state queries: State field is always omitted, even if user entered a value
+                } else if (key === 'licensePlateNumber') {
+                    xml += `  <LicensePlateNumber>${value}</LicensePlateNumber>\n`;
+                } else if (key === 'licensePlateTypeCode') {
+                    xml += `  <LicensePlateTypeCode>${value}</LicensePlateTypeCode>\n`;
+                } else if (key === 'licensePlateYear') {
+                    xml += `  <LicensePlateYear>${value}</LicensePlateYear>\n`;
+                } else if (key === 'vehicleIdentificationNumber') {
+                    xml += `  <VehicleIdentificationNumber>${value}</VehicleIdentificationNumber>\n`;
+                } else if (key === 'vehicleMakeCode') {
+                    xml += `  <VehicleMakeCode>${value}</VehicleMakeCode>\n`;
+                } else if (key === 'vehicleYear') {
+                    xml += `  <VehicleYear>${value}</VehicleYear>\n`;
+                } else if (key === 'articleSerialNumber') {
+                    xml += `  <ArticleSerialNumber>${value}</ArticleSerialNumber>\n`;
+                } else if (key === 'articleTypeCode') {
+                    xml += `  <ArticleTypeCode>${value}</ArticleTypeCode>\n`;
+                } else if (key === 'articleCategory') {
+                    xml += `  <ArticleCategory>${value}</ArticleCategory>\n`;
+                } else if (key === 'articleBrand') {
+                    xml += `  <ArticleBrand>${value}</ArticleBrand>\n`;
+                }
+            });
+
+            xml += `</Request>`;
+
+            return xml;
+        }
+
+        function displayResults(results) {
+            const container = document.getElementById('validation-results');
+            let html = '';
+
+            // Validation status
+            if (results.valid && results.errors.length === 0) {
+                html += `<div class="validation-status valid">✓ Query is valid and ready to submit</div>`;
+            } else if (results.errors.length > 0) {
+                html += `<div class="validation-status invalid">✗ Query has validation errors</div>`;
+            }
+
+            // Errors
+            if (results.errors.length > 0) {
+                html += `<ul class="error-list">`;
+                results.errors.forEach(error => {
+                    html += `<li>❌ ${error}</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            // Warnings
+            if (results.warnings.length > 0) {
+                html += `<ul class="error-list warning-list">`;
+                results.warnings.forEach(warning => {
+                    html += `<li>⚠️ ${warning}</li>`;
+                });
+                html += `</ul>`;
+            }
+
+            // Matched combination
+            if (results.matchedCombination) {
+                html += `<div class="combination-info">`;
+                html += `<h3>Matched Valid Combination</h3>`;
+                html += `<code>${results.matchedCombination.description}</code>`;
+                html += `</div>`;
+            }
+
+            // CLETS Message Keys (for Vehicle Registration queries)
+            if (currentQueryType === 'vehicle-registration' && results.matchedCombination && results.matchedCombination.keyReference) {
+                html += `<div class="combination-info" style="background: #e8f5e9; border-color: #81c784;">`;
+                html += `<h3 style="color: #2e7d32;">CLETS Message Keys Sent</h3>`;
+                html += `<div style="background: white; padding: 12px; border-radius: 4px; margin-top: 8px;">`;
+                html += `<div style="font-size: 13px; margin-bottom: 8px;"><strong>Message Type:</strong> RQ (Registration Query)</div>`;
+
+                // Handle single or multiple keyReferences
+                const keyRefs = Array.isArray(results.matchedCombination.keyReference)
+                    ? results.matchedCombination.keyReference
+                    : [results.matchedCombination.keyReference];
+
+                html += `<div style="font-size: 13px; margin-bottom: 8px;"><strong>keyReference=</strong>`;
+                keyRefs.forEach((keyRef, index) => {
+                    if (index > 0) html += `, `;
+                    html += `<code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-weight: 600; color: #d32f2f;">${keyRef}</code>`;
+                });
+                html += `</div>`;
+
+                html += `<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #666;">`;
+                keyRefs.forEach((keyRef, index) => {
+                    if (index > 0) html += `<br>`;
+                    if (keyRef === 'QV') {
+                        html += `<strong>QV</strong> = Quick Vehicle Query (Plate or VIN Only)`;
+                    } else if (keyRef === '4V') {
+                        html += `<strong>4V</strong> = VIN-Specific Query`;
+                    } else if (keyRef === 'RQP') {
+                        html += `<strong>RQP</strong> = Registration Query by Plate Number with Details`;
+                    } else if (keyRef === 'RQV') {
+                        html += `<strong>RQV</strong> = Registration Query by VIN with Details`;
+                    }
+                });
+                html += `</div>`;
+                html += `</div>`;
+                html += `</div>`;
+            }
+
+            // XML output
+            if (results.xml) {
+                html += `<h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 14px;">Expected XML Output</h3>`;
+                html += `<div class="xml-output">${escapeHtml(results.xml)}</div>`;
+            }
+
+            // Field requirements
+            html += generateFieldRequirements();
+
+            container.innerHTML = html;
+        }
+
+        function generateFieldRequirements() {
+            const spec = querySpecs[currentQueryType];
+            let html = `<div class="field-requirements">`;
+
+            // Title with or without state mode
+            const stateText = currentQueryType === 'article' ? '' : ` (${currentState === 'in-state' ? 'In-State CA' : 'Out-of-State'})`;
+            html += `<h3>Valid Field Combinations for ${spec.name}${stateText}</h3>`;
+
+            html += `<p style="margin-bottom: 12px; font-size: 13px; color: #555; line-height: 1.6;">`;
+            html += `You must provide <strong>exactly one</strong> of the following field combinations. `;
+            html += `Choose the combination that matches the information you have available:`;
+            html += `</p>`;
+
+            html += `<ul style="line-height: 1.8;">`;
+
+            spec.combinations.forEach(combo => {
+                if (combo.state === 'in-state' && currentState !== 'in-state') return;
+                if (combo.state === 'out-of-state' && currentState !== 'out-of-state') return;
+                if (combo.state === 'both' || combo.state === currentState) {
+                    // Parse the description to add explanations
+                    let explanation = '';
+                    if (combo.description.includes('Name') && combo.description.includes('BirthDate')) {
+                        explanation = ' - Use when you have demographic information but no license number';
+                    } else if (combo.description.includes('OperatorLicenseNumber') && !combo.description.includes(',')) {
+                        explanation = ' - Use when you have a driver license number';
+                    } else if (combo.description === '(In) Name') {
+                        explanation = ' - Use for name-only searches (in-state California only)';
+                    } else if (combo.description.includes('RegistrationPlate')) {
+                        explanation = ' - Use when you have a license plate number';
+                    } else if (combo.description.includes('VIN') && !combo.description.includes(',')) {
+                        explanation = ' - Use when you have a Vehicle Identification Number';
+                    } else if (combo.description.includes('BoatRegistrationNumber') && !combo.description.includes(',')) {
+                        explanation = ' - Use when you have a boat/vessel registration number';
+                    } else if (combo.description.includes('Name,')) {
+                        explanation = ' - Use for owner name + identifier searches (in-state only)';
+                    }
+
+                    html += `<li style="margin-bottom: 8px;"><strong>${combo.description}</strong><span style="color: #777;">${explanation}</span></li>`;
+                }
+            });
+
+            html += `</ul>`;
+
+            // Only show legend for non-article queries
+            if (currentQueryType !== 'article') {
+                html += `<div style="margin-top: 15px; padding: 12px; background: #f0f8ff; border-left: 3px solid #3498db; border-radius: 4px;">`;
+                html += `<p style="font-size: 12px; color: #555; margin-bottom: 8px;"><strong>Legend:</strong></p>`;
+                html += `<ul style="font-size: 12px; color: #666; margin-left: 20px; line-height: 1.7;">`;
+                html += `<li><strong>(In)</strong> = In-State California queries only - State field must be omitted</li>`;
+                html += `<li><strong>(Out)</strong> = Out-of-State queries only - State field is required</li>`;
+                html += `<li><strong>(In/Out)</strong> = Works for both in-state and out-of-state queries</li>`;
+                html += `<li><strong>[Field]</strong> = Optional field (in brackets) - can be included but not required</li>`;
+                html += `<li><strong>CA Purpose Code</strong> = Always mandatory per California AB 1747 (since July 21, 2021)</li>`;
+                html += `</ul>`;
+                html += `</div>`;
+            }
+
+            html += `</div>`;
+
+            return html;
+        }
+
+        function exportLicensePlateTypeCodesCSV() {
+            const rows = [['Code', 'Description']];
+            fieldDefinitions.licensePlateTypeCode.options.forEach(opt => {
+                if (!opt.value) return;
+                rows.push([opt.value, opt.label.replace(/^[^\s]+\s-\s/, '')]);
+            });
+            const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'license-plate-type-codes.csv';
+            a.click();
+        }
+
+        function importStateCodesCSV(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split(/\r?\n/).filter(l => l.trim());
+                const options = [];
+                let skippedHeader = false;
+                lines.forEach(line => {
+                    const fields = [];
+                    let inQuote = false, field = '';
+                    for (let i = 0; i < line.length; i++) {
+                        const ch = line[i];
+                        if (ch === '"') { inQuote = !inQuote; }
+                        else if (ch === ',' && !inQuote) { fields.push(field); field = ''; }
+                        else { field += ch; }
+                    }
+                    fields.push(field);
+                    const code = fields[0] ? fields[0].trim() : '';
+                    const desc = fields[1] ? fields[1].trim() : '';
+                    if (!code) return;
+                    if (!skippedHeader && code.toUpperCase() === 'CODE') { skippedHeader = true; return; }
+                    options.push({ value: code, label: `${code} - ${desc}` });
+                });
+                fieldDefinitions.state.options = options;
+                renderForm();
+                alert(`Imported ${options.length} state codes.`);
+                input.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function importLicensePlateTypeCodesCSV(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split(/\r?\n/).filter(l => l.trim());
+                const options = [{ value: '', label: 'Select Plate Type...' }];
+                let skippedHeader = false;
+                lines.forEach(line => {
+                    const fields = [];
+                    let inQuote = false, field = '';
+                    for (let i = 0; i < line.length; i++) {
+                        const ch = line[i];
+                        if (ch === '"') { inQuote = !inQuote; }
+                        else if (ch === ',' && !inQuote) { fields.push(field); field = ''; }
+                        else { field += ch; }
+                    }
+                    fields.push(field);
+                    const code = fields[0] ? fields[0].trim() : '';
+                    const desc = fields[1] ? fields[1].trim() : '';
+                    if (!code) return;
+                    if (!skippedHeader && code.toUpperCase() === 'CODE') { skippedHeader = true; return; }
+                    options.push({ value: code, label: `${code} - ${desc}` });
+                });
+                fieldDefinitions.licensePlateTypeCode.options = options;
+                renderForm();
+                alert(`Imported ${options.length - 1} license plate type codes.`);
+                input.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function exportStateCodesCSV() {
+            const rows = [['Code', 'Description']];
+            fieldDefinitions.state.options.forEach(opt => {
+                if (!opt.value) return;
+                rows.push([opt.value, opt.label.replace(/^[^\s]+\s-\s/, '')]);
+            });
+            const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'state-codes.csv';
+            a.click();
+        }
+
+        function importVehicleMakeCodeCSV(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split(/\r?\n/).filter(l => l.trim());
+                const options = [{ value: '', label: 'Select...' }];
+                let skippedHeader = false;
+                lines.forEach(line => {
+                    // Parse quoted CSV fields
+                    const fields = [];
+                    let inQuote = false, field = '';
+                    for (let i = 0; i < line.length; i++) {
+                        const ch = line[i];
+                        if (ch === '"') { inQuote = !inQuote; }
+                        else if (ch === ',' && !inQuote) { fields.push(field); field = ''; }
+                        else { field += ch; }
+                    }
+                    fields.push(field);
+                    const code = fields[0] ? fields[0].trim() : '';
+                    const desc = fields[1] ? fields[1].trim() : '';
+                    if (!code) return;
+                    // Skip header row
+                    if (!skippedHeader && code.toUpperCase() === 'CODE') { skippedHeader = true; return; }
+                    options.push({ value: code, label: `${code} - ${desc}` });
+                });
+                fieldDefinitions.vehicleMakeCode.options = options;
+                renderForm();
+                alert(`Imported ${options.length - 1} vehicle make codes.`);
+                input.value = ''; // reset so same file can be re-imported
+            };
+            reader.readAsText(file);
+        }
+
+        function exportVehicleMakeCodeCSV() {
+            const rows = [['Code', 'Description']];
+            fieldDefinitions.vehicleMakeCode.options.forEach(opt => {
+                if (!opt.value) return; // skip blank "Select..." entry
+                rows.push([opt.value, opt.label.replace(/^[^\s]+\s-\s/, '')]);
+            });
+            const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'vehicle-make-codes.csv';
+            a.click();
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+    </script>
+</body>
+</html>
