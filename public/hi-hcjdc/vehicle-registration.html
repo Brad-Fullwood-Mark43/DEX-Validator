@@ -1455,6 +1455,12 @@
                 </form>
             </div>
 
+            <!-- Results Section -->
+            <div class="results-section hidden" id="results-section">
+                <h2>Validation Results</h2>
+                <div id="results-content"></div>
+            </div>
+
             <!-- Right Column: Valid Combinations -->
             <div class="section">
                 <h2>Valid Field Combinations</h2>
@@ -1482,12 +1488,6 @@
                         </li>
                     </ul>
                 </div>
-            </div>
-
-            <!-- Results Section -->
-            <div class="results-section hidden" id="results-section">
-                <h2>Validation Results</h2>
-                <div id="results-content"></div>
             </div>
         </div>
     </div>
@@ -1635,6 +1635,22 @@
                 if (value.trim()) formData[key] = value.trim();
             });
 
+            // Strip fields from hidden detail containers regardless of their default values
+            if (document.getElementById('plate-detail-fields').style.display === 'none') {
+                delete formData.licensePlateTypeCode;
+                delete formData.licensePlateYear;
+            }
+            if (document.getElementById('vin-detail-fields').style.display === 'none') {
+                delete formData.vehicleMakeCode;
+                delete formData.vehicleYear;
+            }
+
+            // VIN present: plate type/year never apply
+            if (formData.vehicleIdentificationNumber) {
+                delete formData.licensePlateTypeCode;
+                delete formData.licensePlateYear;
+            }
+
             const results = validateQuery(formData);
             displayResults(results);
         });
@@ -1643,7 +1659,7 @@
             const results = {
                 valid: false,
                 errors: [],
-                info: [],
+                matches: [],
                 matchedCombination: null,
                 xml: null
             };
@@ -1658,27 +1674,36 @@
             for (const combo of querySpec.combinations) {
                 const requiredFields = combo.fields || [];
                 const optionalFields = combo.optionalFields || [];
-
-                const hasAllRequired = requiredFields.every(field => formData[field]);
-                if (!hasAllRequired) continue;
-
                 const allowedFields = [...requiredFields, ...optionalFields];
-                const extraFields = filledFields.filter(field => !allowedFields.includes(field));
-                if (extraFields.length > 0) continue;
 
-                results.matchedCombination = combo;
-                results.valid = true;
-                results.info.push(`✓ Matched combination #${combo.id}: ${combo.description}`);
-                results.info.push(`✓ Key Reference: ${combo.keyReference}`);
-                results.info.push(`✓ ${combo.notes}`);
-                results.xml = connector.generateXML(queryType, formData);
-                break;
+                const missingRequired = requiredFields.filter(field => !formData[field]);
+                const presentRequired = requiredFields.filter(field => formData[field]);
+                const presentOptional = optionalFields.filter(field => formData[field]);
+                const extraFields = filledFields.filter(field => !allowedFields.includes(field));
+
+                if (missingRequired.length > 0 || extraFields.length > 0) continue;
+
+                const conditions = [];
+                presentRequired.forEach(field => {
+                    conditions.push(`Required field present: ${field} = "${formData[field]}"`);
+                });
+                presentOptional.forEach(field => {
+                    conditions.push(`Optional field included: ${field} = "${formData[field]}"`);
+                });
+                conditions.push(`No unexpected fields present`);
+
+                results.matches.push({ combo, conditions });
+
+                if (!results.matchedCombination) {
+                    results.matchedCombination = combo;
+                    results.valid = true;
+                    results.xml = connector.generateXML(queryType, formData);
+                }
             }
 
             if (!results.matchedCombination) {
                 results.errors.push('No valid field combination found. Please check the valid combinations list.');
-                const filled = filledFields.join(', ');
-                results.errors.push(`Fields provided: ${filled}`);
+                results.errors.push(`Fields provided: ${filledFields.join(', ')}`);
             }
 
             return results;
@@ -1699,9 +1724,20 @@
                 html += `<div class="message-item error">❌ ${msg}</div>`;
             });
 
-            results.info.forEach(msg => {
-                html += `<div class="message-item info">${msg}</div>`;
-            });
+            if (results.matches.length > 0) {
+                html += '<h3 style="margin-top: 16px; margin-bottom: 8px;">Match Details</h3>';
+                results.matches.forEach(({ combo, conditions }) => {
+                    html += `<div style="border:1px solid #a9dfbf; border-radius:6px; margin-bottom:10px; overflow:hidden;">`;
+                    html += `<div style="background:#eafaf1; padding:8px 12px; font-weight:600; color:#1a7a4a; font-size:13px;">`;
+                    html += `✓ Combination #${combo.id}: ${combo.description} &nbsp;|&nbsp; Key: ${combo.keyReference}</div>`;
+                    html += `<div style="padding:8px 12px; font-size:12px; color:#555;">${combo.notes}</div>`;
+                    html += `<div style="padding:0 12px 8px;">`;
+                    conditions.forEach(c => {
+                        html += `<div style="font-size:12px; color:#1a7a4a; padding:2px 0;">✓ ${c}</div>`;
+                    });
+                    html += `</div></div>`;
+                });
+            }
 
             if (results.xml) {
                 html += '<h3 style="margin-top: 20px; margin-bottom: 10px;">Generated XML</h3>';

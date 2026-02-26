@@ -1106,7 +1106,7 @@ const CONNECTORS = {
                         id: 3,
                         description: '(QV) LicensePlateNumber only',
                         fields: ['licensePlateNumber'],
-                        optionalFields: [],
+                        optionalFields: ['state', 'state2', 'state3', 'state4', 'state5'],
                         keyReference: 'QV',
                         primaryField: 'licensePlateNumber',
                         notes: 'Stolen Vehicle Query — plate only, NCIC/HCJDC felony and stolen vehicle check'
@@ -1115,7 +1115,7 @@ const CONNECTORS = {
                         id: 4,
                         description: '(QV) VehicleIdentificationNumber',
                         fields: ['vehicleIdentificationNumber'],
-                        optionalFields: ['vehicleYear', 'vehicleMakeCode'],
+                        optionalFields: ['state', 'state2', 'state3', 'state4', 'state5', 'vehicleYear', 'vehicleMakeCode'],
                         keyReference: 'QV',
                         primaryField: 'vehicleIdentificationNumber',
                         notes: 'Stolen Vehicle Query — VIN, NCIC/HCJDC felony and stolen vehicle check'
