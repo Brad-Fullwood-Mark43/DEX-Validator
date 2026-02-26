@@ -111,6 +111,37 @@
 
         .field-hint { font-size: 12px; color: #666; margin-top: 3px; }
 
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            margin-left: 5px;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 320px;
+            background-color: #555;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -160px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
         .field-group-label {
             font-size: 13px;
             font-weight: 600;
@@ -399,7 +430,7 @@
                     </div>
 
                     <div class="form-group" id="plate-form-group">
-                        <label>License Plate Number</label>
+                        <label>License Plate Number<span class="tooltip"><span style="color: #9b59b6; font-size: 16px;">ℹ️</span><span class="tooltiptext">For best results enter License Plate Number, License Plate Type and leave License Registration year set to default current year value. For further clarification see HI HCJDC User Manual.</span></span></label>
                         <input type="text" id="licensePlateNumber" name="licensePlateNumber" maxlength="10" placeholder="ABC123" oninput="onPlateInput(this.value)">
                         <div class="field-hint">License plate number (max 10 chars)</div>
                     </div>
@@ -407,12 +438,81 @@
                     <div id="plate-detail-fields" class="two-col" style="display:none">
                         <div class="form-group">
                             <label>Plate Type Code</label>
-                            <input type="text" name="licensePlateTypeCode" maxlength="2" placeholder="PC">
-                            <div class="field-hint">2-char plate type code</div>
+                            <select name="licensePlateTypeCode">
+                                <option value="">Select Plate Type...</option>
+                                <option value="0B">0B - Omnibus</option>
+                                <option value="0R">0R - Organization</option>
+                                <option value="AM">AM - Ambulance</option>
+                                <option value="AP">AP - Apportioned</option>
+                                <option value="AQ">AQ - Antique</option>
+                                <option value="AR">AR - Amateur/CB Radio Operator</option>
+                                <option value="AT">AT - All-Terrain Vehicle</option>
+                                <option value="BU">BU - Bus</option>
+                                <option value="C0">C0 - Commercial</option>
+                                <option value="CC">CC - Consular Corps</option>
+                                <option value="CI">CI - City-Owned</option>
+                                <option value="CL">CL - Collegiate</option>
+                                <option value="CM">CM - Commemorative</option>
+                                <option value="CN">CN - Conservation</option>
+                                <option value="CU">CU - County-Owned</option>
+                                <option value="DA">DA - Drive-Away</option>
+                                <option value="DB">DB - Dune Buggy</option>
+                                <option value="DD">DD - Dentist</option>
+                                <option value="DL">DL - Dealer</option>
+                                <option value="DP">DP - Diplomatic</option>
+                                <option value="DU">DU - Duplicate/Reissue/Replacement</option>
+                                <option value="DV">DV - Disabled Veteran</option>
+                                <option value="DX">DX - Disabled Person</option>
+                                <option value="EX">EX - Exempt</option>
+                                <option value="FD">FD - Fire Department</option>
+                                <option value="FG">FG - Foreign Government</option>
+                                <option value="FM">FM - Farm Vehicle</option>
+                                <option value="HI">HI - Hearing Impaired</option>
+                                <option value="IP">IP - International Plate</option>
+                                <option value="IT">IT - In-Transit (Temporary)</option>
+                                <option value="JJ">JJ - Judge or Justice</option>
+                                <option value="LE">LE - Legislative (U.S. Congressional)</option>
+                                <option value="LF">LF - Law Enforcement</option>
+                                <option value="LS">LS - Legislative (State)</option>
+                                <option value="MC">MC - Motorcycle</option>
+                                <option value="MD">MD - Motorcycle Dealer</option>
+                                <option value="MF">MF - Manufacturer</option>
+                                <option value="ML">ML - Military Vehicle (Canadian)</option>
+                                <option value="MP">MP - Moped</option>
+                                <option value="MR">MR - Armed Forces Reservist</option>
+                                <option value="MV">MV - Military Vehicle (U.S.)</option>
+                                <option value="MY">MY - Military Aircraft</option>
+                                <option value="NG">NG - National Guard</option>
+                                <option value="NP">NP - Nonpassenger (Civilian Aircraft)</option>
+                                <option value="PC" selected>PC - Passenger Car</option>
+                                <option value="PE">PE - Personalized/Customized</option>
+                                <option value="PF">PF - Professions</option>
+                                <option value="PH">PH - Physician/Doctor</option>
+                                <option value="PP">PP - Passenger (Civilian Aircraft)</option>
+                                <option value="PR">PR - Press</option>
+                                <option value="PS">PS - Professional Sports Team</option>
+                                <option value="PX">PX - Pharmacist</option>
+                                <option value="RE">RE - Reciprocal/Reciprocity</option>
+                                <option value="RV">RV - Rented Vehicle</option>
+                                <option value="SC">SC - Special Purpose Commercial</option>
+                                <option value="SN">SN - Snowmobile</option>
+                                <option value="ST">ST - State-Owned</option>
+                                <option value="SV">SV - School Vehicle</option>
+                                <option value="TK">TK - Truck</option>
+                                <option value="TL">TL - Trailer</option>
+                                <option value="TM">TM - Temporary</option>
+                                <option value="TP">TP - Transporter</option>
+                                <option value="TR">TR - Semitruck Cab</option>
+                                <option value="TX">TX - Taxi/Cab</option>
+                                <option value="US">US - U.S. Government</option>
+                                <option value="VF">VF - Medal of Honor</option>
+                                <option value="ZZ">ZZ - Other (ATV/Snowmobile)</option>
+                            </select>
+                            <div class="field-hint">2-char NCIC plate type code</div>
                         </div>
                         <div class="form-group">
                             <label>Plate Year</label>
-                            <input type="text" name="licensePlateYear" maxlength="4" placeholder="2024">
+                            <input type="text" id="licensePlateYear" name="licensePlateYear" maxlength="4" placeholder="2024"><script>document.getElementById('licensePlateYear').value = new Date().getFullYear();</script>
                             <div class="field-hint">CCYY expiration year</div>
                         </div>
                     </div>
@@ -423,7 +523,7 @@
                     </div>
 
                     <div id="vin-form-group" class="form-group">
-                        <label>VIN</label>
+                        <label>VIN<span class="tooltip"><span style="color: #9b59b6; font-size: 16px;">ℹ️</span><span class="tooltiptext">For best results enter VIN plus Vehicle Make code. For further clarification see HI HCJDC User Manual.</span></span></label>
                         <input type="text" id="vehicleIdentificationNumber" name="vehicleIdentificationNumber" maxlength="20" placeholder="1HGBH41JXMN109186" oninput="onVINInput(this.value)" onblur="handleVINBlur()">
                         <div class="field-hint">Vehicle Identification Number (max 20 chars)</div>
                     </div>
