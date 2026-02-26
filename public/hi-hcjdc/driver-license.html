@@ -186,6 +186,25 @@
         .combo-required { font-size: 13px; margin-top: 4px; }
         .combo-optional { font-size: 12px; color: #666; margin-top: 3px; }
 
+        .field-requirements {
+            background: #fff9e6;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 0;
+            border: 1px solid #ffe082;
+        }
+
+        .field-requirements h3 {
+            font-size: 14px;
+            color: #f57c00;
+            margin-bottom: 10px;
+        }
+
+        .field-requirements ul {
+            margin-left: 20px;
+            font-size: 13px;
+        }
+
         .results-section {
             grid-column: 1 / -1;
             background: white;
@@ -332,29 +351,25 @@
             <!-- Right Column: Valid Combinations -->
             <div class="section">
                 <h2>Valid Field Combinations</h2>
-                <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
-                    HI HCJDC DriverLicenseQuery supports these field combinations. Optional fields shown in [ ].
-                </p>
-                <div class="combinations-list">
-                    <div class="combination-item">
-                        <span class="combination-id">#1</span>
-                        <span class="key-ref">DQ</span>
-                        <div class="combo-required">OperatorLicenseNumber</div>
-                        <div class="combo-optional">Optional: [State] [State2] [State3] [State4] [State5] [ImageIndicator]</div>
-                    </div>
-                    <div class="combination-item">
-                        <span class="combination-id">#2</span>
-                        <span class="key-ref">DQ</span>
-                        <div class="combo-required">Name + BirthDate + SexCode</div>
-                        <div class="combo-optional">Optional: [State] [State2] [State3] [State4] [State5] [ImageIndicator]</div>
-                    </div>
-                    <div class="combination-item">
-                        <span class="combination-id">#3</span>
-                        <span class="key-ref">QW</span>
-                        <div class="combo-required">Name + BirthDate</div>
-                        <div class="combo-optional">Optional: [SexCode]</div>
-                        <div class="combo-optional" style="color: #17a589;">Includes NCIC Wanted Person check</div>
-                    </div>
+                <div class="field-requirements">
+                    <h3>Valid Field Combinations for Driver License Query</h3>
+                    <p style="margin-bottom: 12px; font-size: 13px; color: #555; line-height: 1.6;">
+                        Optional fields shown in [ ].
+                    </p>
+                    <ul style="line-height: 1.8;">
+                        <li style="margin-bottom: 8px;">
+                            <strong>(DQ) OperatorLicenseNumber</strong>
+                            <br><span style="font-size: 12px; color: #666; font-style: italic;">Optional: [State] [State2] [State3] [State4] [State5] [ImageIndicator]</span>
+                        </li>
+                        <li style="margin-bottom: 8px;">
+                            <strong>(DQ) Name + BirthDate + SexCode</strong>
+                            <br><span style="font-size: 12px; color: #666; font-style: italic;">Optional: [State] [State2] [State3] [State4] [State5] [ImageIndicator]</span>
+                        </li>
+                        <li style="margin-bottom: 8px;">
+                            <strong>(QW) Name + BirthDate</strong>
+                            <br><span style="font-size: 12px; color: #666; font-style: italic;">Optional: [SexCode] — Includes NCIC Wanted Person check</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
 
